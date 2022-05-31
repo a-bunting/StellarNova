@@ -20,7 +20,7 @@ export class DashboardComponent implements OnInit {
     this.galaxyContext = this.galaxyCanvas.nativeElement.getContext('2d');
 
     // set up the galaxy
-    this.galaxy = new Galaxy(20, 20, 10, 10000);
+    this.galaxy = new Galaxy(20, 20, 10, 5000);
 
     this.animate();
   }
@@ -38,7 +38,7 @@ export class DashboardComponent implements OnInit {
 
     this.draw();
 
-    requestAnimationFrame(() => { this.animate(); });
+    // requestAnimationFrame(() => { this.animate(); });
   }
 
   mapZoom: number = 1;
@@ -46,7 +46,7 @@ export class DashboardComponent implements OnInit {
 
   zoomOnMap(event: WheelEvent): void {
 
-    this.mapZoom -= (event.deltaY / 5000);
+    this.mapZoom -= (event.deltaY / 1000);
 
     if(this.mapZoom < 1) this.mapZoom = 1;
     if(this.mapZoom > 10) this.mapZoom = 10;
@@ -54,7 +54,8 @@ export class DashboardComponent implements OnInit {
   }
 
   mouseMoveOnMap(event: MouseEvent): void {
-    this.cursorPosition = { x: -(event.offsetX - this.galaxyCanvas.nativeElement.width / 2), y: -(event.offsetY - this.galaxyCanvas.nativeElement.height / 2) };
+    // this.cursorPosition = { x: -(event.offsetX - this.galaxyCanvas.nativeElement.width / 2), y: -(event.offsetY - this.galaxyCanvas.nativeElement.height / 2) };
+    this.cursorPosition = { x: event.offsetX, y: event.offsetY };
   }
 
 }

@@ -1,0 +1,23 @@
+<div class="admin">
+  <div class="flex-direction-row margin-bottom-small">
+    <div class="input__label admin__label">Width</div>
+    <input class="input__text admin__input" [(ngModel)]="width" ngDefaultControl name="width" type="text">
+  </div>
+
+  <div class="flex-direction-row margin-bottom-small">
+    <div class="input__label admin__label">Height</div>
+    <input class="input__text admin__input" [(ngModel)]="height" ngDefaultControl name="height" type="text">
+  </div>
+
+  <div class="flex-direction-row margin-bottom-small">
+    <div class="input__label admin__label">Depth</div>
+    <input class="input__text admin__input" [(ngModel)]="depth" ngDefaultControl name="depth" type="text">
+  </div>
+
+  <div class="flex-direction-row margin-bottom-small">
+    <div class="input__label admin__label">Stars</div>
+    <input class="input__text admin__input" [(ngModel)]="stars" ngDefaultControl name="stars" type="text">
+  </div>
+
+  <button class="input__button" (click)="generateUniverse()">Login (cheat)</button>
+</div>

@@ -2,8 +2,43 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: 'Righteous', cursive;
+}
+
+html {
+  font-size: 62.5%;
+  box-sizing: border-box;
 }
 
 body {
   background-color: black;
 }
+
+.input__button {
+  padding: .5rem 1rem;
+  box-shadow: 0 .3rem .6rem rgba(black, .5);
+  transition: transform .1s;
+  font-size: 1.4rem;
+
+  &:hover { cursor: pointer; transform: translateY(-.2rem); }
+  &:active { transform: translateY(-.1rem); }
+}
+
+.input__text {
+  padding: .5rem 1rem;
+  box-shadow: 0 .3rem .6rem rgba(black, .5);
+  font-size: 1.4rem;
+  letter-spacing: .1rem;
+}
+
+.input__label {
+  font-size: 1.4rem;
+  letter-spacing: .1rem;
+}
+
+.flex-direction-row { display: flex; flex-direction: row; align-items: baseline;}
+.flex-direction-column { display: flex; flex-direction: column; }
+
+.margin-bottom-small { margin-bottom: .5rem; }
+.margin-bottom-medium { margin-bottom: 1rem; }
+.margin-bottom-big { margin-bottom: 1.5rem; }

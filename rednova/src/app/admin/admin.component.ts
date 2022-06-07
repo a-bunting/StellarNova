@@ -28,11 +28,11 @@ export class AdminComponent implements OnInit {
     // do it on the client so they can see what it looks like in advance..
 
     // submit it to the backend to be parsed and added to the db...
-    this.http.post<SolarSystem[]>(`${environment.apiUrl}/admin/generateUniverse`,
+    this.http.post<SolarSystem[]>(`${environment.apiUrl}/administration/generateUniverse`,
       { w: this.width, h: this.height, d: this.depth, s: this.stars })
       .subscribe({
         next: (result: SolarSystem[]) => {
-
+          console.log(result);
         },
         error: (error) => {
           console.log(error);

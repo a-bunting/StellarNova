@@ -1,6 +1,7 @@
 <div class="authenticate">
-  <input type="text">
-  <input type="text">
+  <input type="text" *ngIf="!user">
+  <input type="text" *ngIf="!user">
 
-  <button class="input__button" (click)="login()">Login (cheat)</button>
+  <button class="input__button" (click)="login()" *ngIf="!user">Login (cheat)</button>
+  <button class="input__button" (click)="logout()" *ngIf="user">Logout</button>
 </div>

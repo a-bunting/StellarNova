@@ -1,4 +1,4 @@
-<div class="admin">
+<div class="admin margin-top-medium" *ngIf="user">
   <div class="flex-direction-row margin-bottom-small">
     <div class="input__label admin__label">Width</div>
     <input class="input__text admin__input" [(ngModel)]="width" ngDefaultControl name="width" type="text">
@@ -20,4 +20,13 @@
   </div>
 
   <button class="input__button" (click)="generateUniverse()">Generate Universe</button>
+
+  <div class="hr margin-top-medium margin-bottom-medium"></div>
+
+  <select name="galaxies" id="galaxies" class="margin-bottom-medium">
+    <option value="{{ galaxy.id }}" *ngFor="let galaxy of galaxyList; let i = index"> {{ galaxy.name }}</option>
+  </select>
+
+  <button class="input__button" (click)="deleteUniverse()">Delete Universe</button>
+  <button class="input__button" (click)="showUniverse()">Show Universe</button>
 </div>

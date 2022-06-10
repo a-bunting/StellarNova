@@ -1,8 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { Galaxy } from '../galaxy/galaxy.model';
-import { SolarSystem } from '../galaxy/solarSystem.model';
+import { AuthenticateService, User } from '../services/authenticate.service';
+import { DatabaseResult } from '../services/interfaces';
+
+interface GalaxyList {
+  id: string, name: string, startTime: string;
+}
 
 @Component({
   selector: 'app-admin',
@@ -11,33 +15,69 @@ import { SolarSystem } from '../galaxy/solarSystem.model';
 })
 export class AdminComponent implements OnInit {
 
+  galaxyList: GalaxyList[] = [];
+  user: User;
+
   constructor(
-    private http: HttpClient
-  ) { }
+    private http: HttpClient,
+    private auth: AuthenticateService
+  ) {
+    this.auth.user.subscribe((user: User) => {
+      this.user = user;
+
+      if(this.user) {
+        this.authenticated();
+      } else {
+        this.unauthenticated();
+      }
+    });
+  }
 
   ngOnInit(): void {
   }
 
-  width: number = 30;
-  height: number = 30;
-  depth: number = 10;
-  stars: number = 4000;
+  authenticated(): void {
+    this.getAllGalaxies();
+  }
+
+  unauthenticated(): void {
+    this.galaxyList = [];
+  }
+
+  width: number = 20;
+  height: number = 20;
+  depth: number = 3;
+  stars: number = 50;
 
   generateUniverse(): void {
     // generate a galaxy..
     // do it on the client so they can see what it looks like in advance..
 
     // submit it to the backend to be parsed and added to the db...
-    this.http.post<SolarSystem[]>(`${environment.apiUrl}/administration/generateUniverse`,
+    this.http.post<DatabaseResult>(`${environment.apiUrl}/administration/generateUniverse`,
       { w: this.width, h: this.height, d: this.depth, s: this.stars })
       .subscribe({
-        next: (result: SolarSystem[]) => {
-          console.log(result);
+        next: (result: DatabaseResult) => {
+          this.galaxyList.push({ id: result.data.id, startTime: result.data.startTime, name: result.data.name });
         },
         error: (error) => {
           console.log(error);
         }
       });
+  }
+
+  deleteUniverse(): void {
+
+  }
+
+  showUniverse(): void {
+
+  }
+
+  getAllGalaxies(): void {
+    this.http.get<DatabaseResult>(`${environment.apiUrl}/administration/getGalaxyList`).subscribe((res: DatabaseResult) => {
+      this.galaxyList = res.data;
+    })
   }
 
 }

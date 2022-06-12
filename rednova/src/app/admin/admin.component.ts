@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { environment } from 'src/environments/environment';
+import { Galaxy } from '../galaxy/galaxy.model';
 import { AuthenticateService, User } from '../services/authenticate.service';
 import { DatabaseResult } from '../services/interfaces';
 
@@ -25,6 +26,8 @@ export class AdminComponent implements OnInit {
     this.auth.user.subscribe((user: User) => {
       this.user = user;
 
+      console.log(user);
+
       if(this.user) {
         this.authenticated();
       } else {
@@ -48,6 +51,7 @@ export class AdminComponent implements OnInit {
   height: number = 20;
   depth: number = 3;
   stars: number = 50;
+  galaxyName: string = "";
 
   generateUniverse(): void {
     // generate a galaxy..
@@ -55,7 +59,7 @@ export class AdminComponent implements OnInit {
 
     // submit it to the backend to be parsed and added to the db...
     this.http.post<DatabaseResult>(`${environment.apiUrl}/administration/generateUniverse`,
-      { w: this.width, h: this.height, d: this.depth, s: this.stars })
+      { w: this.width, h: this.height, d: this.depth, s: this.stars, name: this.galaxyName })
       .subscribe({
         next: (result: DatabaseResult) => {
           this.galaxyList.push({ id: result.data.id, startTime: result.data.startTime, name: result.data.name });
@@ -67,7 +71,12 @@ export class AdminComponent implements OnInit {
   }
 
   deleteUniverse(): void {
+    const galaxyId: number = +(document.getElementById('galaxySelected') as HTMLOptionElement).value;
+    console.log(galaxyId);
 
+    this.http.post<DatabaseResult>(`${environment.apiUrl}/administration/deleteGalaxy`, { galaxyId: galaxyId }).subscribe((result: DatabaseResult) => {
+      this.galaxyList = this.galaxyList.filter((galaxy: GalaxyList) => { return +galaxy.id !== galaxyId });
+    })
   }
 
   showUniverse(): void {

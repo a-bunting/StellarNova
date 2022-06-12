@@ -2,6 +2,16 @@
   <input type="text" *ngIf="!user">
   <input type="text" *ngIf="!user">
 
-  <button class="input__button" (click)="login()" *ngIf="!user">Login (cheat)</button>
+  <button class="input__button" (click)="loginAdmin()" *ngIf="!user">Login (Admin)</button>
+  <button class="input__button" (click)="loginRegular()" *ngIf="!user">Login (Regular)</button>
   <button class="input__button" (click)="logout()" *ngIf="user">Logout</button>
+
+  <!-- for testing - delete for production -->
+  <div class="hr margin-top-medium margin-bottom-medium"></div>
+
+  <div class="flex-direction-row">
+    <button class="input__button" (click)="checkAuth()">Check Auth</button>
+    <button class="input__button" (click)="checkAdmin()">Check Admin</button>
+  </div>
+
 </div>

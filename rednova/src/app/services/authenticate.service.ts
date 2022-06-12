@@ -4,9 +4,8 @@ import { BehaviorSubject, Observable, take, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { DatabaseResult } from './interfaces';
 
-
 export interface User {
-  email: string; joined: string; token: string; username: string;
+  email: string; joined: string; token: string; username: string; admin: boolean;
 }
 
 @Injectable({
@@ -42,9 +41,6 @@ export class AuthenticateService {
 
     if(user) {
       this.http.get<DatabaseResult>(`${environment.apiUrl}/user/checkAuth`).subscribe((result: DatabaseResult) => {
-
-        console.log(result);
-
         if(!result.error) {
           this.user.next(user);
         } else {
@@ -52,6 +48,25 @@ export class AuthenticateService {
         }
       })
     }
+  }
+
+  /**
+   * Async check of whether the user is still authenticated.
+   */
+  checkAuth(): void {
+    this.http.get<DatabaseResult>(`${environment.apiUrl}/user/checkAuth`).subscribe((result: DatabaseResult) => {
+      // remain logged in if the user is stil authenticated...
+      if(result.data.authenticated) this.loggedIn = true;
+    })
+  }
+
+  /**
+   * Checks for the users admin status and updates the main behaviour object asynchronously
+   */
+  checkAdmin(): void {
+    this.http.get<DatabaseResult>(`${environment.apiUrl}/user/checkAdmin`).subscribe((result: DatabaseResult) => {
+      this.user.next({...this.user.value, admin: result.data.admin});
+    })
   }
 
   handleAuth(userInfo: User): void {

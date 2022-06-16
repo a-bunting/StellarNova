@@ -26,8 +26,6 @@ export class AdminComponent implements OnInit {
     this.auth.user.subscribe((user: User) => {
       this.user = user;
 
-      console.log(user);
-
       if(this.user) {
         this.authenticated();
       } else {
@@ -55,8 +53,6 @@ export class AdminComponent implements OnInit {
 
   generateUniverse(): void {
     // generate a galaxy..
-    // do it on the client so they can see what it looks like in advance..
-
     // submit it to the backend to be parsed and added to the db...
     this.http.post<DatabaseResult>(`${environment.apiUrl}/administration/generateUniverse`,
       { w: this.width, h: this.height, d: this.depth, s: this.stars, name: this.galaxyName })

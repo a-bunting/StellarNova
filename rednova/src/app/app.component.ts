@@ -10,13 +10,6 @@ import { GameService } from './services/game.service';
 export class AppComponent {
 
   title = 'rednova';
-  user: User;
 
-  constructor(
-    private auth: AuthenticateService,
-    private game: GameService
-  ) {
-    this.auth.user.subscribe((user: User) => { this.user = user; })
-    this.auth.checkLoggedInStatus();
-  }
+  constructor() {}
 }

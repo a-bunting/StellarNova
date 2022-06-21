@@ -1,0 +1,25 @@
+.galaxy-list {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  height: auto;
+
+  padding: 1rem 1rem;
+
+  border-radius: 1rem 2rem;
+
+  background-color: white;
+
+  &__galaxy {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+
+    padding: .5rem 1rem;
+
+    &--name {
+      flex-basis: 5rem;
+    }
+  }
+}

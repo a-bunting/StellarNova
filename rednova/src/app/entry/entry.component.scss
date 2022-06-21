@@ -1,0 +1,14 @@
+.panels {
+  display: flex;
+  justify-content: space-between;
+
+  padding: 1rem;
+}
+
+.left-panel {
+ z-index: 10;
+}
+
+.right-panel {
+ z-index: 10;
+}

@@ -1,0 +1,10 @@
+<div class="galaxy-list">
+  <div class="galaxy-list__galaxy" *ngFor="let galaxy of galaxyList">
+    <div class="galaxy-list__galaxy-name">{{ galaxy.name }}</div>
+    <div class="galaxy-list__galaxy-start">{{ galaxy.startTime }}</div>
+    <div class="galaxy-list__galaxy-button">
+      <button class="input__button galaxy-list__galaxy-button--join" *ngIf="!galaxy.member" (click)="joinGalaxy(galaxy.id)">Join Galaxy</button>
+      <button class="input__button galaxy-list__galaxy-button--join" *ngIf="galaxy.member" (click)="playGalaxy(galaxy.id)">Play Galaxy</button>
+    </div>
+  </div>
+</div>

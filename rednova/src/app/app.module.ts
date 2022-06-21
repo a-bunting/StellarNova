@@ -9,13 +9,19 @@ import { AuthenticateComponent } from './components/authenticate/authenticate.co
 import { AdminComponent } from './admin/admin.component';
 import { FormsModule } from '@angular/forms';
 import { TokenInterceptor } from './interceptors/token';
+import { GameComponent } from './game/game.component';
+import { EntryComponent } from './entry/entry.component';
+import { GalaxyListComponent } from './entry/galaxy-list/galaxy-list.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DashboardComponent,
     AuthenticateComponent,
-    AdminComponent
+    AdminComponent,
+    GameComponent,
+    EntryComponent,
+    GalaxyListComponent
   ],
   imports: [
     BrowserModule,

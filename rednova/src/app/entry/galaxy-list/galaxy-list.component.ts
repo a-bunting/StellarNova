@@ -30,8 +30,8 @@ export class GalaxyListComponent implements OnInit {
     loadGalaxies(): void {
       this.http.get<DatabaseResult>(`${environment.apiUrl}/galaxy/getPlayableGalaxyList`).subscribe((data: DatabaseResult) => {
         if(!data.error) {
-          console.log(data);
           this.galaxyList = data.data.galaxyList;
+          console.log(this.galaxyList);
         } else {
           console.log(`Error retriving galaxy list: ${data.message}`);
         }

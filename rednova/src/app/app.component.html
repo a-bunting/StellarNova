@@ -1,1 +1,10 @@
 <router-outlet></router-outlet>
+
+<div class="routes">
+  <a *ngFor="let route of routes" routerLink="{{ route.path }}">
+    Link to {{ route.path ? route.path : 'start' }}
+    <div class="route-children" *ngIf="route.children">
+      <a *ngFor="let child of route.children" routerLink="{{route.path}}/{{ child.path }}">{{ child.path }}</a>
+    </div>
+  </a>
+</div>

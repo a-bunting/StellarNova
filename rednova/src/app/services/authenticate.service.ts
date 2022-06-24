@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, take, tap } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, take, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { DatabaseResult } from './interfaces';
 
@@ -19,7 +19,7 @@ export class AuthenticateService {
 
   constructor(
     private http: HttpClient
-  ) { }
+  ) {}
 
   login(email: string, password: string): Observable<any> {
     return this.http.get<DatabaseResult>(`${environment.apiUrl}/user/login?email=${email}&password=${password}`).pipe(take(1), tap((res: DatabaseResult) => {
@@ -40,7 +40,9 @@ export class AuthenticateService {
     const user: User = JSON.parse(localStorage.getItem('rednovaUserAuth'));
 
     if(user) {
-      this.http.get<DatabaseResult>(`${environment.apiUrl}/user/checkAuth`).subscribe((result: DatabaseResult) => {
+      const sub: Subscription = this.http.get<DatabaseResult>(`${environment.apiUrl}/user/checkAuth`).subscribe((result: DatabaseResult) => {
+        // unsubscribe...
+        sub.unsubscribe();
         if(!result.error) {
           this.user.next(user);
         } else {

@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { AuthenticateService, User } from './services/authenticate.service';
-import { GameService } from './services/game.service';
+import { Route, Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -9,7 +8,13 @@ import { GameService } from './services/game.service';
 })
 export class AppComponent {
 
-  title = 'rednova';
+  title = 'RedNova';
+  routes: Route[];
 
-  constructor() {}
+  constructor(
+    private router: Router
+  ) {
+    this.routes = router.config;
+    console.log(this.routes);
+  }
 }

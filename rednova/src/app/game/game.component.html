@@ -1,1 +1,18 @@
-<p>game works!</p>
+<div class="game">
+  Turns - {{ sectorData?.user.turns }}<br>
+  Sector - {{ sectorData?.system.sectorId }}
+<br>
+<br>
+
+<div class="game__warp-routes">
+  <a (click)="warpTo(warp.destination)" *ngFor="let warp of sectorData?.system.warp">Warp to {{ warp.destination }}</a>
+</div>
+
+<br>
+<br>
+<input type="text" name="moveto" id="moveto" [(ngModel)]="subLightInput" (keyup)="calculateSublightTurnCost()">Move to sector with sublight engines... (cost {{ calculatingNewCost ? 'calculating...' : !subLightCost ? 'Invalid Sector' : subLightCost }})
+<button *ngIf="subLightCost" (click)="moveTo()">Go</button>
+<br>
+<br>
+  <button (click)="sendTestMessage()">Send Test Message</button>
+</div>

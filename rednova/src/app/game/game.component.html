@@ -1,6 +1,8 @@
 <div class="game">
   Turns - {{ sectorData?.user.turns }}<br>
-  Sector - {{ sectorData?.system.sectorId }}
+  Sector - {{ sectorData?.system.sectorId }}<br>
+  Next turn - {{ gameService.timeUntilNextTick }}s<br>
+  Tick every {{ sectorData?.server.tickDuration }}
 <br>
 <br>
 
@@ -12,6 +14,11 @@
 <br>
 <input type="text" name="moveto" id="moveto" [(ngModel)]="subLightInput" (keyup)="calculateSublightTurnCost()">Move to sector with sublight engines... (cost {{ calculatingNewCost ? 'calculating...' : !subLightCost ? 'Invalid Sector' : subLightCost }})
 <button *ngIf="subLightCost" (click)="moveTo()">Go</button>
+<br>
+Move at sublight to -
+<a (click)="moveTo(sectorData?.system.sectorId - 1)">{{ sectorData?.system.sectorId - 1 }}</a>
+ -
+<a (click)="moveTo(sectorData?.system.sectorId + 1)">{{ sectorData?.system.sectorId + 1 }}</a>
 <br>
 <br>
   <button (click)="sendTestMessage()">Send Test Message</button>

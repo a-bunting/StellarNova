@@ -7,7 +7,7 @@ import { AuthenticateService, User } from './authenticate.service';
 import { DatabaseResult } from './interfaces';
 
 export interface ServerMessage {
-  type: string; message: string; data: { quantity?: number }
+  type: string; message: string; data: any;
 }
 
 @Injectable({
@@ -18,6 +18,8 @@ export class GameService {
   serverMessage: BehaviorSubject<ServerMessage> = new BehaviorSubject<ServerMessage>(null);
   // user object
   user: User;
+  // first load
+  firstLoad: boolean = true;
 
   constructor(
     private http: HttpClient,
@@ -26,7 +28,11 @@ export class GameService {
     // get the user and once user data is found subscribe tot he websockets...
     this.authService.user.subscribe((user: User) => {
       this.user = user;
-      this.webSockets();
+
+      if(this.firstLoad && user !== null) {
+        this.firstLoad = false;
+        this.webSockets();
+      }
     });
   }
 
@@ -53,13 +59,19 @@ export class GameService {
       {
         next: (data: ServerMessage) => {
           switch(data.type) {
+            case "tick": this.timeUntilNextTick = data.data.timeUntilNextTick; break;
           }
           // and send the data to any other interested parties!
           this.serverMessage.next(data);
       },
-        error: (error) => { console.log(`Error in socket: ${error}`); this.reconnectToWebsockets(); },
-        complete: () => { this.reconnectToWebsockets(); }
+        error: (error) => { console.log(`Error in socket: ${error}`); this.reconnectToWebsockets(); }
     });
+  }
+
+  endWebsockets(): void {
+    console.log(`closing connection...`);
+    this.ws.unsubscribe();
+    this.ws.complete();
   }
 
   /**
@@ -74,6 +86,18 @@ export class GameService {
   // delete when satisfied websockets work well...
   sendTestMessage(): void {
     this.ws.next({ msg: 'hello' });
+  }
+
+  timeUntilNextTick: number = -1;
+  nextTick: number;
+
+  setTickTimer(duration: number): void {
+    this.timeUntilNextTick = duration;
+    clearInterval(this.nextTick);
+    // set the interval for the next tick countdown...
+    this.nextTick = window.setInterval(() => {
+      (this.timeUntilNextTick - 1) < 0 ? clearInterval(this.nextTick) : this.timeUntilNextTick--;
+    }, 1000);
   }
 
   /**

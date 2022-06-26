@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthenticateService, User } from '../services/authenticate.service';
@@ -6,6 +6,7 @@ import { GameService, ServerMessage } from '../services/game.service';
 import { DatabaseResult } from '../services/interfaces';
 
 interface SectorData {
+  server: { nextTurn: number; tickDuration: number },
   ship: { armor: number; beams: number; cloak: number; computer: number; engines: number; hull: number; money: number; power: number; sector: number; sensors: number; shields: number; torpedos: number; storage: {}};
   user: { turns: number };
   system: {
@@ -25,7 +26,7 @@ interface SectorData {
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss']
 })
-export class GameComponent implements OnInit {
+export class GameComponent implements OnInit, OnDestroy {
 
   // observer data
   user: User;
@@ -34,17 +35,17 @@ export class GameComponent implements OnInit {
   // sector data
   sectorData: SectorData;
 
-  // tick counter
-  turns: number = 0;
-
   // booleans for when waiting for things...
   userDataLoading: boolean = false;
   galaxyDataLoading: boolean = false;
   warpToSectorLoading: boolean = false;
 
+  // subscriptions to cancel on destroy...
+  subscriptions: Subscription[] = [];
+
   constructor(
     private authService: AuthenticateService,
-    private gameService: GameService,
+    public  gameService: GameService,
     private activatedRoute: ActivatedRoute,
     private router: Router
     )
@@ -63,7 +64,7 @@ export class GameComponent implements OnInit {
       this.loadGalaxyData(galaxyId);
 
       // update user data
-      this.authService.user.subscribe({
+      const userSub: Subscription = this.authService.user.subscribe({
         next: (user: User) => {
           this.userDataLoading = false;
           this.user = user;
@@ -77,12 +78,13 @@ export class GameComponent implements OnInit {
       this.authService.checkLoggedInStatus();
 
       // deal with messages from the server that relate to the current gameplay.
-      this.gameService.serverMessage.subscribe({
+      const gameSub: Subscription = this.gameService.serverMessage.subscribe({
         next: (message: ServerMessage) => {
           if(message) {
+            console.log(message);
             // do something when a message from the server is recieved of a particular type...
             switch(message.type) {
-              case "tick": this.turns += message.data.quantity ?? 0; break;
+              case "tick": this.sectorData.user.turns += message.data.quantity ?? 0; break;
               default: break;
             }
           }
@@ -90,14 +92,26 @@ export class GameComponent implements OnInit {
           console.log(`Server Message Error: ${error}`);
         }
       })
+
+      // push these to the subscription so they can be unsubscribed to later...
+      this.subscriptions.push(...[userSub, gameSub]);
   }
 
   galaxyId: number;
 
   ngOnInit(): void {
     this.galaxyId = this.activatedRoute.snapshot.queryParams['galaxyId'];
+    this.gameService.webSockets();
   }
 
+  ngOnDestroy(): void {
+    // close all active subscriptions
+    for(let i = 0 ; i < this.subscriptions.length ; i++) {
+      this.subscriptions[i].unsubscribe()
+    }
+    // close the websockets...
+    this.gameService.endWebsockets();
+  }
 
   sendTestMessage(): void {
     this.gameService.sendTestMessage();
@@ -111,20 +125,23 @@ export class GameComponent implements OnInit {
     })
   }
 
-  moveTo(): void {
+  moveTo(destination?: number): void {
     // call the move to sector...
-    const sub: Subscription = this.gameService.moveToSector(this.galaxyId, this.subLightInput ?? -1, this.sectorData.ship.engines).subscribe({
+    const sub: Subscription = this.gameService.moveToSector(this.galaxyId, destination ? destination : this.subLightInput ?? -1, this.sectorData.ship.engines).subscribe({
       next: (result: DatabaseResult) => { this.loadGalaxyData(this.galaxyId); sub.unsubscribe(); },
       error: (error) => { sub.unsubscribe(); },
       complete: () => { sub.unsubscribe(); }
     })
   }
 
+  nextTick: number;
+
   loadGalaxyData(galaxyId: number, callback?: Function): void {
     const sub: Subscription = this.gameService.loadGalaxyData(galaxyId ?? this.galaxyId).subscribe({
       next: ((result: DatabaseResult) => {
         this.galaxyDataLoading = false;
         this.sectorData = result.data;
+        this.gameService.setTickTimer(this.sectorData.server.nextTurn);
         if(callback) callback();
         sub.unsubscribe();
       }),

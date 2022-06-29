@@ -1,0 +1,23 @@
+<div class="planet">
+  {{ planetData?.name }}
+  <hr>
+  Population: {{ getPopulation() }}
+  <br>
+  Distance from sun: {{ planetData?.distance }}
+  <br>
+  Incident radiation: {{ planetData?.solarRadiation }}
+  <hr>
+
+  <div class="good" *ngFor="let good of planetData?.data">
+    <div>{{ good.name }}</div>
+    <div class="good__quantity">{{ good.current | number }}</div>
+    <div *ngIf="good.type === 'building'">
+      Build
+      <button (click)="build(good.id, 1)">1</button>
+      <button (click)="build(good.id, 10)">10</button>
+      <button (click)="build(good.id, 100)">100</button>
+      <button (click)="build(good.id, -1)">Max</button>
+    </div>
+  </div>
+</div>
+

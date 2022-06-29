@@ -1,0 +1,16 @@
+.planet {
+  color: white;
+}
+
+.good {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  width: 50rem;
+
+  padding: .5rem 1rem;
+
+  button { width: 4rem; cursor: pointer; }
+
+  &__quantity { flex-basis: 10rem; text-align: center;}
+}

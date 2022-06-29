@@ -121,4 +121,8 @@ export class GameService {
   getDistanceCalculation(galaxyId: number, from: number, to: number, engine: number = 1): Observable<DatabaseResult> {
     return this.http.get<DatabaseResult>(`${environment.apiUrl}/galaxy/distanceToSector?galaxyId=${galaxyId}&from=${from}&to=${to}&engine=${engine}`).pipe(take(1));
   }
+
+  getPlanetData(galaxyId: number, planetId: number): Observable<DatabaseResult> {
+    return this.http.get<DatabaseResult>(`${environment.apiUrl}/planet/getPlanetData?galaxyId=${galaxyId}&planetId=${planetId}`).pipe(take(1));
+  }
 }

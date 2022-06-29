@@ -1,0 +1,23 @@
+Back in the early naughties I was a big player of text based strategy games. My interest ebbs and flows with the difficulty of the game but essentially throughout the last few decades three of these games in particular have been my focus: Ogame, Redlite Distrikt and Rednova. All of these are still going to some extent, but it is the Rednova game which this blog relates to. A space trading game, you fly around in your space ship trading between planets and amassing wealth, which you then essentially horde on well defended planets.
+
+The game rednova was an addon to another space trading game, blacknova.
+
+This project is an attempt to revitalise this game, putting a shiney new face on what is a simple but cool game idea. Blacknova has suffered setbacks in recent years, with its developer having greater (and more important) priorities, and a server fire taking out much of the original code. And so I want to put a fresh face on it, using a single page approach with Angular, a Node backend (replacing the PHP backend on the Blacknova game) and continuing to use a MySQL Database to manage the data. The goal of this project is to create a modern version of the game.
+
+The project will be a long one and so I have broken it down into phases:
+
+- Phase 1 is being able to log in, list and create galaxies, view your own game and move between sectors.
+- Phase 2 will be to see and interact with planets, as well as grow wealth on the planets and store your own currency.
+- Phase 3 will implement trading into the game.
+- Phase 4 will make it look good, with Three.JS being used to implement 3D models and SCSS being used to code the rest of the look and feel.
+
+After these phases are complete I will look at some of the more thoughtful elements of the game, such as:
+
+- Attacking (ensuring a fair algorithm, who and what can be attacked, etc)
+- Conquering (stealing planets)
+- Defences (planetary defences and how these work in this iteration)
+- Planet Creation (how creation of new planets will work, and the limitations of this).
+
+The original version of the game was basic in terms of how its economy worked, and I am hoping in this version to rememedy at least some of these balance issues. It was difficult in Blacknova for example to surpass the top players as all planets shared their ship strength, and interest on planetary currency meant that a whole load of well defended planets was all your needed to protect your position.
+
+If these were easy fixes then they would have been in the first version, but I am excited to embark upon this project which I have wanted to do for a decade and see where it takes me in terms of creating a brand new version of this epic game.

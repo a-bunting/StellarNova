@@ -1,25 +1,47 @@
-<div class="game">
-  Turns - {{ sectorData?.user.turns }}<br>
-  Sector - {{ sectorData?.system.sectorId }}<br>
-  Next turn - {{ gameService.timeUntilNextTick }}s<br>
-  Tick every {{ sectorData?.server.tickDuration }}
-<br>
-<br>
+<div class="sector">
 
-<div class="game__warp-routes">
-  <a (click)="warpTo(warp.destination)" *ngFor="let warp of sectorData?.system.warp">Warp to {{ warp.destination }}</a>
-</div>
+    <div class="game">
+      <div class="game__title">
+        <h1>{{ sectorData?.system.givenname }}</h1>
+        <h1>{{ sectorData?.ship.money | number }} credits</h1>
+      </div>
+    <hr>
+    Turns - {{ sectorData?.user.turns }}<br>
+    Sector - {{ sectorData?.system.sectorid }}<br>
+    Next turn - {{ gameService.timeUntilNextTick }}s<br>
+    Tick every {{ sectorData?.server.tickDuration }}
+    <br>
+    <br>
+    <hr>
+    <div class="sector__planets">
+      <div class="sector__planet" *ngFor="let planet of sectorData?.system.planets" (click)="displayPlanet(planet.id)">
+        {{ planet.name }}
+      </div>
+    </div>
 
-<br>
-<br>
-<input type="text" name="moveto" id="moveto" [(ngModel)]="subLightInput" (keyup)="calculateSublightTurnCost()">Move to sector with sublight engines... (cost {{ calculatingNewCost ? 'calculating...' : !subLightCost ? 'Invalid Sector' : subLightCost }})
-<button *ngIf="subLightCost" (click)="moveTo()">Go</button>
-<br>
-Move at sublight to -
-<a (click)="moveTo(sectorData?.system.sectorId - 1)">{{ sectorData?.system.sectorId - 1 }}</a>
- -
-<a (click)="moveTo(sectorData?.system.sectorId + 1)">{{ sectorData?.system.sectorId + 1 }}</a>
-<br>
-<br>
-  <button (click)="sendTestMessage()">Send Test Message</button>
+    <hr>
+
+    <div class="game__warp-routes">
+      <a (click)="warpTo(warp.destination)" *ngFor="let warp of sectorData?.system.warp">Warp to {{ warp.destination }}</a>
+    </div>
+
+    <br>
+    <br>
+    <input type="text" name="moveto" id="moveto" [(ngModel)]="subLightInput" (keyup)="calculateSublightTurnCost()">Move to sector with sublight engines... (cost {{ calculatingNewCost ? 'calculating...' : !subLightCost ? 'Invalid Sector' : subLightCost }})
+    <button *ngIf="subLightCost" (click)="moveTo()">Go</button>
+    <br>
+    Move at sublight to -
+    <a (click)="moveTo(sectorData?.system.sectorid - 1)" *ngIf="sectorData?.system.sectorid - 1 > 0">{{ sectorData?.system.sectorid - 1 }}</a>
+    -
+    <a (click)="moveTo(sectorData?.system.sectorid + 1)" *ngIf="sectorData?.system.sectorid + 1 <= sectorData?.server.sectors">{{ sectorData?.system.sectorid + 1 }}</a>
+    <br>
+    <div *ngIf="moveError">{{ moveError.message }} (Required Turns: {{ moveError.turnsRequired }}, available turns: {{ moveError.turnsAvailable }})</div>
+    <br>
+    <button (click)="sendTestMessage()">Send Test Message</button>
+  </div>
+
+  <div class="planet" *ngIf="planetDisplayId">
+    <app-planet [planetId]="planetDisplayId"></app-planet>
+  </div>
+
 </div>

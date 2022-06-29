@@ -12,6 +12,7 @@ import { TokenInterceptor } from './interceptors/token';
 import { GameComponent } from './game/game.component';
 import { EntryComponent } from './entry/entry.component';
 import { GalaxyListComponent } from './entry/galaxy-list/galaxy-list.component';
+import { PlanetComponent } from './planet/planet.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { GalaxyListComponent } from './entry/galaxy-list/galaxy-list.component';
     AdminComponent,
     GameComponent,
     EntryComponent,
-    GalaxyListComponent
+    GalaxyListComponent,
+    PlanetComponent
   ],
   imports: [
     BrowserModule,

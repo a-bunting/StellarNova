@@ -6,16 +6,17 @@ import { GameService, ServerMessage } from '../services/game.service';
 import { DatabaseResult } from '../services/interfaces';
 
 interface SectorData {
-  server: { nextTurn: number; tickDuration: number },
+  server: { nextTurn: number; tickDuration: number; sectors: number; startSector: number },
   ship: { armor: number; beams: number; cloak: number; computer: number; engines: number; hull: number; money: number; power: number; sector: number; sensors: number; shields: number; torpedos: number; storage: {}};
   user: { turns: number };
   system: {
-    sectorId: number;
+    id: number;
+    sectorid: number;
     givenname: string;
     size: number;
     starPower: number;
     x: number; y: number; z: number;
-    planets: { distance: number; name: string; onPlanet: {}; solarRadiation: number }[],
+    planets: { id: number; distance: number; name: string; onPlanet: {}; solarRadiation: number }[],
     ships: { userid: number; username: string }[],
     warp: { destination: number; oneway: number; }[]
   }
@@ -51,17 +52,17 @@ export class GameComponent implements OnInit, OnDestroy {
     )
   {
       // get the galaxy id, and if it doesnt exist navigate back
-      const galaxyId: number = activatedRoute.snapshot.queryParams['galaxyId'];
-      if(!galaxyId)  this.router.navigate(['/']);
+      this.galaxyId = this.activatedRoute.snapshot.params['galaxyId'];
+      if(!this.galaxyId) this.router.navigate(['/']);
 
-      this.gameService.setGalaxyId(galaxyId);
+      this.gameService.setGalaxyId(this.galaxyId);
 
       // continue loading if we havent been navigated away from this page.
       this.userDataLoading = true;
       this.galaxyDataLoading = true;
 
       // get the galaxy data
-      this.loadGalaxyData(galaxyId);
+      this.loadGalaxyData(this.galaxyId);
 
       // update user data
       const userSub: Subscription = this.authService.user.subscribe({
@@ -100,7 +101,6 @@ export class GameComponent implements OnInit, OnDestroy {
   galaxyId: number;
 
   ngOnInit(): void {
-    this.galaxyId = this.activatedRoute.snapshot.queryParams['galaxyId'];
     this.gameService.webSockets();
   }
 
@@ -117,10 +117,12 @@ export class GameComponent implements OnInit, OnDestroy {
     this.gameService.sendTestMessage();
   }
 
+  moveError: { message: string, turnsRequired: number, turnsAvailable: number };
+
   warpTo(destination: number): void {
     const warpSub: Subscription = this.gameService.warpToSector(this.galaxyId, destination).subscribe({
       next: (result: DatabaseResult) => { this.loadGalaxyData(this.galaxyId); warpSub.unsubscribe(); },
-      error: (error) => { warpSub.unsubscribe(); },
+      error: (error) => { this.moveError = { message: error.error.message, turnsRequired: error.error.data.required, turnsAvailable: error.error.data.current }; warpSub.unsubscribe(); },
       complete: () => { warpSub.unsubscribe(); }
     })
   }
@@ -129,7 +131,7 @@ export class GameComponent implements OnInit, OnDestroy {
     // call the move to sector...
     const sub: Subscription = this.gameService.moveToSector(this.galaxyId, destination ? destination : this.subLightInput ?? -1, this.sectorData.ship.engines).subscribe({
       next: (result: DatabaseResult) => { this.loadGalaxyData(this.galaxyId); sub.unsubscribe(); },
-      error: (error) => { sub.unsubscribe(); },
+      error: (error) => { this.moveError = { message: error.error.message, turnsRequired: error.error.data.required, turnsAvailable: error.error.data.current }; sub.unsubscribe(); },
       complete: () => { sub.unsubscribe(); }
     })
   }
@@ -141,6 +143,7 @@ export class GameComponent implements OnInit, OnDestroy {
       next: ((result: DatabaseResult) => {
         this.galaxyDataLoading = false;
         this.sectorData = result.data;
+        console.log(result);
         this.gameService.setTickTimer(this.sectorData.server.nextTurn);
         if(callback) callback();
         sub.unsubscribe();
@@ -158,13 +161,18 @@ export class GameComponent implements OnInit, OnDestroy {
   calculatingNewCost: boolean = false;
 
   calculateSublightTurnCost(): void {
+    // if the number is outside the range, make it the min or max...
+    if(this.subLightInput > this.sectorData.server.sectors) this.subLightInput = this.sectorData.server.sectors;
+    if(this.subLightInput < 1) this.subLightInput = 1;
+
+    // now see if its a changed number...
     if(this.subLightInput !== this.subLightChecked) {
       clearTimeout(this.timerToCheckCost);
       this.calculatingNewCost = true;
       // value has been changed, wait 1 second then calculate a new cost
       this.timerToCheckCost = window.setTimeout(() => {
         // get the distance calculation...
-        this.gameService.getDistanceCalculation(this.galaxyId, this.sectorData.system.sectorId, this.subLightInput, this.sectorData.ship.engines).subscribe({
+        this.gameService.getDistanceCalculation(this.galaxyId, this.sectorData.system.sectorid, this.subLightInput, this.sectorData.ship.engines).subscribe({
           next: (res: DatabaseResult) => { this.subLightCost = res.data.distance; },
           error: (error) => { this.calculatingNewCost = false; this.subLightCost = NaN; },
           complete: () => { this.calculatingNewCost = false; }
@@ -173,6 +181,10 @@ export class GameComponent implements OnInit, OnDestroy {
     }
   }
 
+  planetDisplayId: number;
 
+  displayPlanet(planetId: number): void {
+    this.planetDisplayId = planetId;
+  }
 
 }

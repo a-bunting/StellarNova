@@ -45,10 +45,10 @@ export class AdminComponent implements OnInit {
     this.galaxyList = [];
   }
 
-  width: number = 20;
-  height: number = 20;
+  width: number = 10;
+  height: number = 10;
   depth: number = 3;
-  stars: number = 50;
+  stars: number = 100;
   galaxyName: string = "";
 
   generateUniverse(): void {

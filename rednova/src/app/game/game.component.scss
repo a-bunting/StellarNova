@@ -1,3 +1,32 @@
 .game {
   color: white;
+  flex: 1;
+
+  &__title  {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.sector {
+
+  display: flex;
+
+  &__planets {
+    display: flex;
+  }
+
+  &__planet {
+    flex: 1;
+    padding: 4rem;
+    margin: 1rem 2rem;
+    border-radius: 1rem;
+    background-color: green;
+    transition: all .2s;
+
+    &:hover {
+      cursor: pointer;
+      background-color: red;
+    }
+  }
 }

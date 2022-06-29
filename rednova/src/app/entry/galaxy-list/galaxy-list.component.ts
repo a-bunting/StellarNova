@@ -60,7 +60,7 @@ export class GalaxyListComponent implements OnInit {
      * @param galaxyId
      */
     playGalaxy(galaxyId: number): void {
-      this.router.navigate(['/game'], { queryParams: { galaxyId: galaxyId }});
+      this.router.navigate(['/game', galaxyId]);
     }
 
 }

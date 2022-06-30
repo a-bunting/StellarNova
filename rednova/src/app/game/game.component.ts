@@ -143,6 +143,7 @@ export class GameComponent implements OnInit, OnDestroy {
       next: ((result: DatabaseResult) => {
         this.galaxyDataLoading = false;
         this.sectorData = result.data;
+        this.planetDisplayId = null;
         console.log(result);
         this.gameService.setTickTimer(this.sectorData.server.nextTurn);
         if(callback) callback();

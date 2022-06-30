@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Data } from '@angular/router';
 import { BehaviorSubject, Observable, Subscription, take, tap } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from 'src/environments/environment';
@@ -124,5 +125,9 @@ export class GameService {
 
   getPlanetData(galaxyId: number, planetId: number): Observable<DatabaseResult> {
     return this.http.get<DatabaseResult>(`${environment.apiUrl}/planet/getPlanetData?galaxyId=${galaxyId}&planetId=${planetId}`).pipe(take(1));
+  }
+
+  buyResources(galaxyId: number, planetId: number, goods: { id: string, quantity: number }): Observable<DatabaseResult> {
+    return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/buyResources`, { galaxyId: galaxyId, planetId: planetId, goods: goods }).pipe(take(1));
   }
 }

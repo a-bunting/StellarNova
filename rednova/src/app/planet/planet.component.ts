@@ -4,7 +4,7 @@ import { GameService } from '../services/game.service';
 import { DatabaseResult } from '../services/interfaces';
 
 export interface PlanetData {
-   name: string; distance: number; solarRadiation: number;
+   name: string; distance: number; solarRadiation: number; population: number; fields: number;
    data: PlanetResource[];
 }
 
@@ -69,17 +69,21 @@ export class PlanetComponent implements OnInit, OnDestroy, OnChanges {
     })
   }
 
-  getPopulation(): number {
-    try {
-      let population: PlanetResource = this.planetData.data.find((a: PlanetResource) => a.type === 'population');
-      return population.current;
-    } catch (e) {
-      return 1;
-    }
-  }
-
   build(goodId: string, quantity: number): void {
 
   }
 
+  getGoodsList(): PlanetResource[] { return this.planetData ? this.planetData.data.filter((a: PlanetResource) => a.type === 'good') : []; }
+  getBuildingList(): PlanetResource[] { return this.planetData ? this.planetData.data.filter((a: PlanetResource) => a.type === 'building') : []; }
+
+
+  buyGoods(id: string, value: number): void {
+    this.gameService.buyResources(this.gameService.galaxyId, this.planetId, { id, quantity: value }).subscribe({
+      next: (data) => {
+        console.log(data);
+      },
+      error: (error) => { console.log(error); },
+      complete: () => {}
+    })
+  }
 }

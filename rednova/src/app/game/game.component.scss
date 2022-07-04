@@ -8,6 +8,23 @@
   }
 }
 
+.ship {
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  background-color: lightblue;
+  border-radius: 1rem;
+}
+
+.console {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translate(-50%, 0);
+  padding: 1rem;
+  border-radius: 1rem;
+}
+
 .sector {
 
   display: flex;

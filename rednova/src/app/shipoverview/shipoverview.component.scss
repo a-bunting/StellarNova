@@ -1,0 +1,32 @@
+.resource {
+  padding: .5rem 1rem;
+}
+
+.ship-detail {
+  display: flex;
+  flex-direction: row;
+  padding: .5rem 1rem;
+}
+
+.resources {
+  margin-right: 1rem;
+  border-right: .2rem solid red;
+}
+
+.tech {
+  display: flex;
+}
+
+.tech-list {
+  display: flex;
+  flex-direction: column;
+
+  &__item {
+    display: flex;
+    justify-content: space-between;
+    padding: .5rem 1rem;
+
+    &--name { font-weight: bold; margin-right: 2rem; }
+    &--level { text-align: right; }
+  }
+}

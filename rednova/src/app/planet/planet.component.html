@@ -14,20 +14,23 @@
     <div>{{ building.name }}</div>
     <div class="good__quantity">{{ building.current | number }}</div>
     <div class="good__cost">{{ building.price }} each</div>
-    Build
-    <button (click)="build(building.id, 1)">1</button>
-    <button (click)="build(building.id, 10)">10</button>
-    <button (click)="build(building.id, 100)">100</button>
-    <button (click)="build(building.id, -1)">Max</button>
+    <div>
+      Build
+      <button (click)="build(building.id, 1)">1</button>
+      <button (click)="build(building.id, 10)">10</button>
+      <button (click)="build(building.id, 100)">100</button>
+      <button (click)="build(building.id, -1)">Max</button>
+    </div>
   </div>
 
   <div class="good" *ngFor="let good of getGoodsList()">
     <div>{{ good.name }}</div>
     <div class="good__quantity">{{ good.current | number }}</div>
-    <input type="text" placeholder="Selling for {{ good.price.buy | number:'.3-3' }}" #goodsBuy>
-    <button (click)="buyGoods(good.id, +goodsBuy.value)">Buy</button>
-    <input type="text" placeholder="Buying for {{ good.price.sell | number:'.3-3' }}">
-    <button (click)="buyGoods(good.id, 10)">Sell</button>
+    <div>
+      <input type="text" placeholder="Selling ({{ good.price.buy | number:'.3-3' }}), Buying ({{ good.price.sell | number:'.3-3' }})" #goodsQuantity>
+      <button (click)="buyGoods(good.id, good.name, +goodsQuantity.value)">Buy</button>
+      <button (click)="sellGoods(good.id, good.name, +goodsQuantity.value)">Sell</button>
+    </div>
   </div>
 </div>
 

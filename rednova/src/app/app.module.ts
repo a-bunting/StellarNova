@@ -13,6 +13,8 @@ import { GameComponent } from './game/game.component';
 import { EntryComponent } from './entry/entry.component';
 import { GalaxyListComponent } from './entry/galaxy-list/galaxy-list.component';
 import { PlanetComponent } from './planet/planet.component';
+import { ShipoverviewComponent } from './shipoverview/shipoverview.component';
+import { ConsoleComponent } from './console/console.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +25,9 @@ import { PlanetComponent } from './planet/planet.component';
     GameComponent,
     EntryComponent,
     GalaxyListComponent,
-    PlanetComponent
+    PlanetComponent,
+    ShipoverviewComponent,
+    ConsoleComponent
   ],
   imports: [
     BrowserModule,

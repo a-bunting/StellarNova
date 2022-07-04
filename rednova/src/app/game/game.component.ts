@@ -5,9 +5,17 @@ import { AuthenticateService, User } from '../services/authenticate.service';
 import { GameService, ServerMessage } from '../services/game.service';
 import { DatabaseResult } from '../services/interfaces';
 
-interface SectorData {
+export interface Ship {
+  armor: number; beams: number; cloak: number; computer: number; engines: number; hull: number; money: number; power: number; sector: number; sensors: number; shields: number; torpedos: number; storage: string;
+}
+
+export interface GoodStore {
+  id: string; name: string; quantity: number;
+}
+
+export interface SectorData {
   server: { nextTurn: number; tickDuration: number; sectors: number; startSector: number },
-  ship: { armor: number; beams: number; cloak: number; computer: number; engines: number; hull: number; money: number; power: number; sector: number; sensors: number; shields: number; torpedos: number; storage: {}};
+  ship: Ship;
   user: { turns: number };
   system: {
     id: number;
@@ -146,6 +154,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.planetDisplayId = null;
         console.log(result);
         this.gameService.setTickTimer(this.sectorData.server.nextTurn);
+        this.gameService.newGalaxyData(this.sectorData);
         if(callback) callback();
         sub.unsubscribe();
       }),

@@ -1,0 +1,29 @@
+<div *ngIf="shipDetail; else loading">
+  <div class="ship-detail">
+    <div class="resources">
+      <div class="resource" *ngFor="let store of shipStorage">
+        {{ store.name }} - {{ store.quantity | number:'0.0-0' }}
+      </div>
+    </div>
+    <div class="tech">
+      <div class="ship tech-list">
+        <div class="tech-list__item"> <div class="tech-list__item--name">Cloak</div> <div class="tech-list__item--item">{{ shipDetail.cloak }}</div> </div>
+        <div class="tech-list__item"> <div class="tech-list__item--name">Computer</div> <div class="tech-list__item--item">{{ shipDetail.computer }}</div> </div>
+        <div class="tech-list__item"> <div class="tech-list__item--name">Engines</div> <div class="tech-list__item--item">{{ shipDetail.engines }}</div> </div>
+        <div class="tech-list__item"> <div class="tech-list__item--name">Hull</div> <div class="tech-list__item--item">{{ shipDetail.hull }}</div> </div>
+        <div class="tech-list__item"> <div class="tech-list__item--name">Power</div> <div class="tech-list__item--item">{{ shipDetail.power }}</div> </div>
+        <div class="tech-list__item"> <div class="tech-list__item--name">Sensors</div> <div class="tech-list__item--item">{{ shipDetail.sensors }}</div> </div>
+      </div>
+      <div class="attack tech-list">
+        <div class="tech-list__item"> <div class="tech-list__item--name">Armor</div> <div class="tech-list__item--item">{{ shipDetail.armor }}</div> </div>
+        <div class="tech-list__item"> <div class="tech-list__item--name">Beams</div> <div class="tech-list__item--item">{{ shipDetail.beams }}</div> </div>
+        <div class="tech-list__item"> <div class="tech-list__item--name">Shields</div> <div class="tech-list__item--item">{{ shipDetail.shields }}</div> </div>
+        <div class="tech-list__item"> <div class="tech-list__item--name">Torpedos</div> <div class="tech-list__item--item">{{ shipDetail.torpedos }}</div> </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #loading>
+  Loading ship data...
+</ng-template>

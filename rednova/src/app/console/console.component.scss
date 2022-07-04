@@ -1,0 +1,14 @@
+.logs {
+  display: flex;
+  flex-direction: column;
+  row-gap: .5rem;
+}
+
+.log {
+  color: white;
+  width: 40rem;
+  text-align: center;
+  padding: .4rem 1rem;
+  background-color: orange;
+  border-radius: 1rem;
+}

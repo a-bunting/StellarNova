@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Data } from '@angular/router';
-import { BehaviorSubject, Observable, Subscription, take, tap } from 'rxjs';
+import { BehaviorSubject, Observable, take, tap } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from 'src/environments/environment';
+import { RednovaConsoleLog } from '../console/console.component';
+import { GoodStore, SectorData } from '../game/game.component';
 import { AuthenticateService, User } from './authenticate.service';
 import { DatabaseResult } from './interfaces';
 
@@ -21,6 +22,8 @@ export class GameService {
   user: User;
   // first load
   firstLoad: boolean = true;
+  // sectior data
+  sectorData: BehaviorSubject<SectorData> = new BehaviorSubject<SectorData>(null);
 
   constructor(
     private http: HttpClient,
@@ -101,6 +104,33 @@ export class GameService {
     }, 1000);
   }
 
+  addGoodsToShip(goodId: string, goodName: string, quantity: number): void {
+    let shipStorage: GoodStore[] = [...JSON.parse(this.sectorData.value.ship.storage)];
+    const goodLocator: number = shipStorage.findIndex((a: GoodStore) => a.id === goodId);
+
+    if(goodLocator === -1) {
+      const newGood: GoodStore = { id: goodId, name: goodName, quantity: quantity };
+      shipStorage.push(newGood);
+    } else {
+      shipStorage[goodLocator].quantity += quantity;
+    }
+
+    const newSectorData: SectorData = { ...this.sectorData.value, ship: { ...this.sectorData.value.ship, storage: JSON.stringify(shipStorage)} };
+    this.sectorData.next(newSectorData);
+  }
+
+  newGalaxyData(sectorData: SectorData): void {
+    this.sectorData.next(sectorData);
+  }
+
+  public consoleLog: RednovaConsoleLog[] = [];
+
+  consoleLogger(message: string, type: string, warning: boolean = false): void {
+    this.consoleLog.push({
+      message, type, warning
+    })
+  }
+
   /**
    * loads the galaxy data for a particular galaxy...
    *
@@ -129,5 +159,9 @@ export class GameService {
 
   buyResources(galaxyId: number, planetId: number, goods: { id: string, quantity: number }): Observable<DatabaseResult> {
     return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/buyResources`, { galaxyId: galaxyId, planetId: planetId, goods: goods }).pipe(take(1));
+  }
+
+  sellResources(galaxyId: number, planetId: number, goods: { id: string, quantity: number }): Observable<DatabaseResult> {
+    return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/sellResources`, { galaxyId: galaxyId, planetId: planetId, goods: goods }).pipe(take(1));
   }
 }

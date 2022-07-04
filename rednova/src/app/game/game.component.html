@@ -44,4 +44,12 @@
     <app-planet [planetId]="planetDisplayId"></app-planet>
   </div>
 
+  <div class="ship">
+    <app-shipoverview></app-shipoverview>
+  </div>
+
+  <div class="console">
+    <app-console [consoleLogs]="gameService.consoleLog"></app-console>
+  </div>
+
 </div>

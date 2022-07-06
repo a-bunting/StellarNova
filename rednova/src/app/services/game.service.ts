@@ -64,6 +64,10 @@ export class GameService {
         next: (data: ServerMessage) => {
           switch(data.type) {
             case "tick": this.timeUntilNextTick = data.data.timeUntilNextTick; break;
+            case "subscribed": this.timeUntilNextTick = data.data.timeUntilNextTick; break;
+            case "moveToSector": { this.sectorData.value.system.ships.push(data.data); this.sectorData.next(this.sectorData.value); break; }
+            // NEED TO FINISH THIS AND IMPLEMENT IN THE BACKEND.
+            case "leavingSector": { this.sectorData.value.system.ships.push(data.data); this.sectorData.next(this.sectorData.value); break; }
           }
           // and send the data to any other interested parties!
           this.serverMessage.next(data);
@@ -157,11 +161,11 @@ export class GameService {
     return this.http.get<DatabaseResult>(`${environment.apiUrl}/planet/getPlanetData?galaxyId=${galaxyId}&planetId=${planetId}`).pipe(take(1));
   }
 
-  buyResources(galaxyId: number, planetId: number, goods: { id: string, quantity: number }): Observable<DatabaseResult> {
-    return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/buyResources`, { galaxyId: galaxyId, planetId: planetId, goods: goods }).pipe(take(1));
+  buyResources(galaxyId: number, planetId: number, sectorId: number, goods: { id: string, quantity: number }): Observable<DatabaseResult> {
+    return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/buyResources`, { galaxyId: galaxyId, planetId: planetId, goods: goods, sectorId: sectorId }).pipe(take(1));
   }
 
-  sellResources(galaxyId: number, planetId: number, goods: { id: string, quantity: number }): Observable<DatabaseResult> {
-    return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/sellResources`, { galaxyId: galaxyId, planetId: planetId, goods: goods }).pipe(take(1));
+  sellResources(galaxyId: number, planetId: number, sectorId: number, goods: { id: string, quantity: number }): Observable<DatabaseResult> {
+    return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/sellResources`, { galaxyId: galaxyId, planetId: planetId, goods: goods, sectorId: sectorId }).pipe(take(1));
   }
 }

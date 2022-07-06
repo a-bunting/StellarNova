@@ -10,9 +10,9 @@
   Incident radiation: {{ planetData?.solarRadiation }}
   <hr>
 
-  <div class="good" *ngFor="let building of getBuildingList()">
+  <div class="good" *ngFor="let building of planetData.buildings">
     <div>{{ building.name }}</div>
-    <div class="good__quantity">{{ building.current | number }}</div>
+    <div class="good__quantity">{{ building.quantity | number }}</div>
     <div class="good__cost">{{ building.price }} each</div>
     <div>
       Build
@@ -23,9 +23,9 @@
     </div>
   </div>
 
-  <div class="good" *ngFor="let good of getGoodsList()">
+  <div class="good" *ngFor="let good of planetData.goods">
     <div>{{ good.name }}</div>
-    <div class="good__quantity">{{ good.current | number }}</div>
+    <div class="good__quantity">{{ good.quantity | number }}</div>
     <div>
       <input type="text" placeholder="Selling ({{ good.price.buy | number:'.3-3' }}), Buying ({{ good.price.sell | number:'.3-3' }})" #goodsQuantity>
       <button (click)="buyGoods(good.id, good.name, +goodsQuantity.value)">Buy</button>

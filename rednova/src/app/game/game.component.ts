@@ -24,7 +24,7 @@ export interface SectorData {
     size: number;
     starPower: number;
     x: number; y: number; z: number;
-    planets: { id: number; distance: number; name: string; onPlanet: {}; solarRadiation: number }[],
+    planets: { id: number; planetindex: number; distance: number; name: string; onPlanet: {}; solarRadiation: number }[],
     ships: { userid: number; username: string }[],
     warp: { destination: number; oneway: number; }[]
   }

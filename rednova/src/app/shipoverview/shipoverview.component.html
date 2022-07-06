@@ -4,6 +4,10 @@
       <div class="resource" *ngFor="let store of shipStorage">
         {{ store.name }} - {{ store.quantity | number:'0.0-0' }}
       </div>
+
+      <div class="resource" *ngIf="shipStorage.length === 0">
+        You currently have no resources...
+      </div>
     </div>
     <div class="tech">
       <div class="ship tech-list">

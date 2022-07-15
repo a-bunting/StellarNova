@@ -15,6 +15,8 @@ import { GalaxyListComponent } from './entry/galaxy-list/galaxy-list.component';
 import { PlanetComponent } from './planet/planet.component';
 import { ShipoverviewComponent } from './shipoverview/shipoverview.component';
 import { ConsoleComponent } from './console/console.component';
+import { TradeRoutesComponent } from './trade-routes/trade-routes.component';
+import { MenuComponent } from './menu/menu.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +29,9 @@ import { ConsoleComponent } from './console/console.component';
     GalaxyListComponent,
     PlanetComponent,
     ShipoverviewComponent,
-    ConsoleComponent
+    ConsoleComponent,
+    TradeRoutesComponent,
+    MenuComponent
   ],
   imports: [
     BrowserModule,

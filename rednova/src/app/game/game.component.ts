@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, SimpleChange } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthenticateService, User } from '../services/authenticate.service';
@@ -24,7 +24,7 @@ export interface SectorData {
     size: number;
     starPower: number;
     x: number; y: number; z: number;
-    planets: { id: number; planetindex: number; distance: number; name: string; onPlanet: {}; solarRadiation: number }[],
+    planets: { id: number; planetindex: number; distance: number; name: string; ownerName: string; trading: number }[],
     ships: { userid: number; username: string }[],
     warp: { destination: number; oneway: number; }[]
   }
@@ -70,7 +70,7 @@ export class GameComponent implements OnInit, OnDestroy {
       this.galaxyDataLoading = true;
 
       // get the galaxy data
-      this.loadGalaxyData(this.galaxyId);
+      // this.loadGalaxyData(this.galaxyId);
 
       // update user data
       const userSub: Subscription = this.authService.user.subscribe({
@@ -93,7 +93,8 @@ export class GameComponent implements OnInit, OnDestroy {
             console.log(message);
             // do something when a message from the server is recieved of a particular type...
             switch(message.type) {
-              case "tick": this.sectorData.user.turns += message.data.quantity ?? 0; break;
+              case "tick":
+                this.sectorData.user.turns += message.data.quantity ?? 0; break;
               default: break;
             }
           }
@@ -102,14 +103,34 @@ export class GameComponent implements OnInit, OnDestroy {
         }
       })
 
+      // needs a better way of managing sector data in this file
+      const sectorDataSub: Subscription = this.gameService.sectorData.subscribe({
+        next: (result: SectorData) => {
+          this.galaxyDataLoading = false;
+
+          // if the sector has changed then set the sector id to null
+          if(this.sectorData) {
+            if(result.ship.sector !== this.sectorData.ship.sector) {
+              this.planetDisplayId = null
+            }
+          }
+
+          this.sectorData = result;
+          this.gameService.setTickTimer(this.sectorData.server.nextTurn);
+        },
+        error: (error) => { console.log(`Error: ${error}`)},
+        complete: () => {}
+      })
+
       // push these to the subscription so they can be unsubscribed to later...
-      this.subscriptions.push(...[userSub, gameSub]);
+      this.subscriptions.push(...[sectorDataSub, userSub, gameSub]);
   }
 
   galaxyId: number;
 
   ngOnInit(): void {
     this.gameService.webSockets();
+    this.gameService.loadSectorData(this.galaxyId);
   }
 
   ngOnDestroy(): void {
@@ -121,15 +142,11 @@ export class GameComponent implements OnInit, OnDestroy {
     this.gameService.endWebsockets();
   }
 
-  sendTestMessage(): void {
-    this.gameService.sendTestMessage();
-  }
-
   moveError: { message: string, turnsRequired: number, turnsAvailable: number };
 
   warpTo(destination: number): void {
     const warpSub: Subscription = this.gameService.warpToSector(this.galaxyId, destination).subscribe({
-      next: (result: DatabaseResult) => { this.loadGalaxyData(this.galaxyId); warpSub.unsubscribe(); },
+      next: (result: DatabaseResult) => { this.gameService.loadSectorData(this.galaxyId); warpSub.unsubscribe(); },
       error: (error) => { this.moveError = { message: error.error.message, turnsRequired: error.error.data.required, turnsAvailable: error.error.data.current }; warpSub.unsubscribe(); },
       complete: () => { warpSub.unsubscribe(); }
     })
@@ -138,7 +155,7 @@ export class GameComponent implements OnInit, OnDestroy {
   moveTo(destination?: number): void {
     // call the move to sector...
     const sub: Subscription = this.gameService.moveToSector(this.galaxyId, destination ? destination : this.subLightInput ?? -1, this.sectorData.ship.engines).subscribe({
-      next: (result: DatabaseResult) => { this.loadGalaxyData(this.galaxyId); sub.unsubscribe(); },
+      next: (result: DatabaseResult) => { this.gameService.loadSectorData(this.galaxyId); sub.unsubscribe(); },
       error: (error) => { this.moveError = { message: error.error.message, turnsRequired: error.error.data.required, turnsAvailable: error.error.data.current }; sub.unsubscribe(); },
       complete: () => { sub.unsubscribe(); }
     })
@@ -146,22 +163,22 @@ export class GameComponent implements OnInit, OnDestroy {
 
   nextTick: number;
 
-  loadGalaxyData(galaxyId: number, callback?: Function): void {
-    const sub: Subscription = this.gameService.loadGalaxyData(galaxyId ?? this.galaxyId).subscribe({
-      next: ((result: DatabaseResult) => {
-        this.galaxyDataLoading = false;
-        this.sectorData = result.data;
-        this.planetDisplayId = null;
-        console.log(result);
-        this.gameService.setTickTimer(this.sectorData.server.nextTurn);
-        this.gameService.newGalaxyData(this.sectorData);
-        if(callback) callback();
-        sub.unsubscribe();
-      }),
-      error: ((error) => { console.log(`Error retrieving galaxy data: ${error}`); sub.unsubscribe(); }),
-      complete: (() => { this.galaxyDataLoading = false; sub.unsubscribe(); })
-    })
-  }
+  // loadGalaxyData(galaxyId: number, callback?: Function): void {
+  //   const sub: Subscription = this.gameService.loadGalaxyData(galaxyId ?? this.galaxyId).subscribe({
+  //     next: ((result: DatabaseResult) => {
+  //       this.galaxyDataLoading = false;
+  //       this.sectorData = result.data;
+  //       this.planetDisplayId = null;
+  //       console.log(result);
+  //       this.gameService.setTickTimer(this.sectorData.server.nextTurn);
+  //       this.gameService.newGalaxyData(this.sectorData);
+  //       if(callback) callback();
+  //       sub.unsubscribe();
+  //     }),
+  //     error: ((error) => { console.log(`Error retrieving galaxy data: ${error}`); sub.unsubscribe(); }),
+  //     complete: (() => { this.galaxyDataLoading = false; sub.unsubscribe(); })
+  //   })
+  // }
 
   subLightInput: number = 0;
   subLightChecked: number = 0;

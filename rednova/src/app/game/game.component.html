@@ -1,5 +1,4 @@
 <div class="sector">
-
     <div class="game">
       <div class="game__title">
         <h1>{{ sectorData?.system.givenname }}</h1>
@@ -16,6 +15,8 @@
     <div class="sector__planets">
       <div class="sector__planet" *ngFor="let planet of sectorData?.system.planets" (click)="displayPlanet(planet.id)">
         {{ planet.name }}
+        <br><br>
+        {{ planet.ownerName !== null ? 'Owned by ' + planet.ownerName : 'Unclaimed' }}
       </div>
     </div>
 
@@ -36,13 +37,17 @@
     <a (click)="moveTo(sectorData?.system.sectorid + 1)" *ngIf="sectorData?.system.sectorid + 1 <= sectorData?.server.sectors">{{ sectorData?.system.sectorid + 1 }}</a>
     <br>
     <div *ngIf="moveError">{{ moveError.message }} (Required Turns: {{ moveError.turnsRequired }}, available turns: {{ moveError.turnsAvailable }})</div>
-    <br>
-    <button (click)="sendTestMessage()">Send Test Message</button>
   </div>
 
   <div class="planet" *ngIf="planetDisplayId">
     <app-planet [planetId]="planetDisplayId"></app-planet>
   </div>
+
+  <div class="new-outlet">
+    <router-outlet name="selection"></router-outlet>
+  </div>
+
+  <app-menu></app-menu>
 
   <div class="ship">
     <app-shipoverview></app-shipoverview>

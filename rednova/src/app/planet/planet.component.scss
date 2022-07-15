@@ -2,7 +2,7 @@
   color: white;
 }
 
-.good {
+.good, .trading {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -13,4 +13,11 @@
   button { width: 4rem; cursor: pointer; }
 
   &__quantity { flex-basis: 10rem; text-align: center;}
+}
+
+.input__button {
+  &:hover { cursor: default; }
+  &--buy { background-color: green; }
+  &--sell { background-color: red; }
+  &--disabled { background-color: gray; &:hover { cursor: pointer; }}
 }

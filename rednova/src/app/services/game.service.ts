@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Data, Router } from '@angular/router';
 import { BehaviorSubject, Observable, take, tap } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from 'src/environments/environment';
@@ -27,7 +28,8 @@ export class GameService {
 
   constructor(
     private http: HttpClient,
-    private authService: AuthenticateService
+    private authService: AuthenticateService,
+    private router: Router
   ) {
     // get the user and once user data is found subscribe tot he websockets...
     this.authService.user.subscribe((user: User) => {
@@ -36,6 +38,15 @@ export class GameService {
       if(this.firstLoad && user !== null) {
         this.firstLoad = false;
         this.webSockets();
+      }
+    });
+  }
+
+  loadSectorData(galaxyId: number): void {
+    this.loadGalaxyData(galaxyId).subscribe({
+      next: (res: DatabaseResult) => {
+        console.log(res.data);
+        this.sectorData.next(res.data);
       }
     });
   }
@@ -63,11 +74,12 @@ export class GameService {
       {
         next: (data: ServerMessage) => {
           switch(data.type) {
-            case "tick": this.timeUntilNextTick = data.data.timeUntilNextTick; break;
+            case "tick": this.timeUntilNextTick = data.data.timeUntilNextTick; this.setTickTimer(data.data.timeUntilNextTick); break;
             case "subscribed": this.timeUntilNextTick = data.data.timeUntilNextTick; break;
             case "moveToSector": { this.sectorData.value.system.ships.push(data.data); this.sectorData.next(this.sectorData.value); break; }
             // NEED TO FINISH THIS AND IMPLEMENT IN THE BACKEND.
             case "leavingSector": { this.sectorData.value.system.ships.push(data.data); this.sectorData.next(this.sectorData.value); break; }
+            case "criticalServerFailure": { this.router.navigate(['/'], { queryParams: { message: data.message }}) }
           }
           // and send the data to any other interested parties!
           this.serverMessage.next(data);
@@ -89,11 +101,6 @@ export class GameService {
    */
   reconnectToWebsockets(timeout: number = 2000): void {
     setTimeout(() => { this.webSockets(); }, timeout);
-  }
-
-  // delete when satisfied websockets work well...
-  sendTestMessage(): void {
-    this.ws.next({ msg: 'hello' });
   }
 
   timeUntilNextTick: number = -1;
@@ -123,16 +130,32 @@ export class GameService {
     this.sectorData.next(newSectorData);
   }
 
-  newGalaxyData(sectorData: SectorData): void {
-    this.sectorData.next(sectorData);
+  modifyShipCash(change: number): void {
+    const newSectorData: SectorData = { ...this.sectorData.value, ship: { ...this.sectorData.value.ship, money: this.sectorData.value.ship.money + change } };
+    let iterations: number = 0;
+
+    // make it look good...
+    const newInterval: number = window.setInterval(() => {
+      // not sure why this usually adds as a string but this works...
+      this.sectorData.value.ship.money = +this.sectorData.value.ship.money + +(change / 100);
+      iterations++;
+      if(iterations === 100)  {
+        this.sectorData.next(newSectorData);
+        clearInterval(newInterval);
+      }
+    }, (1 * 1000) / 100)
   }
+
 
   public consoleLog: RednovaConsoleLog[] = [];
 
   consoleLogger(message: string, type: string, warning: boolean = false): void {
-    this.consoleLog.push({
-      message, type, warning
-    })
+    // set a timer...
+    const timer: number = window.setTimeout(() => {
+      this.consoleLog.splice(0, 1);
+    }, 9000); // delay should be the duration you want it to be shown + the fadeouttime of 1s.
+    // add to the console log...
+    this.consoleLog.push({message, type, warning, timer});
   }
 
   /**
@@ -167,5 +190,17 @@ export class GameService {
 
   sellResources(galaxyId: number, planetId: number, sectorId: number, goods: { id: string, quantity: number }): Observable<DatabaseResult> {
     return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/sellResources`, { galaxyId: galaxyId, planetId: planetId, goods: goods, sectorId: sectorId }).pipe(take(1));
+  }
+
+  buildBuilding(planetIndex: number, building: { id: number, quantity: number }): Observable<DatabaseResult> {
+    return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/buildBuilding`, { galaxyId: this.galaxyId, sectorId: this.sectorData.value.system.sectorid, planetIndex, building }).pipe(take(1));
+  }
+
+  destroyBuilding(planetIndex: number, building: { id: number, quantity: number }): Observable<DatabaseResult> {
+    return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/destroyBuilding`, { galaxyId: this.galaxyId, sectorId: this.sectorData.value.system.sectorid, planetIndex, building }).pipe(take(1));
+  }
+
+  updateTrading(planetIndex: number, tradingStatus: boolean): Observable<DatabaseResult> {
+    return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/updateTrading`, { galaxyId: this.galaxyId, sectorId: this.sectorData.value.system.sectorid, planetIndex, tradingStatus }).pipe(take(1));
   }
 }

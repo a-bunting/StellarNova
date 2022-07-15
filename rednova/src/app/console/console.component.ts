@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 export interface RednovaConsoleLog {
-  message: string; type: string; warning: boolean;
+  message: string; type: string; warning: boolean; timer: number;
 }
 
 @Component({
@@ -19,7 +19,6 @@ export class ConsoleComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log(changes);
   }
 
 }

@@ -36,6 +36,47 @@ body {
   letter-spacing: .1rem;
 }
 
+.input__slider {
+
+  border-radius: 1rem;
+  position: relative;
+  background-color: darkgrey;
+  padding: 1rem 2rem;
+  transition: all .2s;
+  margin-right: 4rem;
+
+  &:hover { cursor: pointer; }
+
+  &--ball {
+    position: absolute;
+    top: 0rem;
+    left: 0rem;
+    border-radius: 1rem;
+    background-color: gray;
+    padding: 1rem;
+    transition: all .2s;
+  }
+
+  &--text {
+    position: absolute;
+    right: 0rem;
+    color: white;
+  }
+
+  &--checkbox {
+    visibility: hidden;
+
+    &:checked ~ label {
+      background-color: red;
+      .input__slider--ball { left: 2rem; background-color: yellow; }
+    }
+
+    &:checked ~ .input__slider--text::after { content: "Enabled"; }
+    &:not(:checked) ~ .input__slider--text::after { content: "Disabled"; }
+
+  }
+}
+
 .flex-direction-row { display: flex; flex-direction: row; align-items: baseline;}
 .flex-direction-column { display: flex; flex-direction: column; }
 

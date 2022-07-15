@@ -1,7 +1,7 @@
 .logs {
   display: flex;
   flex-direction: column;
-  row-gap: .5rem;
+  row-gap: .3rem;
 }
 
 .log {
@@ -11,4 +11,10 @@
   padding: .4rem 1rem;
   background-color: orange;
   border-radius: 1rem;
+  animation: fadeOut 1s ease-in-out 8s 1 forwards;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1 }
+  100% { opacity: 0 }
 }

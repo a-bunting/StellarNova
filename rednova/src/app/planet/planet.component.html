@@ -3,33 +3,57 @@
   <hr>
   Population: {{ planetData?.population }}
   <br>
-  Fields: {{ planetData?.fields }}
+  Fields: {{ getUsedFields() | number:'1.0-0' }} / {{ planetData?.fields }}
   <br>
   Distance from sun: {{ planetData?.distance }}
   <br>
   Incident radiation: {{ planetData?.solarRadiation }}
   <hr>
+  Planet Owned By: {{ planetData?.owner.username }}
+  <hr>
 
-  <div class="good" *ngFor="let building of planetData.buildings">
-    <div>{{ building.name }}</div>
-    <div class="good__quantity">{{ building.quantity | number }}</div>
-    <div class="good__cost">{{ building.price }} each</div>
-    <div>
-      Build
-      <button (click)="build(building.id, 1)">1</button>
-      <button (click)="build(building.id, 10)">10</button>
-      <button (click)="build(building.id, 100)">100</button>
-      <button (click)="build(building.id, -1)">Max</button>
+  <div *ngIf="planetData?.owner.currentUser === true">
+
+    <div class="buysell">
+      <button class="input__button input__button--buy" [class.input__button--disabled]="buildBuyMode === false" (click)="setBuildMode(true)">Buy</button>
+      <button class="input__button input__button--sell" [class.input__button--disabled]="buildBuyMode === true" (click)="setBuildMode(false)">Sell</button>
+    </div>
+
+    <div class="good" *ngFor="let building of planetData.buildings">
+      <div>{{ building.name }}</div>
+      <div class="good__quantity">{{ building.quantity | number:'1.0-0' }}</div>
+      <div class="good__cost">{{ building.price | number }} each</div>
+      <div>
+        Build
+        <button (click)="build(building.id, 1)">1</button>
+        <button (click)="build(building.id, 5)">5</button>
+        <button (click)="build(building.id, 25)">25</button>
+        <button (click)="build(building.id, planetData?.fields)">Max</button>
+      </div>
     </div>
   </div>
 
-  <div class="good" *ngFor="let good of planetData.goods">
-    <div>{{ good.name }}</div>
-    <div class="good__quantity">{{ good.quantity | number }}</div>
-    <div>
-      <input type="text" placeholder="Selling ({{ good.price.buy | number:'.3-3' }}), Buying ({{ good.price.sell | number:'.3-3' }})" #goodsQuantity>
-      <button (click)="buyGoods(good.id, good.name, +goodsQuantity.value)">Buy</button>
-      <button (click)="sellGoods(good.id, good.name, +goodsQuantity.value)">Sell</button>
+  <div *ngIf="planetData?.trading === 1 || planetData?.owner.currentUser === true">
+    <div class="good" *ngFor="let good of planetData.goods">
+      <div>{{ good.name }}</div>
+      <div class="good__quantity">{{ good.quantity | number:'1.0-0' }}</div>
+      <div>
+        <input type="text" placeholder="Selling ({{ good.price.buy | number:'.3-3' }}), Buying ({{ good.price.sell | number:'.3-3' }})" #goodsQuantity>
+        <button (click)="buyGoods(good.id, good.name, +goodsQuantity.value)">Buy</button>
+        <button (click)="sellGoods(good.id, good.name, +goodsQuantity.value)">Sell</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="trading" *ngIf="planetData?.owner.currentUser === true">
+    <p class="quantity">Enable or disable trading</p>
+
+    <div class="flex-direction-row">
+      <input type="checkbox" name="trading__slider" id="trading__slider" class="input__slider--checkbox" value="{{ planetData?.trading === 1 ? true : false }}" (change)="toggleTrading($event)" [checked]="planetData?.trading === 1">
+      <label for="trading__slider" class="input__slider">
+        <div class="input__slider--ball"></div>
+      </label>
+      <div class="input__slider--text"></div>
     </div>
   </div>
 </div>

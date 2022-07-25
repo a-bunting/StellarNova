@@ -20,12 +20,18 @@ export class ShipoverviewComponent implements OnInit, OnDestroy {
   constructor(
     private gameService: GameService
   ) {
-    const sectorDataSub: Subscription = this.gameService.sectorData.subscribe((data: SectorData) => {
-      this.sectorData = data;
-      this.shipDetail = data.ship;
+    const sectorDataSub: Subscription = this.gameService.sectorData.subscribe({
+      next: (data: SectorData) => {
+        if(data) {
+          this.sectorData = data;
+          this.shipDetail = data.ship;
 
-      // deal with changing values of goods.
-      this.goodChange([...JSON.parse(data.ship.storage)]);
+          // deal with changing values of goods.
+          this.goodChange([...JSON.parse(data.ship.storage)]);
+        }
+      },
+      error: (err: any) => { console.log(`Error: ${err}`)},
+      complete: () => {}
     })
 
     this.subscriptions.push(sectorDataSub);

@@ -2,8 +2,7 @@ import { Component, OnDestroy, OnInit, SimpleChange } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthenticateService, User } from '../services/authenticate.service';
-import { GameService, ServerMessage } from '../services/game.service';
-import { DatabaseResult } from '../services/interfaces';
+import { GameService, MenuData, ServerMessage } from '../services/game.service';
 
 export interface Ship {
   armor: number; beams: number; cloak: number; computer: number; engines: number; hull: number; money: number; power: number; sector: number; sensors: number; shields: number; torpedos: number; storage: string;
@@ -52,6 +51,9 @@ export class GameComponent implements OnInit, OnDestroy {
   // subscriptions to cancel on destroy...
   subscriptions: Subscription[] = [];
 
+  // side items
+  componentLoad: MenuData = { component: '', data: {} };
+
   constructor(
     private authService: AuthenticateService,
     public  gameService: GameService,
@@ -83,6 +85,25 @@ export class GameComponent implements OnInit, OnDestroy {
         }
       })
 
+      /**
+       * When menu items are clicked the data may need to go into the side
+       * menu, this handles that.
+       */
+      const loadingSub: Subscription = this.gameService.loadMenuItem.subscribe({
+        next: (data: MenuData) => {
+          if(data) {
+            switch(data.component) {
+              case "planet": this.openSideData({ component: 'planet', data: { id: data.data.id }}); break;
+              case '': this.removeSideData(); break;
+            }
+          } else {
+            this.removeSideData();
+          }
+        },
+        error: (err: any) => { console.log(`Error: ${err}`)},
+        complete: () => { }
+      })
+
       // get auth to check auth status and update...
       this.authService.checkLoggedInStatus();
 
@@ -106,24 +127,26 @@ export class GameComponent implements OnInit, OnDestroy {
       // needs a better way of managing sector data in this file
       const sectorDataSub: Subscription = this.gameService.sectorData.subscribe({
         next: (result: SectorData) => {
-          this.galaxyDataLoading = false;
+          if(result) {
+            this.galaxyDataLoading = false;
 
-          // if the sector has changed then set the sector id to null
-          if(this.sectorData) {
-            if(result.ship.sector !== this.sectorData.ship.sector) {
-              this.planetDisplayId = null
+            // if the sector has changed then set the sector id to null
+            if(this.sectorData) {
+              if(result.ship.sector !== this.sectorData.ship.sector) {
+                this.planetDisplayId = null
+              }
             }
-          }
 
-          this.sectorData = result;
-          this.gameService.setTickTimer(this.sectorData.server.nextTurn);
+            this.sectorData = result;
+            this.gameService.setTickTimer(this.sectorData.server.nextTurn);
+          }
         },
         error: (error) => { console.log(`Error: ${error}`)},
         complete: () => {}
       })
 
       // push these to the subscription so they can be unsubscribed to later...
-      this.subscriptions.push(...[sectorDataSub, userSub, gameSub]);
+      this.subscriptions.push(...[sectorDataSub, userSub, gameSub, loadingSub]);
   }
 
   galaxyId: number;
@@ -142,76 +165,39 @@ export class GameComponent implements OnInit, OnDestroy {
     this.gameService.endWebsockets();
   }
 
-  moveError: { message: string, turnsRequired: number, turnsAvailable: number };
-
-  warpTo(destination: number): void {
-    const warpSub: Subscription = this.gameService.warpToSector(this.galaxyId, destination).subscribe({
-      next: (result: DatabaseResult) => { this.gameService.loadSectorData(this.galaxyId); warpSub.unsubscribe(); },
-      error: (error) => { this.moveError = { message: error.error.message, turnsRequired: error.error.data.required, turnsAvailable: error.error.data.current }; warpSub.unsubscribe(); },
-      complete: () => { warpSub.unsubscribe(); }
-    })
-  }
-
-  moveTo(destination?: number): void {
-    // call the move to sector...
-    const sub: Subscription = this.gameService.moveToSector(this.galaxyId, destination ? destination : this.subLightInput ?? -1, this.sectorData.ship.engines).subscribe({
-      next: (result: DatabaseResult) => { this.gameService.loadSectorData(this.galaxyId); sub.unsubscribe(); },
-      error: (error) => { this.moveError = { message: error.error.message, turnsRequired: error.error.data.required, turnsAvailable: error.error.data.current }; sub.unsubscribe(); },
-      complete: () => { sub.unsubscribe(); }
-    })
-  }
-
   nextTick: number;
 
-  // loadGalaxyData(galaxyId: number, callback?: Function): void {
-  //   const sub: Subscription = this.gameService.loadGalaxyData(galaxyId ?? this.galaxyId).subscribe({
-  //     next: ((result: DatabaseResult) => {
-  //       this.galaxyDataLoading = false;
-  //       this.sectorData = result.data;
-  //       this.planetDisplayId = null;
-  //       console.log(result);
-  //       this.gameService.setTickTimer(this.sectorData.server.nextTurn);
-  //       this.gameService.newGalaxyData(this.sectorData);
-  //       if(callback) callback();
-  //       sub.unsubscribe();
-  //     }),
-  //     error: ((error) => { console.log(`Error retrieving galaxy data: ${error}`); sub.unsubscribe(); }),
-  //     complete: (() => { this.galaxyDataLoading = false; sub.unsubscribe(); })
-  //   })
-  // }
+  /**
+   * remvoes stuff likeplanetary data or menu loaded things...
+   */
+  removeSideData(): void {
+    document.getElementById('data-outlet').classList.add('shrinkAndHide');
+    document.getElementById('data-outlet').classList.remove('expand');
 
-  subLightInput: number = 0;
-  subLightChecked: number = 0;
-  timerToCheckCost: number;
-  subLightCost: number = 0;
-
-  calculatingNewCost: boolean = false;
-
-  calculateSublightTurnCost(): void {
-    // if the number is outside the range, make it the min or max...
-    if(this.subLightInput > this.sectorData.server.sectors) this.subLightInput = this.sectorData.server.sectors;
-    if(this.subLightInput < 1) this.subLightInput = 1;
-
-    // now see if its a changed number...
-    if(this.subLightInput !== this.subLightChecked) {
-      clearTimeout(this.timerToCheckCost);
-      this.calculatingNewCost = true;
-      // value has been changed, wait 1 second then calculate a new cost
-      this.timerToCheckCost = window.setTimeout(() => {
-        // get the distance calculation...
-        this.gameService.getDistanceCalculation(this.galaxyId, this.sectorData.system.sectorid, this.subLightInput, this.sectorData.ship.engines).subscribe({
-          next: (res: DatabaseResult) => { this.subLightCost = res.data.distance; },
-          error: (error) => { this.calculatingNewCost = false; this.subLightCost = NaN; },
-          complete: () => { this.calculatingNewCost = false; }
-        })
-      }, 1500);
-    }
+    // hide then remove the component
+    setTimeout(() => { this.componentLoad = { component: '' }; }, 300);
   }
+
+  /**
+   * Opens the sdie data bit...
+   */
+  openSideData(data: MenuData): void {
+    // expand the sidebit
+    document.getElementById('data-outlet').classList.remove('shrinkAndHide');
+    document.getElementById('data-outlet').classList.add('expand');
+    // after 300ms load the component...
+    setTimeout(() => { this.componentLoad = data; }, 0);
+  }
+
 
   planetDisplayId: number;
 
   displayPlanet(planetId: number): void {
     this.planetDisplayId = planetId;
+  }
+
+  displayPlanet2(planetId: number): void {
+    this.router.navigate([{ outlets: { selection: ['planet', planetId ]}}]);
   }
 
 }

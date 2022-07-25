@@ -13,9 +13,14 @@ export interface ServerMessage {
   type: string; message: string; data: any;
 }
 
+export interface MenuData {
+  component: string; data?: { id?: number | string }
+}
+
 @Injectable({
   providedIn: 'root'
 })
+
 export class GameService {
   // incokming messages that components can subscribe to
   serverMessage: BehaviorSubject<ServerMessage> = new BehaviorSubject<ServerMessage>(null);
@@ -25,6 +30,8 @@ export class GameService {
   firstLoad: boolean = true;
   // sectior data
   sectorData: BehaviorSubject<SectorData> = new BehaviorSubject<SectorData>(null);
+  // load menu
+  loadMenuItem: BehaviorSubject<MenuData> = new BehaviorSubject<MenuData>(null);
 
   constructor(
     private http: HttpClient,
@@ -146,6 +153,17 @@ export class GameService {
     }, (1 * 1000) / 100)
   }
 
+  // loads a planet and lets anybody interested know...
+  loadPlanet(planetId: number): void {
+    this.loadMenuItem.next({
+      component: 'planet', data: { id: planetId }
+    });
+  }
+
+  clearLoadedComponent(): void {
+    console.log('clearing');
+    this.loadMenuItem.next(null);
+  }
 
   public consoleLog: RednovaConsoleLog[] = [];
 

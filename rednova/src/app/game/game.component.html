@@ -1,60 +1,43 @@
 <div class="sector">
-    <div class="game">
-      <div class="game__title">
-        <h1>{{ sectorData?.system.givenname }}</h1>
-        <h1>{{ sectorData?.ship.money | number }} credits</h1>
-      </div>
-    <hr>
-    Turns - {{ sectorData?.user.turns }}<br>
-    Sector - {{ sectorData?.system.sectorid }}<br>
-    Next turn - {{ gameService.timeUntilNextTick }}s<br>
-    Tick every {{ sectorData?.server.tickDuration }}
-    <br>
-    <br>
-    <hr>
-    <div class="sector__planets">
-      <div class="sector__planet" *ngFor="let planet of sectorData?.system.planets" (click)="displayPlanet(planet.id)">
-        {{ planet.name }}
-        <br><br>
-        {{ planet.ownerName !== null ? 'Owned by ' + planet.ownerName : 'Unclaimed' }}
-      </div>
-    </div>
 
-    <hr>
-
-    <div class="game__warp-routes">
-      <a (click)="warpTo(warp.destination)" *ngFor="let warp of sectorData?.system.warp">Warp to {{ warp.destination }}</a>
-    </div>
-
-    <br>
-    <br>
-    <input type="text" name="moveto" id="moveto" [(ngModel)]="subLightInput" (keyup)="calculateSublightTurnCost()">Move to sector with sublight engines... (cost {{ calculatingNewCost ? 'calculating...' : !subLightCost ? 'Invalid Sector' : subLightCost }})
-    <button *ngIf="subLightCost" (click)="moveTo()">Go</button>
-    <br>
-    Move at sublight to -
-    <a (click)="moveTo(sectorData?.system.sectorid - 1)" *ngIf="sectorData?.system.sectorid - 1 > 0">{{ sectorData?.system.sectorid - 1 }}</a>
-    -
-    <a (click)="moveTo(sectorData?.system.sectorid + 1)" *ngIf="sectorData?.system.sectorid + 1 <= sectorData?.server.sectors">{{ sectorData?.system.sectorid + 1 }}</a>
-    <br>
-    <div *ngIf="moveError">{{ moveError.message }} (Required Turns: {{ moveError.turnsRequired }}, available turns: {{ moveError.turnsAvailable }})</div>
+  <div class="info-box">
+    <app-menu></app-menu>
+    <app-move></app-move>
+    <app-console [consoleLogs]="gameService.consoleLog"></app-console>
   </div>
-
-  <div class="planet" *ngIf="planetDisplayId">
-    <app-planet [planetId]="planetDisplayId"></app-planet>
-  </div>
-
-  <div class="new-outlet">
-    <router-outlet name="selection"></router-outlet>
-  </div>
-
-  <app-menu></app-menu>
 
   <div class="ship">
     <app-shipoverview></app-shipoverview>
   </div>
 
-  <div class="console">
-    <app-console [consoleLogs]="gameService.consoleLog"></app-console>
+  <div class="sector-info">
+    <div class="sector-info__name">{{ sectorData?.system.givenname }} (Sector {{ sectorData?.system.sectorid }})</div>
+    <div class="sector-info__info">
+      <div class="sector-info__info--name">Credits:</div>
+      <div class="sector-info__info--quantity">{{ sectorData?.ship.money | number }}</div>
+      <div class="sector-info__info--name">Turns:</div>
+      <div class="sector-info__info--quantity">{{ sectorData?.user.turns | number }}</div>
+    </div>
+  </div>
+
+  <div class="data">
+
+    <div class="system-visualisation">
+      <app-system></app-system>
+    </div>
+
+    <div id="data-outlet" class="data-outlet">
+      <app-planet *ngIf="componentLoad.component === 'planet'" [planetId]='+componentLoad.data.id'></app-planet>
+    </div>
+  </div>
+
+  <div class="server-info">
+    <div class="server-info__info">
+      <div class="server-info__info--name">Time until next tick:</div>
+      <div class="server-info__info--quantity">{{ gameService.timeUntilNextTick | number }} s</div>
+      <div class="server-info__info--name">Ticks Every:</div>
+      <div class="server-info__info--quantity">{{ sectorData?.server.tickDuration | number }} s</div>
+    </div>
   </div>
 
 </div>

@@ -1,18 +1,41 @@
 .logs {
   display: flex;
   flex-direction: column;
-  row-gap: .3rem;
 }
 
 .log {
   color: white;
-  width: 40rem;
+  width: 100%;
   text-align: center;
   padding: .4rem 1rem;
+  margin: .1rem;
   background-color: orange;
-  border-radius: 1rem;
+
   animation: fadeOut 1s ease-in-out 8s 1 forwards;
+
+  border-radius: 0 0 1rem 1rem;
+  &:not(:last-of-type) { border-radius: 0rem;}
+
+  &__title {
+    text-align: center;
+    padding: .5rem 1rem;
+    font-weight: bold;
+    letter-spacing: .15rem;
+    font-size: 1.2rem;
+  }
+
+  &__none {
+    padding: .5rem 1rem;
+    font-size: 1.2rem;
+    text-align: center;
+    margin-top: -.5rem;
+    opacity: 0;
+
+    animation: fadeIn .2s ease-in-out 0s 1 forwards;
+  }
 }
+
+@keyframes fadeIn { 100% { opacity: 1; } }
 
 @keyframes fadeOut {
   0% { opacity: 1 }

@@ -17,6 +17,8 @@ import { ShipoverviewComponent } from './shipoverview/shipoverview.component';
 import { ConsoleComponent } from './console/console.component';
 import { TradeRoutesComponent } from './trade-routes/trade-routes.component';
 import { MenuComponent } from './menu/menu.component';
+import { MoveComponent } from './move/move.component';
+import { SystemComponent } from './system/system.component';
 
 @NgModule({
   declarations: [
@@ -31,7 +33,9 @@ import { MenuComponent } from './menu/menu.component';
     ShipoverviewComponent,
     ConsoleComponent,
     TradeRoutesComponent,
-    MenuComponent
+    MenuComponent,
+    MoveComponent,
+    SystemComponent
   ],
   imports: [
     BrowserModule,

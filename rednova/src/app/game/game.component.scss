@@ -1,11 +1,68 @@
-.game {
-  color: white;
-  flex: 1;
+.sector {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 
-  &__title  {
-    display: flex;
-    justify-content: space-between;
+.sector-info, .server-info {
+
+  color: white;
+  width: auto;
+  text-align: center;
+
+  display: grid;
+  grid-template: auto auto / 1fr;
+  align-items: center;
+  justify-content: center;
+  padding: 0 30% 0 30%;
+
+  white-space: nowrap;
+
+  &__name {
+    font-size: 3rem;
+    font-weight: bold;
+    grid-row: 1 / 2;
+    grid-column: 1 / 2;
+    letter-spacing: .3rem;
+
+    background-image: linear-gradient(to right, transparent 0%, transparent 10%, brown 20%, brown 80%, transparent 90%, transparent 100%);
+    padding: 1rem 15rem;
+    margin-bottom: .5rem;
   }
+
+  &__info {
+    font-size: 1.4rem;
+    display: flex;
+    grid-row: 2 / 2;
+    grid-column: 1 / 2;
+    padding: 0 20% 0 20%;
+
+    &--name { flex: 2; letter-spacing: .15rem; }
+    &--quantity {
+      flex: 1;
+      font-weight: lighter;
+      text-align: left;
+      margin-left: 2rem;
+
+      &:not(:last-of-type) {
+        margin-right: 5rem;
+      }
+    }
+  }
+}
+
+.info-box {
+  position: absolute;
+  top: 2rem;
+  left: 1rem;
+  max-width: 16rem;
+  background-color: lightblue;
+  border-radius: 1rem;
+  z-index: 10;
+  transition: all .5s;
 }
 
 .ship {
@@ -14,36 +71,34 @@
   left: 2rem;
   background-color: lightblue;
   border-radius: 1rem;
+  z-index: 10;
 }
 
-.console {
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translate(-50%, 0);
-  padding: 1rem;
-  border-radius: 1rem;
-}
-
-.sector {
-
+.data {
+  position: relative;
+  flex: 1;
   display: flex;
-
-  &__planets {
-    display: flex;
-  }
-
-  &__planet {
-    flex: 1;
-    padding: 4rem;
-    margin: 1rem 2rem;
-    border-radius: 1rem;
-    background-color: green;
-    transition: all .2s;
-
-    &:hover {
-      cursor: pointer;
-      background-color: red;
-    }
-  }
+  width: 100%;
 }
+
+.system-visualisation {
+  position: relative;
+  flex: 1;
+}
+
+.data-outlet {
+  flex: 0 1;
+  padding: 1rem;
+  margin: 1rem;
+  border-radius: 1rem;
+  background-color: gray;
+  max-width: 0rem;
+  opacity: 0;
+}
+
+.shrinkAndHide { animation: shrinkAndHide .3s ease-in-out 0s 1 forwards; }
+.expand { animation: expand .3s ease-in-out 0s 1 forwards; }
+
+@keyframes shrinkAndHide { 0% { max-width: 50rem; opacity: 1; } 100% { max-width: 0rem; opacity: 0; } }
+@keyframes expand { 0% { max-width: 0rem; opacity: 0; } 100% { max-width: 50rem; opacity: 1; } }
+

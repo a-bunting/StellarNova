@@ -36,6 +36,7 @@ export class PlanetComponent implements OnInit, OnDestroy, OnChanges {
   constructor(
     private gameService: GameService
   ) {
+    console.log('loaded');
   }
 
   ngOnInit(): void {

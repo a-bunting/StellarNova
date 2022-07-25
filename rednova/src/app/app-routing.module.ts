@@ -8,9 +8,13 @@ import { TradeRoutesComponent } from './trade-routes/trade-routes.component';
 const routes: Routes = [
   { path: '', component: EntryComponent },
   { path: 'game/:galaxyId', component: GameComponent, children: [
-    { path: 'planet', component: PlanetComponent },
-    { path: 'traderoute', outlet: 'selection', component: TradeRoutesComponent }
+    { path: 'planet/:planetId', component: PlanetComponent },
+    { path: 'traderoute', component: TradeRoutesComponent }
   ] }
+  // { path: '', component: EntryComponent },
+  // { path: 'game/:galaxyId', component: GameComponent },
+  // { path: 'planet/:planetId', outlet: 'data', component: PlanetComponent },
+  // { path: 'traderoute', outlet: 'data', component: TradeRoutesComponent }
 ];
 
 @NgModule({

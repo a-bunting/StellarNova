@@ -19,6 +19,7 @@ export class ConsoleComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log(`change`);
   }
 
 }

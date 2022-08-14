@@ -1,3 +1,66 @@
-* {
-  color: white;
+.move {
+  margin-top: 3rem;
+
+  &__title {
+    text-align: center;
+    padding: .5rem 1rem;
+    font-weight: bold;
+    letter-spacing: .15rem;
+    font-size: 1.2rem;
+  }
+
+  &__routes {
+    display: flex;
+    justify-content: center;
+  }
+
+  &__route {
+    padding: .5rem 1rem;
+    background-color: green;
+    transition: all .2s;
+    border-radius: .5rem;
+
+    &:hover {
+      cursor: pointer;
+      background-color: red;
+    }
+
+    &:not(:last-of-type) {
+      margin-right: .5rem;
+    }
+  }
+
+  &__realspace {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    margin: .3rem 1rem;
+  }
+
+  &__error {
+    opacity: 0;
+    max-height: 0rem;
+    color: red;
+    padding: 1rem 2rem;
+
+    animation: loadError .3s ease-in-out 0s 1 forwards;
+  }
+}
+
+.input__text {
+  flex: 1;
+  width: 6rem;
+  margin-right: 1rem;
+  border-radius: 1rem;
+  padding: .3rem .6rem;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.input__button {
+  font-size: 1rem;
+}
+
+@keyframes loadError {
+  100% { max-height: 5rem; opacity: 1; }
 }

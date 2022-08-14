@@ -1,0 +1,38 @@
+.trade-log {
+
+  position: relative;
+  width: 45rem;
+  height: 95%;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow-y: auto;
+  padding: 1rem 2rem;
+
+  &__log {
+    position: relative;
+    opacity: 0;
+    max-height: 0rem;
+    border-radius: 1rem;
+    font-size: 1.2rem;
+    margin-right: .5rem;
+
+    animation: fadeIn .3s ease-in-out 0s 1 forwards, fadeOut .3s ease-in-out 6.6s 1 forwards;
+
+    text-align: center;
+    padding: .3rem 2rem;
+    margin-bottom: .4rem;
+
+    box-shadow: .1rem 0 .2rem rgba(black, .5);
+  }
+
+  &__move { background-color: orange; }
+  &__buy { background-color: green; }
+  &__sell { background-color: red; }
+}
+
+.input__button { margin-bottom: 2rem; }
+
+@keyframes fadeIn { 100% { opacity: 1; max-height: 3rem; }}
+@keyframes fadeOut { 100% { opacity: 0; max-height: 0rem; }}

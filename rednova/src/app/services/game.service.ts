@@ -6,15 +6,25 @@ import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from 'src/environments/environment';
 import { RednovaConsoleLog } from '../console/console.component';
 import { GoodStore, SectorData } from '../game/game.component';
+import { TradeLogData } from '../trade/display-trade-log/display-trade-log.component';
+import { TradeRoute, TradeRouteDisplay } from '../trade/trade-routes/trade-routes.component';
 import { AuthenticateService, User } from './authenticate.service';
 import { DatabaseResult } from './interfaces';
+
+export interface SectorLog {
+  sectorid: number, planets: SectorLogPlanet[]
+}
+
+export interface SectorLogPlanet {
+  id: number, name: string, trading?: boolean, owner?: string
+}
 
 export interface ServerMessage {
   type: string; message: string; data: any;
 }
 
 export interface MenuData {
-  component: string; data?: { id?: number | string }
+  component: string; data?: { id?: number | string } | any
 }
 
 @Injectable({
@@ -45,20 +55,101 @@ export class GameService {
       if(this.firstLoad && user !== null) {
         this.firstLoad = false;
         this.webSockets();
+        this.loadLocalstorage();
+        this.loadNavigationLog();
+        this.loadTradeRoutes();
       }
     });
   }
 
-  loadSectorData(galaxyId: number): void {
+  loadSectorData(galaxyId: number = this.galaxyId): void {
     this.loadGalaxyData(galaxyId).subscribe({
       next: (res: DatabaseResult) => {
-        console.log(res.data);
-        this.sectorData.next(res.data);
+        if(res) {
+          this.sectorId = res.data.system.sectorid;
+          this.logVisitedSector(res.data);
+          this.sectorData.next(res.data);
+        }
       }
     });
+  }
+
+  loadNavigationLog(): void {
+    this.getNavigationLog(this.galaxyId).subscribe({
+      next: (result: DatabaseResult) => {
+        if(result) {
+          this.visitedSectors = result.data.planetLog;
+          this.updateLocalVisitedLog(result.data.planetLog);
+        }
+      },
+      error: (err: any) => { console.log(`Error: ${err}`)},
+      complete: () => { }
+    })
+  }
+
+  tradeRoutes: TradeRouteDisplay[] = [];
+  tradeRouteSubscription: BehaviorSubject<TradeRouteDisplay[]> = new BehaviorSubject(null);
+
+  loadTradeRoutes(): void {
+    this.loadAllTradeRoutes().subscribe({
+      next: (result: DatabaseResult) => {
+        if(result) {
+          this.tradeRoutes = result.data.routes;
+          this.tradeRouteSubscription.next(this.tradeRoutes);
+          console.log(result);
+        }
+      },
+      error: (err: any) => { console.log(`Error: ${err}`)},
+      complete: () => { }
+    })
+  }
+
+  /**
+   * Use this to modify or add a route t the trade routes...
+   * @param route
+   */
+  addOrUpdateTradeRoute(route: TradeRouteDisplay): void {
+    let exists: boolean = false;
+
+    for(let i = 0 ; i < this.tradeRoutes.length ; i++) {
+      if(this.tradeRoutes[i].id === route.id) {
+        // the route is found, so update the name only...
+        this.tradeRoutes[i].name = route.name;
+        exists = true;
+        break;
+      }
+    }
+    // if the route isnt found add it
+    if(!exists) this.tradeRoutes.push(route);
+
+    this.tradeRouteSubscription.next(this.tradeRoutes);
+  }
+
+  /**
+   * Remove the trade route from the list
+   * @param id
+   */
+  removeTradeRouteFromList(id: number): void {
+    for(let i = 0 ; i < this.tradeRoutes.length ; i++) {
+      if(this.tradeRoutes[i].id === id) {
+        // the route is found, so update the name only...
+        this.tradeRoutes.splice(i, 1);
+        break;
+      }
+    }
+
+    this.tradeRouteSubscription.next(this.tradeRoutes);
+  }
+
+  /**
+   * Any local storage that needs to be loaded can be done here.
+   */
+  loadLocalstorage(): void {
+    this.visitedSectors = JSON.parse(localStorage.getItem('rednova-visitedlog'));
   }
 
   galaxyId: number = -1;
+  sectorId: number = -1;
 
   setGalaxyId(galaxyId: number): void { this.galaxyId = galaxyId; }
 
@@ -153,11 +244,18 @@ export class GameService {
     }, (1 * 1000) / 100)
   }
 
-  // loads a planet and lets anybody interested know...
-  loadPlanet(planetId: number): void {
-    this.loadMenuItem.next({
-      component: 'planet', data: { id: planetId }
-    });
+  loadComponent(component: string, id?: number, data?: any): void {
+    switch(component) {
+      case 'planet':
+        this.loadMenuItem.next({ component: 'planet', data: { id: id } });
+        break;
+      case 'trade':
+        this.loadMenuItem.next({ component: 'trade', data: { id: id ? id : undefined } });
+        break;
+      case 'displayTradeLog':
+        this.loadMenuItem.next({ component: 'displayTradeLog', data: data });
+        break;
+    }
   }
 
   clearLoadedComponent(): void {
@@ -176,49 +274,153 @@ export class GameService {
     this.consoleLog.push({message, type, warning, timer});
   }
 
+  visitedSectors: SectorLog[] = [];
+
+  logVisitedSector(sector: SectorData): void {
+    // parse the sectordata into a sectorlog...
+    const sectorLog: SectorLog = {
+      sectorid: sector.system.sectorid,
+      planets: [
+        ...sector.system.planets.map(({ planetindex, distance, ...data }) => { return { id: data.id, name: data.name }} )
+      ]
+    }
+
+    // find the current log index if it exists...
+    const alreadyLoggedIndex: number = this.visitedSectors.findIndex((a: SectorLog) => a.sectorid === sector.system.sectorid);
+
+    // check if tis in the log or not, if not add it, if so check its the same data and update.
+    if(alreadyLoggedIndex === -1) {
+      // its not already in the log...
+      this.visitedSectors.push(sectorLog);
+    } else {
+      // it is in the log so just overwrite the current data...
+      this.visitedSectors[alreadyLoggedIndex] = sectorLog;
+    }
+
+    this.updateLocalVisitedLog(this.visitedSectors);
+  }
+
+  getVisitedLog(): SectorLog[] { return this.visitedSectors; }
+
+  /**
+   * Get any visited log data for a sector...
+   * @param sectorId
+   * @returns
+   */
+  getVisitedLogSector(sectorId: number): SectorLogPlanet[] {
+    const log: SectorLog = this.visitedSectors.find((a: SectorLog) => a.sectorid === sectorId);
+    return log ? log.planets : [];
+  }
+
+  /**
+   * Toggle trading in the log...
+   * Implemented in code but not in the game, maybe add as a talent later.
+   *
+   * @param sectorid
+   * @param planetid
+   * @param tradingStatus
+   */
+  toggleTradingInLog(planetid: number, tradingStatus: boolean): void {
+    // get the sector index in the log.
+    const alreadyLoggedIndex: number = this.visitedSectors.findIndex((a: SectorLog) => a.sectorid === this.sectorId);
+
+    // if it exists then toggle trading...
+    if(alreadyLoggedIndex !== -1) {
+      const planetIndex: number = this.visitedSectors[alreadyLoggedIndex].planets.findIndex((a: SectorLogPlanet) => a.id === planetid);
+
+      // if the planet exists then update the trading status...
+      if(planetIndex !== -1) {
+        this.visitedSectors[alreadyLoggedIndex].planets[planetIndex].trading = tradingStatus;
+        this.updateLocalVisitedLog(this.visitedSectors);
+      }
+    }
+    // else it doesnt exist in the log for some reason!
+  }
+
+  /**
+   * Update localstorage with the new log...
+   * @param log
+   */
+  updateLocalVisitedLog(log: SectorLog[]): void {
+    localStorage.setItem('rednova-visitedlog', JSON.stringify(log));
+  }
+
+  /**
+   * The callback function for the database unless overridden
+   * @param res
+   */
+  dbCallBack: Function = (res: DatabaseResult) => {
+    if(res.error) console.log(`Error: ${res.message}`);
+  }
+
+
   /**
    * loads the galaxy data for a particular galaxy...
    *
    * @param galaxyId
    * @returns
    */
-  loadGalaxyData(galaxyId: number): Observable<DatabaseResult> {
-    return this.http.get<DatabaseResult>(`${environment.apiUrl}/galaxy/getUserGalaxyData?galaxyId=${galaxyId}`).pipe(take(1));
+  loadGalaxyData(galaxyId: number, callback: Function = this.dbCallBack): Observable<DatabaseResult> {
+    return this.http.get<DatabaseResult>(`${environment.apiUrl}/galaxy/getUserGalaxyData?galaxyId=${galaxyId}`).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
   }
 
-  warpToSector(galaxyId: number, sectorId: number): Observable<DatabaseResult> {
-    return this.http.post<DatabaseResult>(`${environment.apiUrl}/galaxy/moveTo`, { destinationId: sectorId, galaxyId: galaxyId, movestyle: 'warp' }).pipe(take(1));
+  getNavigationLog(galaxyId: number, callback: Function = this.dbCallBack): Observable<DatabaseResult> {
+    return this.http.get<DatabaseResult>(`${environment.apiUrl}/user/getNavLog?galaxyId=${galaxyId}`).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
   }
 
-  moveToSector(galaxyId: number, sectorId: number, engines: number): Observable<DatabaseResult> {
-    return this.http.post<DatabaseResult>(`${environment.apiUrl}/galaxy/moveTo`, { destinationId: sectorId, galaxyId: galaxyId, engines: engines }).pipe(take(1));
+  warpToSector(galaxyId: number, sectorId: number, callback: Function = this.dbCallBack): Observable<DatabaseResult> {
+    return this.http.post<DatabaseResult>(`${environment.apiUrl}/galaxy/moveTo`, { destinationId: sectorId, galaxyId: galaxyId, movestyle: 'warp' }).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
   }
 
-  getDistanceCalculation(galaxyId: number, from: number, to: number, engine: number = 1): Observable<DatabaseResult> {
-    return this.http.get<DatabaseResult>(`${environment.apiUrl}/galaxy/distanceToSector?galaxyId=${galaxyId}&from=${from}&to=${to}&engine=${engine}`).pipe(take(1));
+  moveToSector(galaxyId: number, sectorId: number, engines: number, callback: Function = this.dbCallBack): Observable<DatabaseResult> {
+    return this.http.post<DatabaseResult>(`${environment.apiUrl}/galaxy/moveTo`, { destinationId: sectorId, galaxyId: galaxyId, engines: engines }).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
   }
 
-  getPlanetData(galaxyId: number, planetId: number): Observable<DatabaseResult> {
-    return this.http.get<DatabaseResult>(`${environment.apiUrl}/planet/getPlanetData?galaxyId=${galaxyId}&planetId=${planetId}`).pipe(take(1));
+  getDistanceCalculation(galaxyId: number, from: number, to: number, engine: number = 1, callback: Function = this.dbCallBack): Observable<DatabaseResult> {
+    return this.http.get<DatabaseResult>(`${environment.apiUrl}/galaxy/distanceToSector?galaxyId=${galaxyId}&from=${from}&to=${to}&engine=${engine}`).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
   }
 
-  buyResources(galaxyId: number, planetId: number, sectorId: number, goods: { id: string, quantity: number }): Observable<DatabaseResult> {
-    return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/buyResources`, { galaxyId: galaxyId, planetId: planetId, goods: goods, sectorId: sectorId }).pipe(take(1));
+  getPlanetData(galaxyId: number, planetId: number, callback: Function = this.dbCallBack): Observable<DatabaseResult> {
+    return this.http.get<DatabaseResult>(`${environment.apiUrl}/planet/getPlanetData?galaxyId=${galaxyId}&planetId=${planetId}`).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
   }
 
-  sellResources(galaxyId: number, planetId: number, sectorId: number, goods: { id: string, quantity: number }): Observable<DatabaseResult> {
-    return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/sellResources`, { galaxyId: galaxyId, planetId: planetId, goods: goods, sectorId: sectorId }).pipe(take(1));
+  buyResources(galaxyId: number, planetId: number, sectorId: number, goods: { id: string, quantity: number }, callback: Function = this.dbCallBack): Observable<DatabaseResult> {
+    return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/buyResources`, { galaxyId: galaxyId, planetId: planetId, goods: goods, sectorId: sectorId }).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
   }
 
-  buildBuilding(planetIndex: number, building: { id: number, quantity: number }): Observable<DatabaseResult> {
-    return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/buildBuilding`, { galaxyId: this.galaxyId, sectorId: this.sectorData.value.system.sectorid, planetIndex, building }).pipe(take(1));
+  sellResources(galaxyId: number, planetId: number, sectorId: number, goods: { id: string, quantity: number }, callback: Function = this.dbCallBack): Observable<DatabaseResult> {
+    return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/sellResources`, { galaxyId: galaxyId, planetId: planetId, goods: goods, sectorId: sectorId }).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
   }
 
-  destroyBuilding(planetIndex: number, building: { id: number, quantity: number }): Observable<DatabaseResult> {
-    return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/destroyBuilding`, { galaxyId: this.galaxyId, sectorId: this.sectorData.value.system.sectorid, planetIndex, building }).pipe(take(1));
+  buildBuilding(planetIndex: number, building: { id: number, quantity: number }, callback: Function = this.dbCallBack): Observable<DatabaseResult> {
+    return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/buildBuilding`, { galaxyId: this.galaxyId, sectorId: this.sectorData.value.system.sectorid, planetIndex, building }).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
   }
 
-  updateTrading(planetIndex: number, tradingStatus: boolean): Observable<DatabaseResult> {
-    return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/updateTrading`, { galaxyId: this.galaxyId, sectorId: this.sectorData.value.system.sectorid, planetIndex, tradingStatus }).pipe(take(1));
+  destroyBuilding(planetIndex: number, building: { id: number, quantity: number }, callback: Function = this.dbCallBack): Observable<DatabaseResult> {
+    return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/destroyBuilding`, { galaxyId: this.galaxyId, sectorId: this.sectorData.value.system.sectorid, planetIndex, building }).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
+  }
+
+  updateTrading(planetIndex: number, tradingStatus: boolean, callback: Function = this.dbCallBack): Observable<DatabaseResult> {
+    return this.http.post<DatabaseResult>(`${environment.apiUrl}/planet/updateTrading`, { galaxyId: this.galaxyId, sectorId: this.sectorData.value.system.sectorid, planetIndex, tradingStatus }).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
+  }
+
+  saveTradeRoute(tradeRoute: TradeRoute, tradeRouteId?: number, callback: Function = this.dbCallBack): Observable<DatabaseResult> {
+    return this.http.post<DatabaseResult>(`${environment.apiUrl}/trade/addTradeRoute`, { galaxyId: this.galaxyId, tradeRoute, tradeRouteId }).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
+  }
+
+  deleteTradeRoute(tradeRouteId: number , callback: Function = this.dbCallBack): Observable<DatabaseResult> {
+    return this.http.post<DatabaseResult>(`${environment.apiUrl}/trade/deleteTradeRoute`, { galaxyId: this.galaxyId, tradeRouteId: tradeRouteId }).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
+  }
+
+  loadTradeRoute(tradeRouteId: number, callback: Function = this.dbCallBack): Observable<DatabaseResult> {
+    return this.http.post<DatabaseResult>(`${environment.apiUrl}/trade/loadTradeRoute`, { galaxyId: this.galaxyId, tradeRouteId: tradeRouteId }).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
+  }
+
+  loadAllTradeRoutes(callback: Function = this.dbCallBack): Observable<DatabaseResult> {
+    return this.http.get<DatabaseResult>(`${environment.apiUrl}/trade/getTradeRouteList?galaxyId=${this.galaxyId}`).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
+  }
+
+  executeTradeRoutes(tradeRouteId: number, iterations: number, callback: Function = this.dbCallBack): Observable<DatabaseResult> {
+    return this.http.post<DatabaseResult>(`${environment.apiUrl}/trade/executeTradeRoutes`, { galaxyId: this.galaxyId, tradeRouteId, iterations }).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
   }
 }

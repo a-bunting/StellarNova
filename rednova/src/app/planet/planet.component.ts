@@ -167,7 +167,9 @@ export class PlanetComponent implements OnInit, OnDestroy, OnChanges {
     this.gameService.updateTrading(this.planetData.planetindex, checked).subscribe({
       next: (data: DatabaseResult) => {
         if(data.error === false) {
-          this.gameService.consoleLogger( `You successfully togged trading on ${this.planetData.name} to ${checked ? 'on' : 'off'}.`, 'tradeSettingsChangeSuccess' )
+          this.gameService.consoleLogger( `You successfully togged trading on ${this.planetData.name} to ${checked ? 'on' : 'off'}.`, 'tradeSettingsChangeSuccess' );
+          // trading in the log disabled for now, maybe a talent at a later date?
+          // this.gameService.toggleTradingInLog(this.planetId, checked);
         } else {
           this.gameService.consoleLogger( `You were unable to modify the trade settings for ${this.planetData.name} because ${data.message}.`, 'tradeSettingsChangeFail' )
         }

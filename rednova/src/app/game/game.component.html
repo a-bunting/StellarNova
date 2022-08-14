@@ -4,10 +4,14 @@
     <app-menu></app-menu>
     <app-move></app-move>
     <app-console [consoleLogs]="gameService.consoleLog"></app-console>
+    <app-trade-route-launcher></app-trade-route-launcher>
   </div>
 
   <div class="ship">
     <app-shipoverview></app-shipoverview>
+  </div>
+
+  <div class="traderoutes">
   </div>
 
   <div class="sector-info">
@@ -28,6 +32,8 @@
 
     <div id="data-outlet" class="data-outlet">
       <app-planet *ngIf="componentLoad.component === 'planet'" [planetId]='+componentLoad.data.id'></app-planet>
+      <app-trade-routes *ngIf="componentLoad.component === 'trade'" [tradeRouteId]='+componentLoad.data.id'></app-trade-routes>
+      <app-display-trade-log *ngIf="componentLoad.component === 'displayTradeLog'" [tradeLog]="componentLoad.data"></app-display-trade-log>
     </div>
   </div>
 

@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { EntryComponent } from './entry/entry.component';
 import { GameComponent } from './game/game.component';
 import { PlanetComponent } from './planet/planet.component';
-import { TradeRoutesComponent } from './trade-routes/trade-routes.component';
+import { TradeRoutesComponent } from './trade/trade-routes/trade-routes.component';
 
 const routes: Routes = [
   { path: '', component: EntryComponent },

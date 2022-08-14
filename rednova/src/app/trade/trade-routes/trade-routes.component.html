@@ -1,0 +1,108 @@
+<div class="trade">
+  <div class="trade__title">Trade Routes</div>
+
+  <div class="trade__route">
+
+    <div class="trade__routeinfo">
+      <div class="trade__subtitle">
+        <div class="trade__subtitle--text">Route Alias</div>
+        <input type="text" class="input__text input__text--long" (keyup)="updateRouteName($event)" value="{{ tradeRoute.name }}">
+        <div class="trade__subtitle--text">Costs {{ tradeRoute.cost }} Turns</div>
+      </div>
+      <div class="trade__subtitle">
+        <div class="trade__subtitle--text"></div>
+        <button type="text" class="input__button" (click)="displayTraderoute()" [disabled]="!routeIsValid || !changesMade" (click)="saveRoute()">{{ savedRoute && tradeRouteId ? 'Update Route' : 'Save Route' }}</button>
+        <button type="text" class="input__button" *ngIf="savedRoute" (click)="deleteRoute(tradeRouteId)">Delete Route</button>
+      </div>
+    </div>
+
+    <div class="trade__stage" *ngFor="let stage of tradeRoute.stages; let i = index"  [class.trade__stage--error]="stage.error">
+
+      <div [ngSwitch]="true" class="trade__detail">
+
+        <div class="trade__stage--delete" (click)="deleteStage(i)">X</div>
+
+        <select class="input__select" (change)="changeStageAction(i, $event)">
+          <option value="" [selected]="stage.action === ''"></option>
+          <option value="move" [selected]="stage.action === 'move'">Move</option>
+          <option value="buy" [selected]="stage.action === 'buy'">Puchase</option>
+          <option value="sell" [selected]="stage.action === 'sell'">Sell</option>
+        </select>
+
+
+        <div *ngSwitchCase="stage.action === 'buy' || stage.action ==='sell'" class="trade__detail">
+          <div class="trade__stage--input">
+            <input type="text" class="input__text" value="{{ stage.quantity === -1 ? 'max' : stage.quantity }}" (change)="setBuySellQuantity(i, $event)">
+            <button class="input__button" [class.input__button--selected]="stage.quantity === -1" (click)="setMaxQuantity(stage.id)">Max</button>
+          </div>
+          <div class="trade__stage--input">
+            <select class="input__select" (change)="setGoodsType(i, $event)">
+              <option value="goods" value="2" [selected]="tradeRoute.stages[i].goodsType === 2">Goods</option>
+              <option value="organics" value="1" [selected]="tradeRoute.stages[i].goodsType === 1">Organics</option>
+              <option value="ore" value="4" [selected]="tradeRoute.stages[i].goodsType === 4">Construction</option>
+              <option value="energy" value="3" [selected]="tradeRoute.stages[i].goodsType === 3">Energy</option>
+            </select>
+          </div>
+          <div class="trade__stage--text">from</div>
+          <div class="trade__stage--input">
+            <select class="input__select" (change)="setPlanetBuySell(i, $event)">
+              <option value="-1"  *ngIf="tradeRoute.stages[i].planetOptions.length === 0" selected disabled>No Planets in this Sector</option>
+              <option value="{{ planet.id }}" *ngFor="let planet of tradeRoute.stages[i].planetOptions" [selected]="tradeRoute.stages[i].planetId === planet.id">{{ planet.name }}</option>
+            </select>
+          </div>
+        </div>
+<!--
+        <div *ngSwitchCase="'sell'" class="trade__detail">
+          <div class="trade__stage--input">
+            <input type="text" class="input__text" value="{{ stage.quantity === -1 ? 'max' : stage.quantity }}" (change)="setBuySellQuantity(i, $event)">
+            <button class="input__button" [class.input__button--selected]="stage.quantity === -1" (click)="setMaxQuantity(stage.id)">Max</button>
+          </div>
+          <div class="trade__stage--input">
+            <select class="input__select" (change)="setGoodsType(i, $event)">
+              <option value="goods" value="2" [selected]="tradeRoute.stages[i].goodsType === 2">Goods</option>
+              <option value="organics" value="1" [selected]="tradeRoute.stages[i].goodsType === 1">Organics</option>
+              <option value="ore" value="4" [selected]="tradeRoute.stages[i].goodsType === 4">Construction</option>
+              <option value="energy" value="3" [selected]="tradeRoute.stages[i].goodsType === 3">Energy</option>
+            </select>
+          </div>
+          <div class="trade__stage--text">to</div>
+          <div class="trade__stage--input">
+            <select class="input__select" (change)="setPlanetBuySell(i, $event)">
+              <option value="-1" *ngIf="tradeRoute.stages[i].planetOptions.length === 0" selected disabled>No Planets in this Sector</option>
+              <option value="{{ planet.id }}" *ngFor="let planet of tradeRoute.stages[i].planetOptions" [selected]="tradeRoute.stages[i].planetId === planet.id">{{ planet.name }}</option>
+            </select>
+          </div>
+        </div> -->
+
+        <div *ngSwitchCase="stage.action === 'move'" class="trade__detail">
+          <div class="trade__stage--text">to</div>
+          <div class="trade__stage--input">
+
+            <select class="input__select" (change)="setStageDestination(i, $event)">
+              <option value="-1" [selected]="tradeRoute.stages[i].destination === -1"></option>
+              <option value="{{ sector }}" *ngFor="let sector of tradeRoute.stages[i].sectorOptions" [selected]="tradeRoute.stages[i].destination === sector" [disabled]="sector === sectorData.system.sectorid">{{ sector }}</option>
+            </select>
+
+            <button class="input__button" (click)="setCurrentSector(stage.id)">Current</button>
+          </div>
+          <div class="trade__stage--text">with</div>
+          <div class="trade__stage--input">
+            <select class="input__select" (change)="setTravelMethod(i, $event)">
+              <option value="warp" [selected]="tradeRoute.stages[i].moveType === 'warp'">Warp</option>
+              <option value="real" [selected]="tradeRoute.stages[i].moveType === 'real'">Realspace</option>
+            </select>
+          </div>
+          <div class="trade__stage--text">engines</div>
+        </div>
+
+      </div>
+
+      <div class="trade__addstage" (click)="addStage(i)">Insert Stage Here</div>
+
+    </div>
+
+    <div class="trade__addstage" (click)="addStage(0)" *ngIf="tradeRoute.stages.length === 0">ADD NEW STAGE</div>
+
+  </div>
+
+</div>

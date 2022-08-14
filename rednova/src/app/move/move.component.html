@@ -1,15 +1,24 @@
-<div class="game__warp-routes">
-  <a (click)="warpTo(warp.destination)" *ngFor="let warp of sectorData?.system.warp">Warp to {{ warp.destination }}</a>
+<div class="move">
+
+  <div class="move__title">Warp (1 Turn)</div>
+
+  <div class="move__routes">
+    <a class="move__route" (click)="warpTo(warp.destination)" *ngFor="let warp of sectorData?.system.warp">{{ warp.destination }}</a>
+  </div>
+
+  <div class="move__title">Realspace</div>
+
+  <div class="move__realspace">
+    <a class="move__route" (click)="moveTo(sectorData?.system.sectorid - 1)" *ngIf="sectorData?.system.sectorid - 1 > 0">{{ sectorData?.system.sectorid - 1 }}</a>
+    <a class="move__route" (click)="moveTo(sectorData?.system.sectorid + 1)" *ngIf="sectorData?.system.sectorid + 1 <= sectorData?.server.sectors">{{ sectorData?.system.sectorid + 1 }}</a>
+  </div>
+
+  <div class="move__realspace">
+    <input class="input__text" type="text" name="moveto" id="moveto" [(ngModel)]="subLightInput" (keyup)="calculateSublightTurnCost()">
+    <button class="input__button" (click)="moveTo()">{{ calculatingNewCost ? 'Calculating...' : !subLightCost ? 'Invalid Sector' : subLightCost + ' Turns' }}</button>
+  </div>
+
+  <div class="move__error" *ngIf="moveError">{{ moveError.message }} (Required Turns: {{ moveError.turnsRequired }}, available turns: {{ moveError.turnsAvailable }})</div>
+
 </div>
 
-<br>
-<br>
-<input type="text" name="moveto" id="moveto" [(ngModel)]="subLightInput" (keyup)="calculateSublightTurnCost()">Move to sector with sublight engines... (cost {{ calculatingNewCost ? 'calculating...' : !subLightCost ? 'Invalid Sector' : subLightCost }})
-<button *ngIf="subLightCost" (click)="moveTo()">Go</button>
-<br>
-Move at sublight to -
-<a (click)="moveTo(sectorData?.system.sectorid - 1)" *ngIf="sectorData?.system.sectorid - 1 > 0">{{ sectorData?.system.sectorid - 1 }}</a>
--
-<a (click)="moveTo(sectorData?.system.sectorid + 1)" *ngIf="sectorData?.system.sectorid + 1 <= sectorData?.server.sectors">{{ sectorData?.system.sectorid + 1 }}</a>
-<br>
-<div *ngIf="moveError">{{ moveError.message }} (Required Turns: {{ moveError.turnsRequired }}, available turns: {{ moveError.turnsAvailable }})</div>

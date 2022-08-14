@@ -79,6 +79,7 @@
   flex: 1;
   display: flex;
   width: 100%;
+  height: 100%;
 }
 
 .system-visualisation {
@@ -87,11 +88,13 @@
 }
 
 .data-outlet {
+  position: relative;
   flex: 0 1;
-  padding: 1rem;
+  padding: 1rem 2rem;
   margin: 1rem;
   border-radius: 1rem;
   background-color: gray;
+  box-shadow: .2rem 0 .4rem rgba(white, .5);
   max-width: 0rem;
   opacity: 0;
 }
@@ -99,6 +102,6 @@
 .shrinkAndHide { animation: shrinkAndHide .3s ease-in-out 0s 1 forwards; }
 .expand { animation: expand .3s ease-in-out 0s 1 forwards; }
 
-@keyframes shrinkAndHide { 0% { max-width: 50rem; opacity: 1; } 100% { max-width: 0rem; opacity: 0; } }
-@keyframes expand { 0% { max-width: 0rem; opacity: 0; } 100% { max-width: 50rem; opacity: 1; } }
+@keyframes shrinkAndHide { 0% { max-width: 55rem; opacity: 1; } 100% { max-width: 0rem; opacity: 0; } }
+@keyframes expand { 0% { max-width: 0rem; opacity: 0; } 100% { max-width: 55rem; opacity: 1; } }
 

@@ -1,0 +1,41 @@
+.menu {
+  position: relative;
+  width: 100%;
+  display: flex;
+  transition: all .2s;
+
+  margin-bottom: -2.5rem;
+
+  &:hover { margin-bottom: 0rem; }
+
+  &__item {
+    flex: 1;
+    padding: .5rem 1rem;
+    text-align: center;
+    transition: all .2s;
+    background-color: rgba(150,150,150,1);
+
+    &:first-of-type { border-radius: 1rem 0 0 0 ; }
+    &:last-of-type { border-radius: 0 1rem 0 0 ; }
+
+    &:hover {
+      cursor: pointer;
+      background-color: rgba(200,200,200,1);
+
+      & + .menu__label {
+        opacity: 1;
+      }
+    }
+  }
+
+  &__label {
+    position: absolute;
+    bottom: -2.5rem;
+    left: 0rem;
+    width: 100%;
+    text-align: center;
+    opacity: 0;
+    transition: all .2s;
+    font-size: 1.6rem;
+  }
+}

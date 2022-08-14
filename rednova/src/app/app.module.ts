@@ -15,10 +15,12 @@ import { GalaxyListComponent } from './entry/galaxy-list/galaxy-list.component';
 import { PlanetComponent } from './planet/planet.component';
 import { ShipoverviewComponent } from './shipoverview/shipoverview.component';
 import { ConsoleComponent } from './console/console.component';
-import { TradeRoutesComponent } from './trade-routes/trade-routes.component';
+import { TradeRoutesComponent } from './trade/trade-routes/trade-routes.component';
 import { MenuComponent } from './menu/menu.component';
 import { MoveComponent } from './move/move.component';
 import { SystemComponent } from './system/system.component';
+import { TradeRouteLauncherComponent } from './trade/trade-route-launcher/trade-route-launcher.component';
+import { DisplayTradeLogComponent } from './trade/display-trade-log/display-trade-log.component';
 
 @NgModule({
   declarations: [
@@ -35,7 +37,9 @@ import { SystemComponent } from './system/system.component';
     TradeRoutesComponent,
     MenuComponent,
     MoveComponent,
-    SystemComponent
+    SystemComponent,
+    TradeRouteLauncherComponent,
+    DisplayTradeLogComponent
   ],
   imports: [
     BrowserModule,

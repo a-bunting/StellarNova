@@ -1,0 +1,70 @@
+.trade-routes {
+  padding: .5rem 1rem;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  &__route {
+
+    display: flex;
+    overflow: hidden;
+
+
+    &:first-of-type { border-radius: 1rem 1rem 0 0 ;}
+    &:last-of-type {
+      border-radius: 0 0 1rem 1rem;
+    }
+  }
+
+  &__modify, &__name {
+    padding: .5rem 1rem;
+    transition: all .3s;
+    &:hover { filter: brightness(1.05); cursor: pointer; }
+  }
+
+  &__modify {
+    background-color: rgb(200, 200, 200);
+    transition: all .3s;
+  }
+
+  &__name {
+    flex: 1;
+    background-color: orange;
+    font-size: 1.2rem;
+  }
+
+  &__selected {
+    background-color: red;
+    color: white;
+    transition: all .3s;
+  }
+
+  &__runtimes {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 1rem;
+
+    &--runtime {
+      background-color: gray;
+      border-radius: .5rem;
+      padding: .5rem;
+      flex: 1;
+      text-align: center;
+      transition: all .3s;
+
+      &:not(:last-of-type) { margin-right: .3rem; }
+
+      &:hover {
+        cursor: pointer;
+        filter: brightness(1.05);
+      }
+    }
+  }
+
+  &__execute {
+    margin-top: 1rem;
+    font-size: 1.2rem;
+  }
+}

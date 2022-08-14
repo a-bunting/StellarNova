@@ -162,17 +162,6 @@ export class SystemComponent implements OnInit, OnDestroy {
 
     const starRgb: string = '255, 127, 0';
 
-    ctx.beginPath();
-    var gradient: CanvasGradient = ctx.createRadialGradient(canvas.nativeElement.width / 2, canvas.nativeElement.height / 2, this.starSize * 1.5, canvas.nativeElement.width / 2, canvas.nativeElement.height / 2, this.starSize * 3);
-
-    gradient.addColorStop(0, `rgba(${starRgb}, 1)`);
-    gradient.addColorStop(1, "transparent");
-
-    ctx.fillStyle = gradient;
-
-    ctx.arc(canvas.nativeElement.width / 2, canvas.nativeElement.height / 2, this.starSize * 3, 0, 2 * Math.PI);
-    ctx.fill();
-
     // draw the rays
     for(let i = 0 ; i < this.rays.length ; i++) {
       let ray: { a: number, l: number, w: number } = this.rays[i];
@@ -190,6 +179,18 @@ export class SystemComponent implements OnInit, OnDestroy {
       ctx.fillRect(0, 0, ray.w, rayLength);
       ctx.restore();
     }
+
+
+    ctx.beginPath();
+    var gradient: CanvasGradient = ctx.createRadialGradient(canvas.nativeElement.width / 2, canvas.nativeElement.height / 2, this.starSize * 1.5, canvas.nativeElement.width / 2, canvas.nativeElement.height / 2, this.starSize * 3);
+
+    gradient.addColorStop(0, `rgba(${starRgb}, 1)`);
+    gradient.addColorStop(1, "transparent");
+
+    ctx.fillStyle = gradient;
+
+    ctx.arc(canvas.nativeElement.width / 2, canvas.nativeElement.height / 2, this.starSize * 3, 0, 2 * Math.PI);
+    ctx.fill();
 
     let anyPlanetsHighlighted: boolean = false;
 
@@ -265,7 +266,7 @@ export class SystemComponent implements OnInit, OnDestroy {
     if(this.highlightedPlanet !== -1) {
       // this.router.navigate([{ outlets: { data: ['planet', this.highlightedPlanet]}}]);
       // this.router.navigate(['planet', this.highlightedPlanet], { relativeTo: this.route });
-      this.gameService.loadPlanet(this.highlightedPlanet);
+      this.gameService.loadComponent('planet', this.highlightedPlanet);
     } else {
       this.gameService.clearLoadedComponent();
     }

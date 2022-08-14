@@ -1,0 +1,19 @@
+<div class="trade-routes">
+
+  <div class="trade-routes__route" *ngFor="let route of tradeRoutesList">
+    <div class="trade-routes__modify" (click)="loadRoute(route.id)" [class.trade-routes__selected]="route.id === selectedTradeRoute">S</div>
+    <div class="trade-routes__name" (click)="selectRoute(route.id)" [class.trade-routes__selected]="route.id === selectedTradeRoute">{{ route.name }}</div>
+  </div>
+
+  <div class="trade-routes__runtimes" *ngIf="selectedTradeRoute">
+    <div class="trade-routes__runtimes--runtime" (click)="selectTradeQuantity(1)" [class.trade-routes__selected]="selectedTradeQuantity === 1">1</div>
+    <div class="trade-routes__runtimes--runtime" (click)="selectTradeQuantity(5)" [class.trade-routes__selected]="selectedTradeQuantity === 5">5</div>
+    <div class="trade-routes__runtimes--runtime" (click)="selectTradeQuantity(10)" [class.trade-routes__selected]="selectedTradeQuantity === 10">10</div>
+    <div class="trade-routes__runtimes--runtime" (click)="selectTradeQuantity(25)" [class.trade-routes__selected]="selectedTradeQuantity === 25">25</div>
+    <div class="trade-routes__runtimes--runtime" (click)="selectTradeQuantity(50)" [class.trade-routes__selected]="selectedTradeQuantity === 50">50</div>
+  </div>
+
+  <button class="trade-routes__execute input__button" *ngIf="selectedTradeQuantity" (click)="executeTradeRoutes()">
+    Execute {{ selectedTradeQuantity }} Trade{{ selectedTradeQuantity >  1 ? 's' : '' }}
+  </button>
+</div>

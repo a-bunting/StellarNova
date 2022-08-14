@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthenticateService, User } from '../services/authenticate.service';
 import { GameService, MenuData, ServerMessage } from '../services/game.service';
+import { TradeRouteDisplay } from '../trade/trade-routes/trade-routes.component';
 
 export interface Ship {
   armor: number; beams: number; cloak: number; computer: number; engines: number; hull: number; money: number; power: number; sector: number; sensors: number; shields: number; torpedos: number; storage: string;
@@ -94,6 +95,8 @@ export class GameComponent implements OnInit, OnDestroy {
           if(data) {
             switch(data.component) {
               case "planet": this.openSideData({ component: 'planet', data: { id: data.data.id }}); break;
+              case "trade": this.openSideData({ component: 'trade', data: { id: data.data.id } }); break;
+              case "displayTradeLog": this.openSideData({ component: 'displayTradeLog', data: data.data }); break;
               case '': this.removeSideData(); break;
             }
           } else {
@@ -106,23 +109,6 @@ export class GameComponent implements OnInit, OnDestroy {
 
       // get auth to check auth status and update...
       this.authService.checkLoggedInStatus();
-
-      // deal with messages from the server that relate to the current gameplay.
-      const gameSub: Subscription = this.gameService.serverMessage.subscribe({
-        next: (message: ServerMessage) => {
-          if(message) {
-            console.log(message);
-            // do something when a message from the server is recieved of a particular type...
-            switch(message.type) {
-              case "tick":
-                this.sectorData.user.turns += message.data.quantity ?? 0; break;
-              default: break;
-            }
-          }
-        }, error: (error) => {
-          console.log(`Server Message Error: ${error}`);
-        }
-      })
 
       // needs a better way of managing sector data in this file
       const sectorDataSub: Subscription = this.gameService.sectorData.subscribe({
@@ -143,6 +129,22 @@ export class GameComponent implements OnInit, OnDestroy {
         },
         error: (error) => { console.log(`Error: ${error}`)},
         complete: () => {}
+      })
+
+      // deal with messages from the server that relate to the current gameplay.
+      const gameSub: Subscription = this.gameService.serverMessage.subscribe({
+        next: (message: ServerMessage) => {
+          if(message) {
+            // do something when a message from the server is recieved of a particular type...
+            switch(message.type) {
+              case "tick":
+                this.sectorData.user.turns += message.data.quantity ?? 0; break;
+              default: break;
+            }
+          }
+        }, error: (error) => {
+          console.log(`Server Message Error: ${error}`);
+        }
       })
 
       // push these to the subscription so they can be unsubscribed to later...
@@ -171,11 +173,14 @@ export class GameComponent implements OnInit, OnDestroy {
    * remvoes stuff likeplanetary data or menu loaded things...
    */
   removeSideData(): void {
-    document.getElementById('data-outlet').classList.add('shrinkAndHide');
-    document.getElementById('data-outlet').classList.remove('expand');
+    // using a try catch as sometimes this will fire on page load...
+    try {
+      document.getElementById('data-outlet').classList.add('shrinkAndHide');
+      document.getElementById('data-outlet').classList.remove('expand');
 
-    // hide then remove the component
-    setTimeout(() => { this.componentLoad = { component: '' }; }, 300);
+      // hide then remove the component
+      setTimeout(() => { this.componentLoad = { component: '' }; }, 300);
+    } catch(e: any) {}
   }
 
   /**

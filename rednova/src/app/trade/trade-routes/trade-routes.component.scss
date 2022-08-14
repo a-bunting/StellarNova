@@ -1,0 +1,109 @@
+.trade {
+  width: 55rem;
+
+  &__title {
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+
+  &__route {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__stage {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-direction: column;
+    margin-bottom: .2rem;
+    padding: .5rem 0rem;
+    width: 100%;
+
+    &--input {
+      display: flex;
+
+      & > * { margin: 0 .5rem; }
+    }
+
+    &--text {
+      margin: 0 .5rem;
+    }
+
+    &--delete {
+      padding: .5rem 1rem;
+      text-align: center;
+      font-size: 1.2rem;
+      background-color: aqua;
+      transition: all .2s;
+      border-radius: 1rem;
+
+      &:hover {
+        cursor: pointer;
+        background-color: orange;
+      }
+    }
+
+    &--error {
+      background-color: brown;
+    }
+  }
+
+  &__detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  &__routeinfo {
+    display: flex;
+    flex-direction: column;
+    border-top: .1rem solid rgba(black, .4);
+    border-bottom: .1rem solid rgba(black, .4);
+    margin-bottom: 1rem;
+  }
+
+  &__subtitle {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+
+    padding: .4rem 1rem;
+
+
+    &--input {
+
+      input { margin-right: 1rem; }
+    }
+  }
+
+  &__addstage {
+    padding: .5rem 1rem;
+    text-align: center;
+    width: 100%;
+    margin-top: .2rem;
+    border-radius: 1rem;
+    background-color: aquamarine;
+    transition: all .2s;
+
+    &:hover {
+      background-color: orangered;
+      cursor: pointer;
+    }
+  }
+}
+
+.input__button, .input__text, .input__select {
+  font-size: 1rem;
+}
+
+.input__text {
+  width: 5rem;
+}
+
+.input__button {
+  &--selected { background-color: green; }
+}
+
+.input__text--long { width: auto; }

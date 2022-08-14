@@ -1,0 +1,20 @@
+<div class="trade-log">
+
+  <button class="input__button">Quick Finish</button>
+
+  <br><br>
+
+  <p>{{ displayLog[displayLog.length - 1].message }}</p>
+  <hr>
+  <p *ngFor="let good of goodsChange">{{ good.id }} - {{ good.quantity }}</p>
+  <hr>
+  <p>Turns: {{ turnsUsed }}</p>
+  <p>Money Change: {{ moneyChange }}</p>
+
+  <!-- <div class="trade-log__log" *ngFor="let log of displayLog"
+  [class.trade-log__move]="log.action === 'move'"
+  [class.trade-log__buy]="log.action === 'buy'"
+  [class.trade-log__sell]="log.action === 'sell'">
+    {{ log.message }}
+  </div> -->
+</div>

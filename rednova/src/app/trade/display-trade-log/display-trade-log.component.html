@@ -1,20 +1,31 @@
 <div class="trade-log">
 
-  <button class="input__button">Quick Finish</button>
+  <div class="trade-route" id="tradeRoute{{route.id}}" *ngFor="let route of tradeRoutesRun">
+    <div class="trade-route__data">
 
-  <br><br>
+      <div class="trade-route__log">
+        <div class="trade-route__log--data">{{ route.currentLog }}</div>
+      </div>
 
-  <p>{{ displayLog[displayLog.length - 1].message }}</p>
-  <hr>
-  <p *ngFor="let good of goodsChange">{{ good.id }} - {{ good.quantity }}</p>
-  <hr>
-  <p>Turns: {{ turnsUsed }}</p>
-  <p>Money Change: {{ moneyChange }}</p>
+      <div class="trade-route__sub">
+        <div class="trade-route__data--point">Turns: {{ route.turnsUsed | number  }}</div>
+        <div class="trade-route__data--point">Money Change: {{ route.moneyChange | number  }}</div>
+      </div>
 
-  <!-- <div class="trade-log__log" *ngFor="let log of displayLog"
-  [class.trade-log__move]="log.action === 'move'"
-  [class.trade-log__buy]="log.action === 'buy'"
-  [class.trade-log__sell]="log.action === 'sell'">
-    {{ log.message }}
-  </div> -->
+      <div class="trade-route__goods">
+        <div class="trade-route__good" *ngFor="let good of route.goodsChange">
+          <div class="trade-route__goods--name">{{ getGoodsName(good.id) }}</div>
+          <div class="trade-route__goods--quantity">{{ good.quantity | number }}</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="trade-route__button">
+      <div class="trade-route__data--point trade-route__data--name">{{ route.name }}</div>
+      <button class="input__button" [disabled]="route.complete">Quick Finish</button>
+      <button class="input__button" [disabled]="!route.complete" (click)="clearRoute(route.id)">Clear</button>
+    </div>
+  </div>
+
 </div>

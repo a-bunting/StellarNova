@@ -2,7 +2,7 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { GameService } from 'src/app/services/game.service';
 
 export interface TradeLogData {
-  log: TradeLog[]; turns: number; iterations: number;
+  routeName: string; log: TradeLog[]; turns: number; iterations: number;
 }
 
 export interface TradeLog {
@@ -22,40 +22,66 @@ export interface DisplayTradeDetails {
 export class DisplayTradeLogComponent implements OnInit, OnChanges {
 
   @Input() tradeLog: TradeLogData;
-  displayLog: DisplayTradeDetails[] = []; // items being displayed
-  toDisplay: TradeLog[] = []; // items not yet displayed
 
-  constructor(
-    private gameService: GameService
-  ) { }
+  constructor( private gameService: GameService ) { }
+
+  tradeRoutesRun: {
+    id: number,
+    currentLog: string,
+    name: string,
+    moneyChange: number,
+    turnsUsed: number,
+    goodsChange: { id: number, quantity: number }[],
+    data: TradeLog[],
+    interval: number,
+    complete: boolean,
+  }[] = [];
 
   ngOnInit(): void {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log(changes);
-    if(changes['tradeLog'].currentValue) this.displayNewLogData(changes['tradeLog'].currentValue);
+    if(changes['tradeLog'].currentValue) {
+      this.displayNewLogData(changes['tradeLog'].currentValue);
+    };
   }
 
-  tradeRoutesRun: { name: string, data: TradeLogData, interval: number }[] = [];
+  routeSpeedMs: number = 75;
 
-  turnsUsed: number = 0;
-  moneyChange: number = 0;
-  goodsChange: { id: number, quantity: number }[] = [];
-
+  /**
+   * Add a new log to the logs array
+   * @param log
+   */
   displayNewLogData(log: TradeLogData): void {
 
-    this.toDisplay.push(...log.log);
+    console.log(log);
 
-    let interval: number;
+    let newTradeRouteRun: {
+      id: number,
+      currentLog: string,
+      name: string,
+      moneyChange: number,
+      turnsUsed: number,
+      goodsChange: { id: number, quantity: number }[],
+      data: TradeLog[],
+      interval: number,
+      complete: boolean,
+    } = { id: this.tradeRoutesRun.length, currentLog: '', name: log.routeName, moneyChange: 0, turnsUsed: 0, goodsChange: [], data: log.log, interval: null, complete: false };
 
-    interval = window.setInterval(() => {
+    this.tradeRoutesRun.push(newTradeRouteRun);
 
-      const entry: TradeLog = this.toDisplay[0];
+    // create an interval to run through the logs.
+    let interval: number = window.setInterval(() => {
+
+      const entry: TradeLog = newTradeRouteRun.data[0];
       let logEntry = ``;
 
-      if(this.toDisplay.length === 0 || !entry) {
-        clearInterval(interval);
+      if(!entry) {
+        newTradeRouteRun.currentLog = 'Trade Route Completed';
+        newTradeRouteRun.complete = true;
+        this.updateMainWindow(newTradeRouteRun.id);
+        clearInterval(newTradeRouteRun.interval);
+        return;
       }
 
       switch(entry.action) {
@@ -64,27 +90,23 @@ export class DisplayTradeLogComponent implements OnInit, OnChanges {
           break;
         case 'sell':
           logEntry = `You sell ${entry.quantity} ${entry.good}s to planet ${entry.from} for ${entry.cost}.`;
-          this.addGoodToLog(entry.good, -entry.quantity);
-          this.moneyChange += entry.cost
+          // this.addGoodToLog(newTradeRouteRun.id, entry.good, -entry.quantity);
+          this.modifyGoodsQuantity(newTradeRouteRun.id, entry.good, -entry.quantity, 74);
+          newTradeRouteRun.moneyChange += entry.cost
           break;
         case 'buy':
           logEntry = `You buy ${entry.quantity} ${entry.good}s from planet ${entry.from} at a cost of ${entry.cost}.`;
-          this.addGoodToLog(entry.good, entry.quantity);
+          // this.addGoodToLog(newTradeRouteRun.id, entry.good, entry.quantity);
+          this.modifyGoodsQuantity(newTradeRouteRun.id, entry.good, entry.quantity, 74);
           break;
         }
 
-        this.turnsUsed += entry.turns;
-        // set a timeout
-        const newTimeout = window.setTimeout(() => {
-          this.displayLog.splice(0, 1);
-        }, 500); // 500 for the ticker type
+        newTradeRouteRun.turnsUsed += entry.turns;
+        newTradeRouteRun.currentLog = logEntry;
+        newTradeRouteRun.data.splice(0, 1);
+    }, this.routeSpeedMs);
 
-        this.displayLog.push({ action: entry.action, message: logEntry, timer: newTimeout });
-        this.toDisplay.splice(0, 1);
-    }, 75);
-
-    this.tradeRoutesRun.push({ name: 'x', data: log, interval: interval });
-
+    newTradeRouteRun.interval = interval;
   }
 
   /**
@@ -92,10 +114,65 @@ export class DisplayTradeLogComponent implements OnInit, OnChanges {
    * @param goodId
    * @param quantity
    */
-  addGoodToLog(goodId: number, quantity: number): void {
-    const good: { id: number, quantity: number } = this.goodsChange.find((a: {id: number, quantity: number }) => a.id === goodId);
+  addGoodToLog(tradeRouteRunId: number, goodId: number, quantity: number): void {
+    const good: { id: number, quantity: number } = this.tradeRoutesRun[tradeRouteRunId].goodsChange.find((a: {id: number, quantity: number }) => a.id === goodId);
     if(good) { good.quantity += quantity; }
-    else { this.goodsChange.push({ id: goodId, quantity: quantity }) }
+    else { this.tradeRoutesRun[tradeRouteRunId].goodsChange.push({ id: goodId, quantity: quantity }) }
+  }
+
+  getGoodsName(id: number): string { return this.gameService.getGoodsName(id); }
+
+  iterationsMax: number = 20;
+
+  modifyGoodsQuantity(routeId: number, goodId: number, change: number, time: number): void {
+    let good: { id: number, quantity: number } = this.tradeRoutesRun[routeId].goodsChange.find((a: {id: number, quantity: number }) => a.id === goodId);
+    let iterations: number = 0;
+
+    if(!good) {
+      this.tradeRoutesRun[routeId].goodsChange.push({ id: goodId, quantity: 0 });
+      good = this.tradeRoutesRun[routeId].goodsChange[this.tradeRoutesRun[routeId].goodsChange.length - 1];
+    }
+
+    // make it look good...
+    const newInterval: number = window.setInterval(() => {
+      // not sure why this usually adds as a string but this works...
+      good.quantity = good.quantity + (change / this.iterationsMax);
+      iterations++;
+      if(iterations === this.iterationsMax)  {
+        clearInterval(newInterval);
+      }
+    }, this.routeSpeedMs / this.iterationsMax)
+  }
+
+  completeRoute(routeId: number): void {
+    const index: number = this.tradeRoutesRun.findIndex((a) => a.id === routeId);
+    if(index !== -1) {
+      // needs to finish instantly.
+    }
+  }
+
+  clearRoute(routeId: number): void {
+    document.getElementById('tradeRoute'+routeId).classList.add('fadeOut');
+
+    window.setTimeout(() => {
+      const index: number = this.tradeRoutesRun.findIndex((a) => a.id === routeId);
+      if(index !== -1) {
+        this.tradeRoutesRun.splice(index, 1);
+      }
+    }, 500);
+  }
+
+  /**
+   * Updates the game window
+   * @param routeId
+   */
+  updateMainWindow(routeId: number): void {
+    const route: { id: number; currentLog: string; name: string; moneyChange: number; turnsUsed: number; goodsChange: { id: number; quantity: number; }[]; data: TradeLog[]; interval: number; complete: boolean; } = this.tradeRoutesRun.find((a) => a.id === routeId);
+    this.gameService.modifyShipCash(route.moneyChange);
+
+    for(let i = 0 ; i < route.goodsChange.length ; i++) {
+      this.gameService.addGoodsToShip(''+route.goodsChange[i].id, this.gameService.getGoodsName(route.goodsChange[i].id), route.goodsChange[i].quantity);
+    }
   }
 
 }

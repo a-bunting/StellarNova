@@ -215,7 +215,7 @@ export class GameService {
 
   addGoodsToShip(goodId: string, goodName: string, quantity: number): void {
     let shipStorage: GoodStore[] = [...JSON.parse(this.sectorData.value.ship.storage)];
-    const goodLocator: number = shipStorage.findIndex((a: GoodStore) => a.id === goodId);
+    const goodLocator: number = shipStorage.findIndex((a: GoodStore) => +a.id === +goodId);
 
     if(goodLocator === -1) {
       const newGood: GoodStore = { id: goodId, name: goodName, quantity: quantity };
@@ -351,6 +351,23 @@ export class GameService {
    */
   dbCallBack: Function = (res: DatabaseResult) => {
     if(res.error) console.log(`Error: ${res.message}`);
+  }
+
+  goods: { id: number, name: string }[] = [
+    { id: 1, name: 'Organics'},
+    { id: 2, name: 'Goods'},
+    { id: 3, name: 'Energy'},
+    { id: 4, name: 'Construction Materials'},
+    { id: 5, name: 'Solar Farms'},
+    { id: 6, name: 'Factories'},
+    { id: 7, name: 'Plants'},
+    { id: 8, name: 'Farms'}
+  ]
+
+  getGoodsName(id: number): string {
+    const good: { id: number, name: string } = this.goods.find((a: { id: number, name: string }) => a.id === id);
+    if(good) return good.name;
+    else return 'Unknown Good';
   }
 
 

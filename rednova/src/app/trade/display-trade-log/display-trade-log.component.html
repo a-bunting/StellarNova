@@ -23,7 +23,7 @@
 
     <div class="trade-route__button">
       <div class="trade-route__data--point trade-route__data--name">{{ route.name }}</div>
-      <button class="input__button" [disabled]="route.complete">Quick Finish</button>
+      <button class="input__button" [disabled]="route.complete" (click)="finishFast(route.id)">Quick Finish</button>
       <button class="input__button" [disabled]="!route.complete" (click)="clearRoute(route.id)">Clear</button>
     </div>
   </div>

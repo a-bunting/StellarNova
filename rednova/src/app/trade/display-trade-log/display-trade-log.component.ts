@@ -1,6 +1,8 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { GameService } from 'src/app/services/game.service';
 
+export interface Trade { id: number; currentLog: string; name: string; moneyChange: number; turnsUsed: number; goodsChange: { id: number; quantity: number; }[]; data: TradeLog[]; interval: number; complete: boolean; }
+
 export interface TradeLogData {
   routeName: string; log: TradeLog[]; turns: number; iterations: number;
 }
@@ -25,17 +27,7 @@ export class DisplayTradeLogComponent implements OnInit, OnChanges {
 
   constructor( private gameService: GameService ) { }
 
-  tradeRoutesRun: {
-    id: number,
-    currentLog: string,
-    name: string,
-    moneyChange: number,
-    turnsUsed: number,
-    goodsChange: { id: number, quantity: number }[],
-    data: TradeLog[],
-    interval: number,
-    complete: boolean,
-  }[] = [];
+  tradeRoutesRun: Trade[] = [];
 
   ngOnInit(): void {
   }
@@ -53,60 +45,49 @@ export class DisplayTradeLogComponent implements OnInit, OnChanges {
    * @param log
    */
   displayNewLogData(log: TradeLogData): void {
-
-    console.log(log);
-
-    let newTradeRouteRun: {
-      id: number,
-      currentLog: string,
-      name: string,
-      moneyChange: number,
-      turnsUsed: number,
-      goodsChange: { id: number, quantity: number }[],
-      data: TradeLog[],
-      interval: number,
-      complete: boolean,
-    } = { id: this.tradeRoutesRun.length, currentLog: '', name: log.routeName, moneyChange: 0, turnsUsed: 0, goodsChange: [], data: log.log, interval: null, complete: false };
-
-    this.tradeRoutesRun.push(newTradeRouteRun);
+    let newTradeRouteRun: Trade = { id: this.tradeRoutesRun.length, currentLog: '', name: log.routeName, moneyChange: 0, turnsUsed: 0, goodsChange: [], data: log.log, interval: null, complete: false };    this.tradeRoutesRun.push(newTradeRouteRun);
 
     // create an interval to run through the logs.
     let interval: number = window.setInterval(() => {
-
       const entry: TradeLog = newTradeRouteRun.data[0];
-      let logEntry = ``;
-
-      if(!entry) {
-        newTradeRouteRun.currentLog = 'Trade Route Completed';
-        newTradeRouteRun.complete = true;
-        this.updateMainWindow(newTradeRouteRun.id);
-        clearInterval(newTradeRouteRun.interval);
-        return;
-      }
-
-      switch(entry.action) {
-        case 'move':
-          logEntry = `You move your ship from ${entry.from} to ${entry.to}.`;
-          break;
-        case 'sell':
-          logEntry = `You sell ${entry.quantity} ${entry.good}s to planet ${entry.from} for ${entry.cost}.`;
-          // this.addGoodToLog(newTradeRouteRun.id, entry.good, -entry.quantity);
-          this.modifyGoodsQuantity(newTradeRouteRun.id, entry.good, -entry.quantity, 74);
-          newTradeRouteRun.moneyChange += entry.cost
-          break;
-        case 'buy':
-          logEntry = `You buy ${entry.quantity} ${entry.good}s from planet ${entry.from} at a cost of ${entry.cost}.`;
-          // this.addGoodToLog(newTradeRouteRun.id, entry.good, entry.quantity);
-          this.modifyGoodsQuantity(newTradeRouteRun.id, entry.good, entry.quantity, 74);
-          break;
-        }
-
-        newTradeRouteRun.turnsUsed += entry.turns;
-        newTradeRouteRun.currentLog = logEntry;
-        newTradeRouteRun.data.splice(0, 1);
+      this.logEntryCalculation(newTradeRouteRun, entry);
     }, this.routeSpeedMs);
 
     newTradeRouteRun.interval = interval;
+  }
+
+  logEntryCalculation(newTradeRouteRun: Trade, entry: TradeLog): void {
+    let logEntry = ``;
+
+    if(!entry) {
+      newTradeRouteRun.currentLog = 'Trade Route Completed';
+      newTradeRouteRun.complete = true;
+      this.updateMainWindow(newTradeRouteRun.id);
+      if(newTradeRouteRun.interval) { clearInterval(newTradeRouteRun.interval); }
+
+      return;
+    }
+
+    switch(entry.action) {
+      case 'move':
+        logEntry = `You move your ship from ${entry.from} to ${entry.to}.`;
+        break;
+      case 'sell':
+        logEntry = `You sell ${entry.quantity} ${entry.good}s to planet ${entry.from} for ${entry.cost}.`;
+        // this.addGoodToLog(newTradeRouteRun.id, entry.good, -entry.quantity);
+        this.modifyGoodsQuantity(newTradeRouteRun.id, entry.good, -entry.quantity, 74);
+        newTradeRouteRun.moneyChange += entry.cost
+        break;
+      case 'buy':
+        logEntry = `You buy ${entry.quantity} ${entry.good}s from planet ${entry.from} at a cost of ${entry.cost}.`;
+        // this.addGoodToLog(newTradeRouteRun.id, entry.good, entry.quantity);
+        this.modifyGoodsQuantity(newTradeRouteRun.id, entry.good, entry.quantity, 74);
+        break;
+      }
+
+      newTradeRouteRun.turnsUsed += entry.turns;
+      newTradeRouteRun.currentLog = logEntry;
+      newTradeRouteRun.data.splice(0, 1);
   }
 
   /**
@@ -158,8 +139,24 @@ export class DisplayTradeLogComponent implements OnInit, OnChanges {
       const index: number = this.tradeRoutesRun.findIndex((a) => a.id === routeId);
       if(index !== -1) {
         this.tradeRoutesRun.splice(index, 1);
+
+        if(this.tradeRoutesRun.length === 0) this.gameService.clearLoadedComponent();
       }
     }, 500);
+  }
+
+  finishFast(routeId: number): void {
+    const route: Trade = this.tradeRoutesRun.find((temp: Trade) => temp.id === routeId);
+
+    // stop the visual
+    clearInterval(route.interval);
+
+    // run through the data calculations fast.
+    while(route.data.length > 0) {
+      this.logEntryCalculation(route, route.data[0]);
+    }
+    // last entry...
+    this.logEntryCalculation(route, route.data[0]);
   }
 
   /**
@@ -167,7 +164,7 @@ export class DisplayTradeLogComponent implements OnInit, OnChanges {
    * @param routeId
    */
   updateMainWindow(routeId: number): void {
-    const route: { id: number; currentLog: string; name: string; moneyChange: number; turnsUsed: number; goodsChange: { id: number; quantity: number; }[]; data: TradeLog[]; interval: number; complete: boolean; } = this.tradeRoutesRun.find((a) => a.id === routeId);
+    const route: Trade = this.tradeRoutesRun.find((a) => a.id === routeId);
     this.gameService.modifyShipCash(route.moneyChange);
 
     for(let i = 0 ; i < route.goodsChange.length ; i++) {

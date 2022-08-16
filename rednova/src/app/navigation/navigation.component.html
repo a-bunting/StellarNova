@@ -1,0 +1,26 @@
+<div class="navigation-log">
+
+  <div id="canvas-div">
+    <canvas #systemCanvas (mousemove)="updateMouseCoordinates($event)" (click)="systemClicked()"></canvas>
+  </div>
+
+  <div class="planets-hovered" *ngIf="hoveredSector">
+    <div class="planets-hovered__planet" *ngFor="let planet of hoveredSector.log.planets">
+      <div class="planets-hovered__planet--image">
+        Image?
+      </div>
+      <div class="planets-hovered__planet--name">
+        {{ planet.name }}
+      </div>
+    </div>
+  </div>
+
+  <div class="planets-hovered__buttons" *ngIf="hoveredSector && hoveredSectorClicked">
+    <div class="planets-hovered__buttons--text">Go to sector:</div>
+    <div class="planets-hovered__buttons--buttons">
+      <button class="input__button" *ngIf="hoveredSector.warp" (click)="warpTo(hoveredSector.log.sectorid)">Warp</button>
+      <button class="input__button" (click)="moveTo(hoveredSector.log.sectorid)">Real ({{ hoveredSector.realtimeCost }} turns)</button>
+    </div>
+  </div>
+
+</div>

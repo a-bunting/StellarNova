@@ -97,6 +97,7 @@ export class GameComponent implements OnInit, OnDestroy {
               case "planet": this.openSideData({ component: 'planet', data: { id: data.data.id }}); break;
               case "trade": this.openSideData({ component: 'trade', data: { id: data.data.id } }); break;
               case "displayTradeLog": this.openSideData({ component: 'displayTradeLog', data: data.data }); break;
+              case "navigationLog": this.openSideData({ component: 'navigationLog', data: {} }); break;
               case '': this.removeSideData(); break;
             }
           } else {

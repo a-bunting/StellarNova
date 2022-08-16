@@ -78,13 +78,10 @@ export class SystemComponent implements OnInit, OnDestroy {
   numberOfStars: number = 80;
 
   generateStarfield(): void {
-    const width: number = document.getElementById('canvas').offsetWidth;
-    const height: number = document.getElementById('canvas').offsetHeight;
-
     for(let i = 0 ; i < this.numberOfStars ; i++) {
       this.starField.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
         size: Math.ceil(Math.random() * 2),
         alpha: Math.random()
       })
@@ -151,12 +148,14 @@ export class SystemComponent implements OnInit, OnDestroy {
     canvas.nativeElement.width = document.getElementById('canvas').offsetWidth;
     canvas.nativeElement.height = document.getElementById('canvas').offsetHeight;
 
+    const width: number = canvas.nativeElement.width;
+    const height: number = canvas.nativeElement.height;
 
     // starfield first...
     for(let i = 0 ; i < this.starField.length ; i++) {
       ctx.fillStyle = `rgba(255, 255, 255, ${this.starField[i].alpha + Math.cos(this.iteration * this.twinkleSpeed + i * 30) * (this.starField[i].alpha / 3)})`;
       ctx.beginPath();
-      ctx.arc(this.starField[i].x, this.starField[i].y, this.starField[i].size, 0, 2 * Math.PI);
+      ctx.arc((this.starField[i].x / 100) * width, (this.starField[i].y / 100) * height, this.starField[i].size, 0, 2 * Math.PI);
       ctx.fill();
     }
 

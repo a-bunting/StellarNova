@@ -11,8 +11,11 @@ import { TradeRoute, TradeRouteDisplay } from '../trade/trade-routes/trade-route
 import { AuthenticateService, User } from './authenticate.service';
 import { DatabaseResult } from './interfaces';
 
+export interface Coordinate3D { x: number, y: number, z: number }
+export interface Coordinate2D { x: number, y: number }
+
 export interface SectorLog {
-  sectorid: number, planets: SectorLogPlanet[]
+  sectorid: number, planets: SectorLogPlanet[], coordinates: Coordinate3D, warp: number[]
 }
 
 export interface SectorLogPlanet {
@@ -78,6 +81,7 @@ export class GameService {
     this.getNavigationLog(this.galaxyId).subscribe({
       next: (result: DatabaseResult) => {
         if(result) {
+          console.log(result);
           this.visitedSectors = result.data.planetLog;
           this.updateLocalVisitedLog(result.data.planetLog);
         }
@@ -255,6 +259,9 @@ export class GameService {
       case 'displayTradeLog':
         this.loadMenuItem.next({ component: 'displayTradeLog', data: data });
         break;
+      case 'navlog':
+        this.loadMenuItem.next({ component: 'navigationLog' });
+        break;
     }
   }
 
@@ -282,8 +289,12 @@ export class GameService {
       sectorid: sector.system.sectorid,
       planets: [
         ...sector.system.planets.map(({ planetindex, distance, ...data }) => { return { id: data.id, name: data.name }} )
-      ]
+      ],
+      coordinates: { x: sector.system.x, y: sector.system.y, z: sector.system.z },
+      warp: [...sector.system.warp.map(({ destination: destination, ...data }) => { return destination })]
     }
+
+    console.log(sectorLog);
 
     // find the current log index if it exists...
     const alreadyLoggedIndex: number = this.visitedSectors.findIndex((a: SectorLog) => a.sectorid === sector.system.sectorid);
@@ -369,6 +380,21 @@ export class GameService {
     if(good) return good.name;
     else return 'Unknown Good';
   }
+
+  /**
+   * Formula tyo get an estimate for the distance between two points.
+   * This only works if you have already visited a sector otherwise the coordinates will not be local.
+   * @param from
+   * @param to
+   * @param engineSize
+   * @returns
+   */
+  turnsCostToRealtimeMove(from: { x: number, y: number, z: number}, to: { x: number, y: number, z: number}, engineSize: number = 1): number {
+    const maxTurns = 209.95 - (engineSize * 4.975);
+    const distanceModifier = Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2));
+    const distanceTurns = maxTurns * Math.exp(-distanceModifier / 5);
+    return Math.floor(distanceTurns);
+}
 
 
   /**

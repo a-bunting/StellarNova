@@ -96,12 +96,13 @@
   background-color: gray;
   box-shadow: .2rem 0 .4rem rgba(white, .5);
   max-width: 0rem;
+  max-height: 100rem;
   opacity: 0;
 }
 
 .shrinkAndHide { animation: shrinkAndHide .3s ease-in-out 0s 1 forwards; }
 .expand { animation: expand .3s ease-in-out 0s 1 forwards; }
 
-@keyframes shrinkAndHide { 0% { max-width: 55rem; opacity: 1; } 100% { max-width: 0rem; opacity: 0; } }
-@keyframes expand { 0% { max-width: 0rem; opacity: 0; } 100% { max-width: 55rem; opacity: 1; } }
+@keyframes shrinkAndHide { 0% { max-width: 90rem; opacity: 1; } 100% { max-width: 0rem; opacity: 0; } }
+@keyframes expand { 0% { max-width: 0rem; opacity: 0; } 100% { max-width: 90rem; opacity: 1; } }
 

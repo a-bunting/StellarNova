@@ -175,22 +175,22 @@ export class NavigationComponent implements OnInit {
 
       }
 
-      // the star
-      ctx.fillStyle = `rgba(255, 240, 0, ${a})`;
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, 2 * Math.PI);
-      ctx.fill();
-
       // the gradient outside the star
       var gradient: CanvasGradient = ctx.createRadialGradient(x, y, radius, x, y, radius * 2);
-      gradient.addColorStop(0, `rgba(255, 240, 0, ${a} )`);
-      gradient.addColorStop(.5, `rgba(255, 240, 0, ${a} )`);
-      gradient.addColorStop(1, 'transparent');
+      gradient.addColorStop(.5, `rgba(255, 240, 0, ${a})`);
+      gradient.addColorStop(1, `rgba(255, 240, 0, 0)`);
 
       ctx.beginPath();
       ctx.fillStyle = gradient;
+      ctx.arc(x, y, radius * 2, 0, 2 * Math.PI);
+      ctx.fill();
+
+      // the star
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(255, 240, 0, ${a})`;
       ctx.arc(x, y, radius, 0, 2 * Math.PI);
       ctx.fill();
+
     }
 
     if(!hover && !this.hoveredSectorClicked) this.hoveredSector = null;

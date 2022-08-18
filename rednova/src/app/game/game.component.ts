@@ -23,8 +23,11 @@ export interface SectorData {
     givenname: string;
     size: number;
     starPower: number;
+    starSize: number;
+    starRayDistance: number;
+    starRayQuantity: number;
     x: number; y: number; z: number;
-    planets: { id: number; planetindex: number; distance: number; name: string; ownerName: string; trading: number }[],
+    planets: { id: number; planetindex: number; distance: number; name: string; ownerName: string; trading: number, moons: number }[],
     ships: { userid: number; username: string }[],
     warp: { destination: number; oneway: number; }[]
   }

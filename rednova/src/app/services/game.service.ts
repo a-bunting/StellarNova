@@ -72,6 +72,7 @@ export class GameService {
           this.sectorId = res.data.system.sectorid;
           this.logVisitedSector(res.data);
           this.sectorData.next(res.data);
+          console.log(res.data);
         }
       }
     });

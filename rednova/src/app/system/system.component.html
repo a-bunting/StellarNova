@@ -1,22 +1,18 @@
 <div id="canvas">
-  <canvas #sectorCanvas (mousemove)="updateMouseCoordinates($event)" (mouseup)="selectPlanet()"></canvas>
+  <canvas #sectorCanvas (mousemove)="updateMouseCoordinates($event)" (mouseup)="selectPlanet()" (touchstart)="selectPlanetByTouch($event)"></canvas>
 
   <div class="test-controls">
-    <div class="test-controls__control">
-      <input type="range" name="distanceBetweenRays" id="distanceBetweenRays" min="1" max="360" [(ngModel)]="distanceBetweenRays">
-      <label for="distanceBetweenRays">Distance between rays ({{distanceBetweenRays}})</label>
-    </div>
-    <div class="test-controls__control">
-      <input type="range" name="starSize" id="starSize" min="1" max="100" [(ngModel)]="starSize">
-      <label for="starSize">Star Size ({{starSize}})</label>
-    </div>
-    <div class="test-controls__control">
+    <!-- <div class="test-controls__control">
       <input type="range" name="gradientAngle" id="gradientAngle" min="0" max="6.28" step="0.01" [(ngModel)]="gradientAngle">
       <label for="gradientAngle">Gradient Angle ({{gradientAngle | number }})</label>
     </div>
     <div class="test-controls__control">
       <input type="range" name="twinkleSpeed" id="twinkleSpeed" min="0" max="0.20" step="0.01" [(ngModel)]="twinkleSpeed">
       <label for="twinkleSpeed">Background Twinkle Speed ({{twinkleSpeed | number }})</label>
+    </div> -->
+    <div class="test-controls__control">
+      <input type="range" name="angleBaseSpeed" id="angleBaseSpeed" min="0.001" max="0.050" step="0.001" [(ngModel)]="angleBaseSpeed">
+      <label for="angleBaseSpeed">Base Speed ({{angleBaseSpeed | number }})</label>
     </div>
   </div>
 </div>

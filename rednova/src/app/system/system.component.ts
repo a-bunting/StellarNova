@@ -110,6 +110,9 @@ export class SystemComponent implements OnInit, OnDestroy {
       }
     }
 
+    // get the color scheme
+    this.starColourScheme = this.getPlanetColours(this.sectorData.system.starPower, this.sectorData.system.starSize);
+    // generate rays and then animate
     this.generateRays();
     this.animate();
 
@@ -200,60 +203,91 @@ export class SystemComponent implements OnInit, OnDestroy {
     }
   }
 
+  scale: number = 1;
+  starLength: number = 0;
+  loadingNewSector: boolean = false;
+
+  /**
+   * Initiates a sector move graphics change - the zooming in!
+   */
+  initiateSectorMove(): void {
+
+    let intervalTime: number = 10;
+    let iterations: number = 500 / intervalTime;
+    let iterationsHappened: number = 0;
+    this.loadingNewSector = true;
+
+    let interval: number = window.setInterval(() => {
+      // change the required values
+      this.scale -= 1 / iterations;
+      this.starLength += 100 / iterations;
+      iterationsHappened++;
+
+      // check to see if this has finished...
+      if(iterationsHappened === iterations) {
+        this.loadingNewSector = false;
+        console.log(`stopped: ${this.loadingNewSector}`);
+        clearInterval(interval);
+      }
+    }, intervalTime)
+
+  }
+
   rays: { a: number, l: number, w: number, c: { r: number, g: number, b: number } }[] = [];
   twinkleSpeed: number = 0.1;
 
+  starColourScheme: StarColourScheme;
+
   drawFrame(ctx: CanvasRenderingContext2D, canvas: ElementRef<HTMLCanvasElement>): void {
+    // reset the scene
     canvas.nativeElement.width = document.getElementById('canvas').offsetWidth;
     canvas.nativeElement.height = document.getElementById('canvas').offsetHeight;
 
+    // starfield first...
+    this.drawStarField(ctx, canvas, this.scale);
+
+    // draw the rays
+    this.drawStarRays(ctx, canvas, this.scale);
+
+    // draw the star...
+    this.drawStar(ctx, canvas, this.scale);
+
+    // draw the planets
+    this.drawPlanets(ctx, canvas, this.scale);
+  }
+
+  drawStarField(ctx: CanvasRenderingContext2D, canvas: ElementRef<HTMLCanvasElement>, scale: number = 1): void {
     const width: number = canvas.nativeElement.width;
     const height: number = canvas.nativeElement.height;
 
-    // starfield first...
     for(let i = 0 ; i < this.starField.length ; i++) {
+
+      const x: number = (this.starField[i].x / 100) * width;
+      const y: number = (this.starField[i].y / 100) * height;
+
       ctx.fillStyle = `rgba(255, 255, 255, ${this.starField[i].alpha + Math.cos(this.iteration * this.twinkleSpeed + i * 30) * (this.starField[i].alpha / 3)})`;
       ctx.beginPath();
-      ctx.arc((this.starField[i].x / 100) * width, (this.starField[i].y / 100) * height, this.starField[i].size, 0, 2 * Math.PI);
+      ctx.arc(x, y, this.starField[i].size, 0, 2 * Math.PI);
       ctx.fill();
+
+      if(this.loadingNewSector) {
+        // draw a line of %age starLength to the center of the map...
+        const distanceToCenter: number = Math.sqrt(Math.pow(x - (width / 2), 2) + Math.pow(y - (height / 2), 2));
+        var gradient: CanvasGradient = ctx.createLinearGradient(0, 0, 5, distanceToCenter);
+        gradient.addColorStop(0, `rgba(255, 255, 255, .3)`);
+        gradient.addColorStop(this.starLength / 100, 'rgba(0, 0, 0, .5)');
+
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(width / 2, height / 2);
+        ctx.fill();
+      }
     }
+  }
 
-    const starColourScheme: StarColourScheme = this.getPlanetColours(this.sectorData.system.starPower, this.sectorData.system.starSize);
-
-    // draw the rays
-    for(let i = 0 ; i < this.rays.length ; i++) {
-      let ray: { a: number, l: number, w: number, c: { r: number, g: number, b: number }} = this.rays[i];
-      let rayLength: number = Math.cos(this.iteration / 50 + i * this.sectorData.system.starRayDistance) * ray.l + this.sectorData.system.starSize;
-      var gradient: CanvasGradient = ctx.createLinearGradient(0, 0, ray.w, rayLength);
-
-      gradient.addColorStop(0, `rgba(${ray.c.r},${ray.c.g},${ray.c.b}, 1)`);
-      gradient.addColorStop(1, "transparent");
-
-      ctx.fillStyle = gradient;
-
-      ctx.save();
-      ctx.translate(canvas.nativeElement.width / 2, canvas.nativeElement.height / 2);
-      ctx.rotate(ray.a);
-      ctx.fillRect(0, 0, ray.w, rayLength);
-      ctx.restore();
-    }
-
-
-    // draw the star gradient...
-    ctx.beginPath();
-    var gradient: CanvasGradient = ctx.createRadialGradient(canvas.nativeElement.width / 2, canvas.nativeElement.height / 2, this.sectorData.system.starSize * (1.5 * this.starScale), canvas.nativeElement.width / 2, canvas.nativeElement.height / 2, this.sectorData.system.starSize * (3 * this.starScale));
-
-    gradient.addColorStop(0, `rgba(${starColourScheme.p.r},${starColourScheme.p.g},${starColourScheme.p.b}, 1)`);
-    gradient.addColorStop(.1 + (.01 * Math.cos(this.iteration / 20)), `rgba(${starColourScheme.s.r},${starColourScheme.s.g},${starColourScheme.s.b}, 1)`);
-    gradient.addColorStop(1, "transparent");
-
-    ctx.fillStyle = gradient;
-
-    ctx.arc(canvas.nativeElement.width / 2, canvas.nativeElement.height / 2, this.sectorData.system.starSize * (3 * this.starScale), 0, 2 * Math.PI);
-    ctx.fill();
-
-
-
+  drawPlanets(ctx: CanvasRenderingContext2D, canvas: ElementRef<HTMLCanvasElement>, scale: number = 1): void {
+    const width: number = canvas.nativeElement.width;
+    const height: number = canvas.nativeElement.height;
 
     let anyPlanetsHighlighted: boolean = false;
 
@@ -309,7 +343,7 @@ export class SystemComponent implements OnInit, OnDestroy {
 
         var gradient: CanvasGradient = ctx.createLinearGradient(0.5 * this.moonsize, 0.5 * this.moonsize, -0.5 * this.moonsize, -0.5 * this.moonsize);
         gradient.addColorStop(0, `rgba(153,153,0, ${Math.min(1-alpha, 0.3)})`);
-        gradient.addColorStop(1, `rgba(${starColourScheme.p.r},${starColourScheme.p.g},${starColourScheme.p.b}, ${1-alpha})`);
+        gradient.addColorStop(1, `rgba(${this.starColourScheme.p.r},${this.starColourScheme.p.g},${this.starColourScheme.p.b}, ${1-alpha})`);
 
         ctx.fillStyle = gradient;
         ctx.beginPath();
@@ -343,6 +377,45 @@ export class SystemComponent implements OnInit, OnDestroy {
     }
 
     if(!anyPlanetsHighlighted) this.highlightedPlanet = -1;
+  }
+
+  drawStarRays(ctx: CanvasRenderingContext2D, canvas: ElementRef<HTMLCanvasElement>, scale: number = 1): void {
+    const width: number = canvas.nativeElement.width;
+    const height: number = canvas.nativeElement.height;
+
+    for(let i = 0 ; i < this.rays.length ; i++) {
+      let ray: { a: number, l: number, w: number, c: { r: number, g: number, b: number }} = this.rays[i];
+      let rayLength: number = Math.cos(this.iteration / 50 + i * this.sectorData.system.starRayDistance) * ray.l + this.sectorData.system.starSize;
+      var gradient: CanvasGradient = ctx.createLinearGradient(0, 0, ray.w, rayLength);
+
+      gradient.addColorStop(0, `rgba(${ray.c.r},${ray.c.g},${ray.c.b}, 1)`);
+      gradient.addColorStop(1, "transparent");
+
+      ctx.fillStyle = gradient;
+
+      ctx.save();
+      ctx.translate(canvas.nativeElement.width / 2, canvas.nativeElement.height / 2);
+      ctx.rotate(ray.a);
+      ctx.fillRect(0, 0, ray.w, rayLength);
+      ctx.restore();
+    }
+  }
+
+  drawStar(ctx: CanvasRenderingContext2D, canvas: ElementRef<HTMLCanvasElement>, scale: number = 1): void {
+    const width: number = canvas.nativeElement.width;
+    const height: number = canvas.nativeElement.height;
+
+    ctx.beginPath();
+    var gradient: CanvasGradient = ctx.createRadialGradient(canvas.nativeElement.width / 2, canvas.nativeElement.height / 2, this.sectorData.system.starSize * (1.5 * this.starScale), canvas.nativeElement.width / 2, canvas.nativeElement.height / 2, this.sectorData.system.starSize * (3 * this.starScale));
+
+    gradient.addColorStop(0, `rgba(${this.starColourScheme.p.r},${this.starColourScheme.p.g},${this.starColourScheme.p.b}, 1)`);
+    gradient.addColorStop(.1 + (.01 * Math.cos(this.iteration / 20)), `rgba(${this.starColourScheme.s.r},${this.starColourScheme.s.g},${this.starColourScheme.s.b}, 1)`);
+    gradient.addColorStop(1, "transparent");
+
+    ctx.fillStyle = gradient;
+
+    ctx.arc(canvas.nativeElement.width / 2, canvas.nativeElement.height / 2, this.sectorData.system.starSize * (3 * this.starScale), 0, 2 * Math.PI);
+    ctx.fill();
 
   }
 

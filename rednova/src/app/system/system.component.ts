@@ -270,18 +270,19 @@ export class SystemComponent implements OnInit, OnDestroy {
       ctx.arc(x, y, this.starField[i].size, 0, 2 * Math.PI);
       ctx.fill();
 
-      if(this.loadingNewSector) {
         // draw a line of %age starLength to the center of the map...
         const distanceToCenter: number = Math.sqrt(Math.pow(x - (width / 2), 2) + Math.pow(y - (height / 2), 2));
         var gradient: CanvasGradient = ctx.createLinearGradient(0, 0, 5, distanceToCenter);
         gradient.addColorStop(0, `rgba(255, 255, 255, .3)`);
         gradient.addColorStop(this.starLength / 100, 'rgba(0, 0, 0, .5)');
 
+        ctx.fillStyle = 'white';
+        ctx.lineWidth = 5;
+
         ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.lineTo(width / 2, height / 2);
         ctx.fill();
-      }
     }
   }
 

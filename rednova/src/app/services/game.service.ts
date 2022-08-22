@@ -45,6 +45,11 @@ export class GameService {
   sectorData: BehaviorSubject<SectorData> = new BehaviorSubject<SectorData>(null);
   // load menu
   loadMenuItem: BehaviorSubject<MenuData> = new BehaviorSubject<MenuData>(null);
+  // trade routes
+  tradeRoutes: TradeRouteDisplay[] = [];
+  tradeRouteSubscription: BehaviorSubject<TradeRouteDisplay[]> = new BehaviorSubject(null);
+  // loading new sector...
+  loadingNewSector: BehaviorSubject<boolean> = new BehaviorSubject(null);
 
   constructor(
     private http: HttpClient,
@@ -91,9 +96,6 @@ export class GameService {
       complete: () => { }
     })
   }
-
-  tradeRoutes: TradeRouteDisplay[] = [];
-  tradeRouteSubscription: BehaviorSubject<TradeRouteDisplay[]> = new BehaviorSubject(null);
 
   loadTradeRoutes(): void {
     this.loadAllTradeRoutes().subscribe({
@@ -405,6 +407,8 @@ export class GameService {
    * @returns
    */
   loadGalaxyData(galaxyId: number, callback: Function = this.dbCallBack): Observable<DatabaseResult> {
+    // signal a new sector is being loaded
+    this.loadingNewSector.next(true);
     return this.http.get<DatabaseResult>(`${environment.apiUrl}/galaxy/getUserGalaxyData?galaxyId=${galaxyId}`).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
   }
 

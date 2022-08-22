@@ -1,6 +1,7 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, timestamp } from 'rxjs';
+import { subscriptionLogsToBeFn } from 'rxjs/internal/testing/TestScheduler';
 import { SectorData } from '../game/game.component';
 import { GameService } from '../services/game.service';
 
@@ -42,6 +43,7 @@ export class SystemComponent implements OnInit, OnDestroy {
             // if we already have data relating to a secotr, check if its changed, and if it has redisplay, else ignore.
             if(JSON.stringify(this.sectorData.system) !== JSON.stringify(sectorData.system)) {
               this.generateSector(sectorData);
+              this.newSectorLoaded = true;
             }
           }
           else {
@@ -53,7 +55,14 @@ export class SystemComponent implements OnInit, OnDestroy {
       complete: () => {}
     })
 
-    this.subscriptions.push(...[systemSubscription]);
+    // check for when a new secot ris being loaded.
+    const loadingSubscription: Subscription = this.gameService.loadingNewSector.subscribe({
+      next: (newLoad: boolean) => {
+        if(newLoad === true) this.loadingNewSector = true;
+      }
+    })
+
+    this.subscriptions.push(...[systemSubscription, loadingSubscription]);
   }
 
   ngOnInit(): void {
@@ -143,15 +152,14 @@ export class SystemComponent implements OnInit, OnDestroy {
     this.generateWarpEffect();
   }
 
-  warpEffect: HTMLCanvasElement[] = [];
+  warpEffectIn: HTMLCanvasElement[] = [];
+  warpEffectOut: HTMLCanvasElement[] = [];
   warpRadialGradient: HTMLCanvasElement;
 
   /**
    * Prerenders the warp effect for a starfield.
    */
   generateWarpEffect(): void {
-    let warpEffect: HTMLCanvasElement[] = [];
-
     let width: number = document.getElementById('canvas').offsetWidth;
     let height: number = document.getElementById('canvas').offsetHeight;
 
@@ -170,16 +178,14 @@ export class SystemComponent implements OnInit, OnDestroy {
     for(let i = 0 ; i < this.warpIterations ; i++) {
       let canvas: [HTMLCanvasElement, CanvasRenderingContext2D] = this.newCanvasGenerator(width, height);
       this.drawStarField(canvas[1], canvas[0], i);
-      warpEffect.push(canvas[0]);
+      this.warpEffectIn.push(canvas[0]);
     }
 
     for(let i = this.warpIterations ; i >= 0 ; i--) {
       let canvas: [HTMLCanvasElement, CanvasRenderingContext2D] = this.newCanvasGenerator(width, height);
       this.drawStarField(canvas[1], canvas[0], i);
-      warpEffect.push(canvas[0]);
+      this.warpEffectOut.push(canvas[0]);
     }
-
-    this.warpEffect = warpEffect;
   }
 
   newCanvasGenerator(width: number, height: number): [HTMLCanvasElement, CanvasRenderingContext2D] {
@@ -264,40 +270,14 @@ export class SystemComponent implements OnInit, OnDestroy {
 
   scale: number = 1;
   loadingNewSector: boolean = false;
-
+  loadingSectorPause: boolean = false;
+  newSectorLoaded: boolean = false;
 
   /**
    * Initiates a sector move graphics change - the zooming in!
    */
   initiateSectorMove(): void {
-
     this.loadingNewSector = true;
-    // console.log(`loading new sector...`);
-
-    // window.setTimeout(() => {
-    //   this.loadingNewSector = false;
-    //   console.log(`warp out...`);
-    // }, this.warpTime)
-
-    // let iterationsHappened: number = 0;
-    // let intervalTime: number = this.warpTime / (this.warpIterations * 2)
-    // this.loadingNewSector = true;
-
-    // console.log(intervalTime);
-
-    // let interval: number = window.setInterval(() => {
-    //   // change the required values
-    //   iterationsHappened++;
-    //   this.timeSinceWarpSpeed += intervalTime;
-
-    //   // check to see if this has finished...
-    //   if(this.timeSinceWarpSpeed > this.warpTime) {
-    //     this.loadingNewSector = false;
-    //     this.timeSinceWarpSpeed = 0;
-    //     clearInterval(interval);
-    //   }
-    // }, intervalTime)
-
   }
 
   rays: { a: number, l: number, w: number, c: { r: number, g: number, b: number } }[] = [];
@@ -311,8 +291,9 @@ export class SystemComponent implements OnInit, OnDestroy {
     canvas.height = document.getElementById('canvas').offsetHeight;
 
     // starfield first...
-    if(!this.loadingNewSector) this.drawStarField(ctx, canvas);
-    if(this.loadingNewSector) this.drawStarFieldAtWarp(ctx, canvas, timeSinceLastFrame);
+    if(!this.loadingNewSector && !this.newSectorLoaded) this.drawStarField(ctx, canvas);
+    if(this.loadingNewSector && !this.newSectorLoaded) this.drawStarfieldWarpIn(ctx, canvas, timeSinceLastFrame);
+    if(!this.loadingNewSector && this.newSectorLoaded) this.drawStarfieldWarpOut(ctx, canvas, timeSinceLastFrame);
 
     // draw the rays
     //this.drawStarRays(ctx, canvas, this.scale);
@@ -324,27 +305,45 @@ export class SystemComponent implements OnInit, OnDestroy {
     this.drawPlanets(ctx, canvas, this.scale);
   }
 
-  warpTime: number = 1000;
+  warpTime: number = 500;
   timeSinceWarpSpeed: number = 0;
   warpIterations: number = 100;
 
-  drawStarFieldAtWarp(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, timeSinceLastFrame: number): void {
+  drawStarfieldWarpIn(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, timeSinceLastFrame: number): void {
+    console.log(`in`);
     this.timeSinceWarpSpeed += timeSinceLastFrame * 1000;
 
+    let index: number = Math.floor((this.warpIterations / this.warpTime) * this.timeSinceWarpSpeed);
+    let alpha: number = (1 / (0.5 * this.warpTime)) * this.timeSinceWarpSpeed;//2 - (1 / (0.5 * this.warpTime)) * this.timeSinceWarpSpeed;
 
-    let index: number = Math.floor(((this.warpIterations * 2) / this.warpTime) * this.timeSinceWarpSpeed);
-    if(index >= this.warpEffect.length - 1) {
-      this.loadingNewSector = false;
-      index = this.warpEffect.length - 1;
+    if(index >= this.warpEffectIn.length - 1) {
+        this.timeSinceWarpSpeed = 0;
+        index = this.warpEffectIn.length - 1;
     }
 
-    let alpha: number = this.timeSinceWarpSpeed < this.warpTime / 2 ? (1 / (0.5 * this.warpTime)) * this.timeSinceWarpSpeed : 2 - (1 / (0.5 * this.warpTime)) * this.timeSinceWarpSpeed;
-
-    ctx.drawImage(this.warpEffect[index], 0, 0);
+    ctx.drawImage(this.warpEffectIn[index], 0, 0);
     ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
     ctx.drawImage(this.warpRadialGradient, 0, 0);
     ctx.globalAlpha = 1;
+  }
 
+  drawStarfieldWarpOut(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, timeSinceLastFrame: number): void {
+    console.log(`out`);
+    this.timeSinceWarpSpeed += timeSinceLastFrame * 1000;
+
+    let index: number = Math.floor(((this.warpIterations * 2) / this.warpTime) * this.timeSinceWarpSpeed);
+
+    if(index >= this.warpEffectOut.length - 1) {
+        this.newSectorLoaded = false;
+        index = this.warpEffectOut.length - 1;
+    }
+
+    let alpha: number = 2 - (1 / (0.5 * this.warpTime)) * this.timeSinceWarpSpeed;
+
+    ctx.drawImage(this.warpEffectOut[index], 0, 0);
+    ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+    ctx.drawImage(this.warpRadialGradient, 0, 0);
+    ctx.globalAlpha = 1;
   }
 
   drawStarField(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, scale?: number): void {

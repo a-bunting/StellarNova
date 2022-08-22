@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, timestamp } from 'rxjs';
 import { SectorData } from '../game/game.component';
 import { GameService } from '../services/game.service';
 
@@ -28,6 +28,7 @@ export class SystemComponent implements OnInit, OnDestroy {
 
   // canvas stuff
   @ViewChild('sectorCanvas', { static: true }) sectorCanvas: ElementRef<HTMLCanvasElement>;
+  mainCanvas: HTMLCanvasElement;
   sectorContext: CanvasRenderingContext2D;
 
   constructor(
@@ -55,6 +56,14 @@ export class SystemComponent implements OnInit, OnDestroy {
     this.subscriptions.push(...[systemSubscription]);
   }
 
+  ngOnInit(): void {
+    // set up the canvas
+    this.mainCanvas = this.sectorCanvas.nativeElement as HTMLCanvasElement;
+    this.sectorContext = this.mainCanvas.getContext('2d');
+    this.generateStarfield();
+    this.drawFrame(this.sectorContext, this.mainCanvas, 0);
+  }
+
   starScale: number;
 
   generateSector(sectorData: SectorData): void {
@@ -71,7 +80,7 @@ export class SystemComponent implements OnInit, OnDestroy {
 
     // system scale...
     if(sectorData.system.planets.length > 0) {
-      const maxHeight: number = this.sectorCanvas.nativeElement.height / 2;
+      const maxHeight: number = this.mainCanvas.height / 2;
       const maxDistance: number = 0.5 * sectorData.system.starSize + ((sectorData.system.planets.length - 1) * 40) + Math.max(Math.min(1.5 * sectorData.system.starSize), Math.min(150, sectorData.system.planets[sectorData.system.planets.length - 1].distance * 50));
 
       const scale: number = maxDistance < maxHeight ? 1 : ((maxDistance / maxHeight) * 0.85);
@@ -82,8 +91,8 @@ export class SystemComponent implements OnInit, OnDestroy {
         const distance: number =  (0.5 * sectorData.system.starSize + (i * 65) + Math.max(Math.min(1.5 * sectorData.system.starSize), Math.min(150, sectorData.system.planets[i].distance * 50))) * scale;
         const size: number = (Math.floor(Math.random() * 3) + 1) * 10;
         const angle: number = Math.floor(Math.random() * 2 * Math.PI);
-        const planetx: number = this.sectorCanvas.nativeElement.width / 2 + (distance * Math.cos(angle));
-        const planety: number = this.sectorCanvas.nativeElement.height / 2 + (distance * Math.sin(angle));
+        const planetx: number = this.mainCanvas.width / 2 + (distance * Math.cos(angle));
+        const planety: number = this.mainCanvas.height / 2 + (distance * Math.sin(angle));
 
         let moons: { x: number, y: number, angle: number }[] = [];
 
@@ -119,14 +128,6 @@ export class SystemComponent implements OnInit, OnDestroy {
   }
 
   planets: DisplayPlanet[] = []
-
-  ngOnInit(): void {
-    // set up the canvas
-    this.sectorContext = this.sectorCanvas.nativeElement.getContext('2d');
-    this.generateStarfield();
-    this.drawFrame(this.sectorContext, this.sectorCanvas);
-  }
-
   numberOfStars: number = 320;
 
   generateStarfield(): void {
@@ -138,6 +139,55 @@ export class SystemComponent implements OnInit, OnDestroy {
         alpha: Math.random()
       })
     }
+    // generate the starfield...
+    this.generateWarpEffect();
+  }
+
+  warpEffect: HTMLCanvasElement[] = [];
+  warpRadialGradient: HTMLCanvasElement;
+
+  /**
+   * Prerenders the warp effect for a starfield.
+   */
+  generateWarpEffect(): void {
+    let warpEffect: HTMLCanvasElement[] = [];
+
+    let width: number = document.getElementById('canvas').offsetWidth;
+    let height: number = document.getElementById('canvas').offsetHeight;
+
+    // radial gradient to make the center transparent
+    let canvas: [HTMLCanvasElement, CanvasRenderingContext2D] = this.newCanvasGenerator(width, height);
+    let gradient: CanvasGradient = canvas[1].createRadialGradient(width / 2, height / 2, width * 0.05, width / 2, height / 2, width * 0.3);
+    gradient.addColorStop(0, 'rgba(0,0,0,1)');
+    gradient.addColorStop(.5, 'rgba(0,0,0,.5)');
+    gradient.addColorStop(1, 'transparent');
+
+    canvas[1].fillStyle = gradient;
+    canvas[1].fillRect(0, 0, width, height);
+
+    this.warpRadialGradient = canvas[0];
+
+    for(let i = 0 ; i < this.warpIterations ; i++) {
+      let canvas: [HTMLCanvasElement, CanvasRenderingContext2D] = this.newCanvasGenerator(width, height);
+      this.drawStarField(canvas[1], canvas[0], i);
+      warpEffect.push(canvas[0]);
+    }
+
+    for(let i = this.warpIterations ; i >= 0 ; i--) {
+      let canvas: [HTMLCanvasElement, CanvasRenderingContext2D] = this.newCanvasGenerator(width, height);
+      this.drawStarField(canvas[1], canvas[0], i);
+      warpEffect.push(canvas[0]);
+    }
+
+    this.warpEffect = warpEffect;
+  }
+
+  newCanvasGenerator(width: number, height: number): [HTMLCanvasElement, CanvasRenderingContext2D] {
+    let newCanvas: HTMLCanvasElement = document.createElement('canvas');
+    let newContext: CanvasRenderingContext2D = newCanvas.getContext('2d');
+    newCanvas.width = width;
+    newCanvas.height = height;
+    return [newCanvas, newContext];
   }
 
   generateRays(): void {
@@ -175,17 +225,23 @@ export class SystemComponent implements OnInit, OnDestroy {
   timeLast: number = 0;
   iteration: number = 0;
 
+  lastFrame: number = 0;
+  currentFrame: number = 0;
+
   requestAnimationFrame: number;
 
   animate(): void {
-    this.timeLast = this.timeRunning;
-    this.timeRunning  += (performance.now() / 100000);
 
-    this.drawFrame(this.sectorContext, this.sectorCanvas);
-    this.calculate();
+
+    this.lastFrame = ((performance.now()) - this.timeLast) / 1000;
+    this.timeRunning  += this.lastFrame;
+
+    this.drawFrame(this.sectorContext, this.mainCanvas, this.lastFrame);
+    this.calculate(this.lastFrame);
 
     this.iteration++;
 
+    this.timeLast = performance.now();
     this.requestAnimationFrame = requestAnimationFrame(() => { this.animate(); });
   }
 
@@ -195,8 +251,8 @@ export class SystemComponent implements OnInit, OnDestroy {
     // increase the planets angle...
     for(let i = 0 ; i < this.planets.length ; i++) {
       this.planets[i].angle += this.angleBaseSpeed * (150 / this.planets[i].distance);
-      this.planets[i].x = this.sectorCanvas.nativeElement.width / 2 + (this.planets[i].distance * Math.cos(this.planets[i].angle)),
-      this.planets[i].y = this.sectorCanvas.nativeElement.height / 2 + (this.planets[i].distance * Math.sin(this.planets[i].angle))
+      this.planets[i].x = this.mainCanvas.width / 2 + (this.planets[i].distance * Math.cos(this.planets[i].angle)),
+      this.planets[i].y = this.mainCanvas.height / 2 + (this.planets[i].distance * Math.sin(this.planets[i].angle))
 
       for(let o = 0 ; o < this.planets[i].moons.length ; o++) {
         this.planets[i].moons[o].angle += 0.04 * (2 / (o+1));
@@ -204,44 +260,43 @@ export class SystemComponent implements OnInit, OnDestroy {
         this.planets[i].moons[o].y = this.planets[i].y + ((this.planets[i].size + (2 * this.moonsize) + (o * this.moonsize * 3)) * Math.sin(this.planets[i].moons[o].angle));
       }
     }
-
-    // do the length of the star lines if they
   }
 
   scale: number = 1;
-  starLength: number = 0;
   loadingNewSector: boolean = false;
+
 
   /**
    * Initiates a sector move graphics change - the zooming in!
    */
   initiateSectorMove(): void {
 
+    this.loadingNewSector = true;
+    // console.log(`loading new sector...`);
+
+    // window.setTimeout(() => {
+    //   this.loadingNewSector = false;
+    //   console.log(`warp out...`);
+    // }, this.warpTime)
+
+    // let iterationsHappened: number = 0;
+    // let intervalTime: number = this.warpTime / (this.warpIterations * 2)
     // this.loadingNewSector = true;
 
-    // const timeout: number = window.setTimeout(() => {
-    //   this.loadingNewSector = false;
-    // }, 500);
+    // console.log(intervalTime);
 
-    let intervalTime: number = 20;
-    let iterations: number = 500 / intervalTime;
-    let iterationsHappened: number = 0;
-    this.loadingNewSector = true;
+    // let interval: number = window.setInterval(() => {
+    //   // change the required values
+    //   iterationsHappened++;
+    //   this.timeSinceWarpSpeed += intervalTime;
 
-    let interval: number = window.setInterval(() => {
-      // change the required values
-      this.scale -= 1 / iterations;
-      this.starLength += 50 / iterations;
-      iterationsHappened++;
-
-      // check to see if this has finished...
-      if(iterationsHappened === iterations) {
-        this.loadingNewSector = false;
-        this.starLength = 0;
-        console.log(`stopped: ${this.loadingNewSector}`);
-        clearInterval(interval);
-      }
-    }, intervalTime)
+    //   // check to see if this has finished...
+    //   if(this.timeSinceWarpSpeed > this.warpTime) {
+    //     this.loadingNewSector = false;
+    //     this.timeSinceWarpSpeed = 0;
+    //     clearInterval(interval);
+    //   }
+    // }, intervalTime)
 
   }
 
@@ -250,13 +305,14 @@ export class SystemComponent implements OnInit, OnDestroy {
 
   starColourScheme: StarColourScheme;
 
-  drawFrame(ctx: CanvasRenderingContext2D, canvas: ElementRef<HTMLCanvasElement>): void {
+  drawFrame(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, timeSinceLastFrame: number): void {
     // reset the scene
-    canvas.nativeElement.width = document.getElementById('canvas').offsetWidth;
-    canvas.nativeElement.height = document.getElementById('canvas').offsetHeight;
+    canvas.width = document.getElementById('canvas').offsetWidth;
+    canvas.height = document.getElementById('canvas').offsetHeight;
 
     // starfield first...
-    this.drawStarField(ctx, canvas, this.scale);
+    if(!this.loadingNewSector) this.drawStarField(ctx, canvas);
+    if(this.loadingNewSector) this.drawStarFieldAtWarp(ctx, canvas, timeSinceLastFrame);
 
     // draw the rays
     this.drawStarRays(ctx, canvas, this.scale);
@@ -268,9 +324,35 @@ export class SystemComponent implements OnInit, OnDestroy {
     this.drawPlanets(ctx, canvas, this.scale);
   }
 
-  drawStarField(ctx: CanvasRenderingContext2D, canvas: ElementRef<HTMLCanvasElement>, scale: number = 1): void {
-    const width: number = canvas.nativeElement.width;
-    const height: number = canvas.nativeElement.height;
+  warpTime: number = 1000;
+  timeSinceWarpSpeed: number = 0;
+  warpIterations: number = 100;
+
+  drawStarFieldAtWarp(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, timeSinceLastFrame: number): void {
+    this.timeSinceWarpSpeed += timeSinceLastFrame * 1000;
+
+
+    let index: number = Math.floor(((this.warpIterations * 2) / this.warpTime) * this.timeSinceWarpSpeed);
+    if(index >= this.warpEffect.length - 1) {
+      this.loadingNewSector = false;
+      index = this.warpEffect.length - 1;
+    }
+
+    let alpha: number = this.timeSinceWarpSpeed < this.warpTime / 2 ? (1 / (0.75 * this.warpTime)) * this.timeSinceWarpSpeed : 2 - (1 / (0.75 * this.warpTime)) * this.timeSinceWarpSpeed;
+
+    ctx.drawImage(this.warpEffect[index], 0, 0);
+    ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+    ctx.drawImage(this.warpRadialGradient, 0, 0);
+    ctx.globalAlpha = 1;
+
+  }
+
+  drawStarField(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, scale?: number): void {
+
+    this.timeSinceWarpSpeed = 0;
+
+    const width: number = canvas.width;
+    const height: number = canvas.height;
 
     for(let i = 0 ; i < this.starField.length ; i++) {
 
@@ -283,32 +365,48 @@ export class SystemComponent implements OnInit, OnDestroy {
       ctx.arc(x, y, this.starField[i].size, 0, 2 * Math.PI);
       ctx.fill();
 
-      if(this.loadingNewSector) {
-
+      if(scale) {
         // draw a line of %age starLength to the center of the map...
-        var gradient: CanvasGradient = ctx.createLinearGradient(x, y, width / 2 + 5, height / 2);
-        gradient.addColorStop(0, `rgba(255, 255, 255, ${a})`);
-        // gradient.addColorStop(Math.min(this.starLength / 100, 1), `rgba(0, 0, 0, ${a})`);
-        gradient.addColorStop(Math.min(this.starLength / 100, 1), `transparent`);
+        // var gradient: CanvasGradient = ctx.createLinearGradient(x, y, width / 2 + 5, height / 2);
+        // gradient.addColorStop(0, `rgba(255, 255, 255, ${a})`);
+        // gradient.addColorStop(this.scale / 100, `transparent`);
         // gradient.addColorStop(1, 'transparent');
 
-        ctx.strokeStyle = gradient;
-        ctx.lineWidth = 5;
+        // const distance: number = Math.sqrt(Math.pow(x - width / 2, 2) + Math.pow(y - height / 2, 2));
+        // const angle: number = Math.atan2(y - height / 2, x - width / 2);
+        ctx.lineWidth = 5;//(scale / 100) * 5;
+        // ctx.strokeStyle = gradient;
 
-        ctx.fillStyle = 'white';
-        ctx.lineWidth = 5;
+        // ctx.beginPath();
+        // ctx.moveTo(x, y);
+        // ctx.lineTo(width / 2, height / 2);
+        // ctx.stroke();
+
+        const pos: [number, number] = this.getMidPoint(x, y, width / 2, height / 2, scale);
 
         ctx.beginPath();
         ctx.moveTo(x, y);
-        ctx.lineTo(width / 2, height / 2);
+        ctx.strokeStyle = `rgba(255, 255, 255, ${a})`;
+        ctx.lineTo(pos[0], pos[1]);
         ctx.stroke();
+        // ctx.strokeStyle = 'transparent';
+        // ctx.moveTo(pos[0], pos[1]);
+        // ctx.lineTo(width / 2, height / 2);
+        // ctx.fill();
+
       }
     }
   }
 
-  drawPlanets(ctx: CanvasRenderingContext2D, canvas: ElementRef<HTMLCanvasElement>, scale: number = 1): void {
-    const width: number = canvas.nativeElement.width;
-    const height: number = canvas.nativeElement.height;
+  getMidPoint(x0: number, y0: number, x1: number, y1: number, p: number): [number, number] {
+    const x: number = x0 + (x1 - x0) * (p / 100);
+    const y: number = y0 + (y1 - y0) * (p / 100);
+    return [x, y];
+  }
+
+  drawPlanets(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, scale: number = 1): void {
+    const width: number = canvas.width;
+    const height: number = canvas.height;
 
     let anyPlanetsHighlighted: boolean = false;
 
@@ -342,7 +440,7 @@ export class SystemComponent implements OnInit, OnDestroy {
       ctx.fillText(planet.name, planet.x + planet.size + 5, planet.y);
       ctx.fillText(planet.owner, planet.x + planet.size + 5, planet.y + 10);
 
-      const planetDistance: number = Math.sqrt( Math.pow(planet.x -  canvas.nativeElement.width / 2, 2) + Math.pow(planet.y -  canvas.nativeElement.height / 2, 2) )
+      const planetDistance: number = Math.sqrt( Math.pow(planet.x -  canvas.width / 2, 2) + Math.pow(planet.y -  canvas.height / 2, 2) )
       const distanceToSun: number = Math.sqrt( Math.pow(planet.x - this.mouseCoordinates.x, 2) + Math.pow(planet.y - this.mouseCoordinates.y, 2) )
 
       // draw the moons
@@ -352,7 +450,7 @@ export class SystemComponent implements OnInit, OnDestroy {
         ctx.arc(planet.moons[o].x, planet.moons[o].y, this.moonsize, 0, Math.PI * 2);
         ctx.fill();
 
-        const moonDistance: number = Math.sqrt(Math.pow(planet.moons[o].x - canvas.nativeElement.width / 2, 2) + Math.pow(planet.moons[o].y - canvas.nativeElement.height / 2, 2));
+        const moonDistance: number = Math.sqrt(Math.pow(planet.moons[o].x - canvas.width / 2, 2) + Math.pow(planet.moons[o].y - canvas.height / 2, 2));
         const maxDistance = planetDistance + (planet.size + (2 * this.moonsize) + (o * this.moonsize * 3));
         const minDistance = planetDistance - (planet.size + (2 * this.moonsize) + (o * this.moonsize * 3));
         const alpha = (moonDistance - minDistance) / (maxDistance - minDistance);
@@ -400,9 +498,9 @@ export class SystemComponent implements OnInit, OnDestroy {
     if(!anyPlanetsHighlighted) this.highlightedPlanet = -1;
   }
 
-  drawStarRays(ctx: CanvasRenderingContext2D, canvas: ElementRef<HTMLCanvasElement>, scale: number = 1): void {
-    const width: number = canvas.nativeElement.width;
-    const height: number = canvas.nativeElement.height;
+  drawStarRays(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, scale: number = 1): void {
+    const width: number = canvas.width;
+    const height: number = canvas.height;
 
     for(let i = 0 ; i < this.rays.length ; i++) {
       let ray: { a: number, l: number, w: number, c: { r: number, g: number, b: number }} = this.rays[i];
@@ -415,19 +513,19 @@ export class SystemComponent implements OnInit, OnDestroy {
       ctx.fillStyle = gradient;
 
       ctx.save();
-      ctx.translate(canvas.nativeElement.width / 2, canvas.nativeElement.height / 2);
+      ctx.translate(width / 2, height / 2);
       ctx.rotate(ray.a);
       ctx.fillRect(0, 0, ray.w, rayLength);
       ctx.restore();
     }
   }
 
-  drawStar(ctx: CanvasRenderingContext2D, canvas: ElementRef<HTMLCanvasElement>, scale: number = 1): void {
-    const width: number = canvas.nativeElement.width;
-    const height: number = canvas.nativeElement.height;
+  drawStar(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, scale: number = 1): void {
+    const width: number = canvas.width;
+    const height: number = canvas.height;
 
     ctx.beginPath();
-    var gradient: CanvasGradient = ctx.createRadialGradient(canvas.nativeElement.width / 2, canvas.nativeElement.height / 2, this.sectorData.system.starSize * (1.5 * this.starScale), canvas.nativeElement.width / 2, canvas.nativeElement.height / 2, this.sectorData.system.starSize * (3 * this.starScale));
+    var gradient: CanvasGradient = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, this.sectorData.system.starSize * (1.5 * this.starScale), canvas.width / 2, canvas.height / 2, this.sectorData.system.starSize * (3 * this.starScale));
 
     gradient.addColorStop(0, `rgba(${this.starColourScheme.p.r},${this.starColourScheme.p.g},${this.starColourScheme.p.b}, 1)`);
     gradient.addColorStop(.1 + (.01 * Math.cos(this.iteration / 20)), `rgba(${this.starColourScheme.s.r},${this.starColourScheme.s.g},${this.starColourScheme.s.b}, 1)`);
@@ -435,7 +533,7 @@ export class SystemComponent implements OnInit, OnDestroy {
 
     ctx.fillStyle = gradient;
 
-    ctx.arc(canvas.nativeElement.width / 2, canvas.nativeElement.height / 2, this.sectorData.system.starSize * (3 * this.starScale), 0, 2 * Math.PI);
+    ctx.arc(canvas.width / 2, canvas.height / 2, this.sectorData.system.starSize * (3 * this.starScale), 0, 2 * Math.PI);
     ctx.fill();
 
   }
@@ -510,7 +608,7 @@ export class SystemComponent implements OnInit, OnDestroy {
   }
 
   selectPlanetByTouch(position: TouchEvent): void {
-    this.mouseCoordinates = { x: position.changedTouches[0].pageX - this.sectorCanvas.nativeElement.getBoundingClientRect().left, y: position.changedTouches[0].pageY - this.sectorCanvas.nativeElement.getBoundingClientRect().top };
+    this.mouseCoordinates = { x: position.changedTouches[0].pageX - this.mainCanvas.getBoundingClientRect().left, y: position.changedTouches[0].pageY - this.mainCanvas.getBoundingClientRect().top };
   }
 
 }

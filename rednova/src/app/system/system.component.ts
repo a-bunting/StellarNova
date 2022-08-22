@@ -338,7 +338,7 @@ export class SystemComponent implements OnInit, OnDestroy {
       index = this.warpEffect.length - 1;
     }
 
-    let alpha: number = this.timeSinceWarpSpeed < this.warpTime / 2 ? (1 / (0.75 * this.warpTime)) * this.timeSinceWarpSpeed : 2 - (1 / (0.75 * this.warpTime)) * this.timeSinceWarpSpeed;
+    let alpha: number = this.timeSinceWarpSpeed < this.warpTime / 2 ? (1 / (0.5 * this.warpTime)) * this.timeSinceWarpSpeed : 2 - (1 / (0.5 * this.warpTime)) * this.timeSinceWarpSpeed;
 
     ctx.drawImage(this.warpEffect[index], 0, 0);
     ctx.globalAlpha = Math.max(0, Math.min(1, alpha));

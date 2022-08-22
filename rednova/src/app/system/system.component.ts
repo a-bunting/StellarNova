@@ -172,15 +172,18 @@ export class SystemComponent implements OnInit, OnDestroy {
   }
 
   timeRunning: number = 0;
+  timeLast: number = 0;
   iteration: number = 0;
 
   requestAnimationFrame: number;
 
   animate(): void {
+    this.timeLast = this.timeRunning;
+    this.timeRunning  += (performance.now() / 100000);
+
     this.drawFrame(this.sectorContext, this.sectorCanvas);
     this.calculate();
 
-    this.timeRunning  += (performance.now() / 100000);
     this.iteration++;
 
     this.requestAnimationFrame = requestAnimationFrame(() => { this.animate(); });
@@ -188,7 +191,7 @@ export class SystemComponent implements OnInit, OnDestroy {
 
   angleBaseSpeed: number = 0.002;
 
-  calculate(): void {
+  calculate(timeSinceLastIteration?: number): void {
     // increase the planets angle...
     for(let i = 0 ; i < this.planets.length ; i++) {
       this.planets[i].angle += this.angleBaseSpeed * (150 / this.planets[i].distance);
@@ -201,6 +204,8 @@ export class SystemComponent implements OnInit, OnDestroy {
         this.planets[i].moons[o].y = this.planets[i].y + ((this.planets[i].size + (2 * this.moonsize) + (o * this.moonsize * 3)) * Math.sin(this.planets[i].moons[o].angle));
       }
     }
+
+    // do the length of the star lines if they
   }
 
   scale: number = 1;
@@ -212,7 +217,13 @@ export class SystemComponent implements OnInit, OnDestroy {
    */
   initiateSectorMove(): void {
 
-    let intervalTime: number = 10;
+    // this.loadingNewSector = true;
+
+    // const timeout: number = window.setTimeout(() => {
+    //   this.loadingNewSector = false;
+    // }, 500);
+
+    let intervalTime: number = 20;
     let iterations: number = 500 / intervalTime;
     let iterationsHappened: number = 0;
     this.loadingNewSector = true;
@@ -220,12 +231,13 @@ export class SystemComponent implements OnInit, OnDestroy {
     let interval: number = window.setInterval(() => {
       // change the required values
       this.scale -= 1 / iterations;
-      this.starLength += 100 / iterations;
+      this.starLength += 50 / iterations;
       iterationsHappened++;
 
       // check to see if this has finished...
       if(iterationsHappened === iterations) {
         this.loadingNewSector = false;
+        this.starLength = 0;
         console.log(`stopped: ${this.loadingNewSector}`);
         clearInterval(interval);
       }
@@ -264,17 +276,24 @@ export class SystemComponent implements OnInit, OnDestroy {
 
       const x: number = (this.starField[i].x / 100) * width;
       const y: number = (this.starField[i].y / 100) * height;
+      const a: number = this.starField[i].alpha + Math.cos(this.iteration * this.twinkleSpeed + i * 30) * (this.starField[i].alpha / 3);
 
-      ctx.fillStyle = `rgba(255, 255, 255, ${this.starField[i].alpha + Math.cos(this.iteration * this.twinkleSpeed + i * 30) * (this.starField[i].alpha / 3)})`;
+      ctx.fillStyle = `rgba(255, 255, 255, ${a})`;
       ctx.beginPath();
       ctx.arc(x, y, this.starField[i].size, 0, 2 * Math.PI);
       ctx.fill();
 
+      if(this.loadingNewSector) {
+
         // draw a line of %age starLength to the center of the map...
-        const distanceToCenter: number = Math.sqrt(Math.pow(x - (width / 2), 2) + Math.pow(y - (height / 2), 2));
-        var gradient: CanvasGradient = ctx.createLinearGradient(0, 0, 5, distanceToCenter);
-        gradient.addColorStop(0, `rgba(255, 255, 255, .3)`);
-        gradient.addColorStop(this.starLength / 100, 'rgba(0, 0, 0, .5)');
+        var gradient: CanvasGradient = ctx.createLinearGradient(x, y, width / 2 + 5, height / 2);
+        gradient.addColorStop(0, `rgba(255, 255, 255, ${a})`);
+        // gradient.addColorStop(Math.min(this.starLength / 100, 1), `rgba(0, 0, 0, ${a})`);
+        gradient.addColorStop(Math.min(this.starLength / 100, 1), `transparent`);
+        // gradient.addColorStop(1, 'transparent');
+
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 5;
 
         ctx.fillStyle = 'white';
         ctx.lineWidth = 5;
@@ -282,7 +301,8 @@ export class SystemComponent implements OnInit, OnDestroy {
         ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.lineTo(width / 2, height / 2);
-        ctx.fill();
+        ctx.stroke();
+      }
     }
   }
 

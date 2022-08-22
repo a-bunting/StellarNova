@@ -315,7 +315,7 @@ export class SystemComponent implements OnInit, OnDestroy {
     if(this.loadingNewSector) this.drawStarFieldAtWarp(ctx, canvas, timeSinceLastFrame);
 
     // draw the rays
-    this.drawStarRays(ctx, canvas, this.scale);
+    //this.drawStarRays(ctx, canvas, this.scale);
 
     // draw the star...
     this.drawStar(ctx, canvas, this.scale);

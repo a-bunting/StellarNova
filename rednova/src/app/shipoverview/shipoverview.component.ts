@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@
 import { Subscription } from 'rxjs';
 import { GoodStore, SectorData, Ship } from '../game/game.component';
 import { GameService } from '../services/game.service';
+import * as THREE from 'three';
 
 @Component({
   selector: 'app-shipoverview',
@@ -16,6 +17,10 @@ export class ShipoverviewComponent implements OnInit, OnDestroy {
   sectorData: SectorData;
 
   subscriptions: Subscription[] = [];
+
+  // three
+  @Input() public size: number = 0.95;
+  scene = new THREE.Scene();
 
   constructor(
     private gameService: GameService

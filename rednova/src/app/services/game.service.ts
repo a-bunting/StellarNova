@@ -407,8 +407,6 @@ export class GameService {
    * @returns
    */
   loadGalaxyData(galaxyId: number, callback: Function = this.dbCallBack): Observable<DatabaseResult> {
-    // signal a new sector is being loaded
-    this.loadingNewSector.next(true);
     return this.http.get<DatabaseResult>(`${environment.apiUrl}/galaxy/getUserGalaxyData?galaxyId=${galaxyId}`).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
   }
 
@@ -416,11 +414,13 @@ export class GameService {
     return this.http.get<DatabaseResult>(`${environment.apiUrl}/user/getNavLog?galaxyId=${galaxyId}`).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
   }
 
-  warpToSector(galaxyId: number, sectorId: number, callback: Function = this.dbCallBack): Observable<DatabaseResult> {
+  warpToSector(galaxyId: number, sectorId: number, callback: Function = this.dbCallBack): Observable<DatabaseResult> {// signal a new sector is being loaded
+    this.loadingNewSector.next(true);
     return this.http.post<DatabaseResult>(`${environment.apiUrl}/galaxy/moveTo`, { destinationId: sectorId, galaxyId: galaxyId, movestyle: 'warp' }).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
   }
 
-  moveToSector(galaxyId: number, sectorId: number, engines: number, callback: Function = this.dbCallBack): Observable<DatabaseResult> {
+  moveToSector(galaxyId: number, sectorId: number, engines: number, callback: Function = this.dbCallBack): Observable<DatabaseResult> {// signal a new sector is being loaded
+    this.loadingNewSector.next(true);
     return this.http.post<DatabaseResult>(`${environment.apiUrl}/galaxy/moveTo`, { destinationId: sectorId, galaxyId: galaxyId, engines: engines }).pipe(take(1), tap((res: DatabaseResult) => { callback(res); }));
   }
 

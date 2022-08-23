@@ -42,12 +42,17 @@ export class SystemComponent implements OnInit, OnDestroy {
           if(this.sectorData) {
             // if we already have data relating to a secotr, check if its changed, and if it has redisplay, else ignore.
             if(JSON.stringify(this.sectorData.system) !== JSON.stringify(sectorData.system)) {
-              this.generateSector(sectorData);
               this.newSectorLoaded = true;
+              this.loadingNewSector = false;
+              this.loadingSectorPause = false;
+              this.generateSector(sectorData);
             }
           }
           else {
             this.generateSector(sectorData);
+            this.newSectorLoaded = true;
+            this.loadingSectorPause = false;
+            this.loadingNewSector = false;
           }
         }
       },
@@ -166,8 +171,8 @@ export class SystemComponent implements OnInit, OnDestroy {
     // radial gradient to make the center transparent
     let canvas: [HTMLCanvasElement, CanvasRenderingContext2D] = this.newCanvasGenerator(width, height);
     let gradient: CanvasGradient = canvas[1].createRadialGradient(width / 2, height / 2, width * 0.05, width / 2, height / 2, width * 0.3);
-    gradient.addColorStop(0, 'rgba(0,0,0,1)');
-    gradient.addColorStop(.5, 'rgba(0,0,0,.5)');
+    gradient.addColorStop(0, 'rgba(255,255,255,1)');
+    // gradient.addColorStop(.5, 'rgba(0,0,0,.5)');
     gradient.addColorStop(1, 'transparent');
 
     canvas[1].fillStyle = gradient;
@@ -295,30 +300,45 @@ export class SystemComponent implements OnInit, OnDestroy {
     if(this.loadingNewSector && !this.newSectorLoaded) this.drawStarfieldWarpIn(ctx, canvas, timeSinceLastFrame);
     if(!this.loadingNewSector && this.newSectorLoaded) this.drawStarfieldWarpOut(ctx, canvas, timeSinceLastFrame);
 
-    // draw the rays
-    //this.drawStarRays(ctx, canvas, this.scale);
+    // make a new canvas layer for the stars and planets to scale it better...
+    let starsAndPlanetsCanvas: [HTMLCanvasElement, CanvasRenderingContext2D] = this.newCanvasGenerator(canvas.width, canvas.height);
+    // set the scale...
+    this.scale = Math.max(0, Math.min(1 - (this.timeSinceWarpSpeed / this.warpTime), 1));
+    starsAndPlanetsCanvas[1].scale(this.scale, this.scale);
 
-    // draw the star...
-    this.drawStar(ctx, canvas, this.scale);
+      // draw the rays
+      this.drawStarRays(starsAndPlanetsCanvas[1], starsAndPlanetsCanvas[0], this.scale);
 
-    // draw the planets
-    this.drawPlanets(ctx, canvas, this.scale);
+      // draw the star...
+      this.drawStar(starsAndPlanetsCanvas[1], starsAndPlanetsCanvas[0], this.scale);
+
+      // draw the planets
+      this.drawPlanets(starsAndPlanetsCanvas[1], starsAndPlanetsCanvas[0], this.scale);
+
+    // paste hte image back onto the main canvas
+    ctx.drawImage(starsAndPlanetsCanvas[0], (canvas.width / 2) * (1 - this.scale), (canvas.height / 2) * (1 - this.scale));// );
   }
 
-  warpTime: number = 500;
-  timeSinceWarpSpeed: number = 0;
+  warpTime: number = 250;
+  timeSinceWarpSpeed: number = this.warpTime;
   warpIterations: number = 100;
 
+  /**
+   * Displays the warp in.
+   * @param ctx
+   * @param canvas
+   * @param timeSinceLastFrame
+   */
   drawStarfieldWarpIn(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, timeSinceLastFrame: number): void {
-    console.log(`in`);
-    this.timeSinceWarpSpeed += timeSinceLastFrame * 1000;
+    this.timeSinceWarpSpeed = this.loadingSectorPause ? this.timeSinceWarpSpeed : this.timeSinceWarpSpeed + (timeSinceLastFrame * 1000);
 
-    let index: number = Math.floor((this.warpIterations / this.warpTime) * this.timeSinceWarpSpeed);
+    let index: number = this.loadingSectorPause ? this.warpEffectIn.length - 1 : Math.floor((this.warpIterations / this.warpTime) * this.timeSinceWarpSpeed);
     let alpha: number = (1 / (0.5 * this.warpTime)) * this.timeSinceWarpSpeed;//2 - (1 / (0.5 * this.warpTime)) * this.timeSinceWarpSpeed;
 
-    if(index >= this.warpEffectIn.length - 1) {
-        this.timeSinceWarpSpeed = 0;
+    if(this.timeSinceWarpSpeed >= this.warpTime) {
         index = this.warpEffectIn.length - 1;
+        this.timeSinceWarpSpeed = this.warpTime;
+        this.loadingSectorPause = true;
     }
 
     ctx.drawImage(this.warpEffectIn[index], 0, 0);
@@ -327,14 +347,20 @@ export class SystemComponent implements OnInit, OnDestroy {
     ctx.globalAlpha = 1;
   }
 
+  /**
+   * Displays the warp out
+   * @param ctx
+   * @param canvas
+   * @param timeSinceLastFrame
+   */
   drawStarfieldWarpOut(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, timeSinceLastFrame: number): void {
-    console.log(`out`);
-    this.timeSinceWarpSpeed += timeSinceLastFrame * 1000;
+    this.timeSinceWarpSpeed -= timeSinceLastFrame * 1000;
 
-    let index: number = Math.floor(((this.warpIterations * 2) / this.warpTime) * this.timeSinceWarpSpeed);
+    let index: number = Math.max(0, Math.min(this.warpEffectOut.length - 1, this.warpEffectOut.length - 1 - Math.floor((this.warpIterations / this.warpTime) * this.timeSinceWarpSpeed)));
 
-    if(index >= this.warpEffectOut.length - 1) {
+    if(this.timeSinceWarpSpeed <= 0) {
         this.newSectorLoaded = false;
+        this.timeSinceWarpSpeed = 0;
         index = this.warpEffectOut.length - 1;
     }
 
@@ -346,9 +372,13 @@ export class SystemComponent implements OnInit, OnDestroy {
     ctx.globalAlpha = 1;
   }
 
+  /**
+   * Draws a starfield
+   * @param ctx
+   * @param canvas
+   * @param scale
+   */
   drawStarField(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, scale?: number): void {
-
-    this.timeSinceWarpSpeed = 0;
 
     const width: number = canvas.width;
     const height: number = canvas.height;
@@ -403,7 +433,7 @@ export class SystemComponent implements OnInit, OnDestroy {
     return [x, y];
   }
 
-  drawPlanets(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, scale: number = 1): void {
+  drawPlanets(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, scale: number = .1): void {
     const width: number = canvas.width;
     const height: number = canvas.height;
 
@@ -413,15 +443,16 @@ export class SystemComponent implements OnInit, OnDestroy {
     for(let i = 0 ; i < this.planets.length ; i++) {
       const planet: DisplayPlanet = this.planets[i];
 
-      // planets looks
-      ctx.fillStyle = 'blue';
-      ctx.beginPath();
-      ctx.arc(planet.x, planet.y, planet.size, 0, Math.PI * 2);
-      ctx.fill();
-
       // light side and dark side - rotate so it faces the sun.
       ctx.save();
       ctx.translate(planet.x, planet.y);
+
+      // planets looks
+      ctx.fillStyle = 'blue';
+      ctx.beginPath();
+      ctx.arc(0, 0, planet.size, 0, Math.PI * 2);
+      ctx.fill();
+
       ctx.rotate(planet.angle + this.gradientAngle);
 
       var gradient: CanvasGradient = ctx.createLinearGradient(0.5 * planet.size, 0.5 * planet.size, -0.5 * planet.size, -0.5 * planet.size);
@@ -432,9 +463,9 @@ export class SystemComponent implements OnInit, OnDestroy {
       ctx.beginPath();
       ctx.arc(0, 0, planet.size, 0, Math.PI * 2);
       ctx.fill();
-
       ctx.restore();
 
+      // write the text on the planet
       ctx.fillStyle = 'white';
       ctx.fillText(planet.name, planet.x + planet.size + 5, planet.y);
       ctx.fillText(planet.owner, planet.x + planet.size + 5, planet.y + 10);
@@ -477,7 +508,6 @@ export class SystemComponent implements OnInit, OnDestroy {
         }
 
         ctx.restore();
-
       }
 
       // check to see if the cursor is inside, and if so draw a white circle around it...
@@ -519,7 +549,7 @@ export class SystemComponent implements OnInit, OnDestroy {
     }
   }
 
-  drawStar(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, scale: number = 1): void {
+  drawStar(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, scale: number = .5): void {
     const width: number = canvas.width;
     const height: number = canvas.height;
 

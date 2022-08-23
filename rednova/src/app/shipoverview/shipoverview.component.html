@@ -1,5 +1,8 @@
 <div *ngIf="shipDetail; else loading">
   <div class="ship-detail">
+    <div class="ship-model">
+
+    </div>
     <div class="resources">
       <div class="resource" *ngFor="let store of shipStorage">
         {{ store.name }} - {{ store.quantity | number:'0.0-0' }}

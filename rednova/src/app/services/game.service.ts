@@ -1,12 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Data, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, take, tap } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from 'src/environments/environment';
 import { RednovaConsoleLog } from '../console/console.component';
 import { GoodStore, SectorData } from '../game/game.component';
-import { TradeLogData } from '../trade/display-trade-log/display-trade-log.component';
 import { TradeRoute, TradeRouteDisplay } from '../trade/trade-routes/trade-routes.component';
 import { AuthenticateService, User } from './authenticate.service';
 import { DatabaseResult } from './interfaces';

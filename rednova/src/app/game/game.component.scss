@@ -28,9 +28,10 @@
     grid-column: 1 / 2;
     letter-spacing: .3rem;
 
-    background-image: linear-gradient(to right, transparent 0%, transparent 10%, brown 20%, brown 80%, transparent 90%, transparent 100%);
+    background-image: linear-gradient(to right, transparent 0%, transparent 10%, var(--colour-secondary) 20%, var(--colour-primary-light) 50%, var(--colour-secondary) 80%, transparent 90%, transparent 100%);
     padding: 1rem 15rem;
     margin-bottom: .5rem;
+    transition: all .2s;
   }
 
   &__info {
@@ -56,22 +57,20 @@
 
 .info-box {
   position: absolute;
-  top: 2rem;
-  left: 1rem;
-  max-width: 16rem;
-  background-color: lightblue;
+  top: 6rem;
+  left: 2rem;
+  width: 22rem;
   border-radius: 1rem;
   z-index: 10;
   transition: all .5s;
+  background-image: linear-gradient(to bottom right, var(--colour-primary), var(--colour-secondary-light));
+  box-shadow: .2rem 0 .8rem var(--colour-primary-light);
 }
 
 .ship {
   position: absolute;
   bottom: 2rem;
   left: 2rem;
-  background-color: lightblue;
-  border-radius: 1rem;
-  z-index: 10;
 }
 
 .data {

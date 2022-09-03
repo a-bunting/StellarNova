@@ -1,32 +1,181 @@
-.resource {
-  padding: .5rem 1rem;
-}
-
 .ship-detail {
   display: flex;
   flex-direction: row;
   padding: .5rem 1rem;
+
+  &:hover {
+    .ship-data {
+      max-width: 300rem;
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+}
+
+.ship-model {
+  height: 22rem;
+  position: relative;
+  border-radius: 50%;
+  background-color: var(--colour-primary);
+  background-image: linear-gradient(to right, var(--colour-primary), transparent);
+  border: 1rem solid transparent;
+  overflow: hidden;
+  z-index: 10;
+  aspect-ratio: 1 / 1;
+
+  canvas {
+    height: 100%;
+    width: 100%;
+  }
+
+  &__infotext {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem;
+    color: orange;
+    font-size: 1.2rem;
+    text-align: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all .2s;
+  }
+
+  &__infotext--show {
+    transition: all .2s;
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.ship-data {
+  height: 22rem;
+  position: relative;
+  display: flex;
+  background-image: linear-gradient(to right, var(--colour-primary), var(--colour-secondary-light));
+  box-shadow: .4rem 0 .8rem rgba(var(--colour-primary), .6);
+  margin-left: -11rem;
+  padding-left: 11rem;
+  z-index: 1;
+  border-radius: 0 1rem 1rem 0;
+  max-width: 0rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: all .2s;
+
+  display: flex;
+  flex-direction: column;
 }
 
 .resources {
-  margin-right: 1rem;
-  border-right: .2rem solid red;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  margin-right: 2rem;
+  width: 100%;
+
+  &__bar {
+    display: flex;
+    width: 98%;
+  }
+
+  &__resource {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1rem 1rem;
+    transition: all .2s;
+
+    &:first-of-type { border-radius: 1rem 0 0 1rem; }
+    &:last-of-type { border-radius: 0 1rem 1rem 0; }
+
+    &:nth-of-type(1) { background-color: #ffffff;}
+    &:nth-of-type(2) { background-color: #dddddd;}
+    &:nth-of-type(3) { background-color: #bbbbbb;}
+    &:nth-of-type(4) { background-color: #999999;}
+    &:nth-of-type(5) { background-color: #777777;}
+
+    &:hover {
+      z-index: 100;
+      padding-left: 2rem;
+      box-shadow: 0 0 .6rem rgba(black, 1);
+    }
+  }
 }
 
-.tech {
-  display: flex;
-}
 
-.tech-list {
+.ship-tech {
   display: flex;
-  flex-direction: column;
+  margin-top: .5rem;
 
-  &__item {
+  &__list {
+    display: flex;
+    flex-direction: column;
+    width: 12rem;
+    margin-right: .5rem;
+
+    &--title {
+      font-size: 1.4rem;
+      text-align: center;
+      margin-bottom: .5rem;
+    }
+  }
+
+  &__featured {
+    background-color: var(--colour-primary-light) !important;
+    transition: all .2s;
+
+    &:hover {
+      background-image: linear-gradient(to left, var(--colour-primary), var(--colour-secondary-light)) !important;
+    }
+  }
+
+  &__part {
+    position: relative;
     display: flex;
     justify-content: space-between;
-    padding: .5rem 1rem;
+    align-items: center;
+    background-color: var(--colour-secondary-light);
+    background-size: 0%;
+    background-repeat: no-repeat;
 
-    &--name { font-weight: bold; margin-right: 2rem; }
-    &--level { text-align: right; }
+    font-size: 1.2rem;
+    letter-spacing: .1rem;
+
+    padding: .5rem 1rem;
+    border-radius: 1rem;
+    box-shadow: .2rem 0 .4rem rgba(black, .4);
+    transition: all .2s;
+
+    color: white;
+
+    &:not(:last-of-type) { margin-bottom: .5rem; }
+
+    &--icon {
+      img { height: 2rem; width: 2rem; }
+    }
+
+    &--text {
+      text-align: left;
+      margin-left: .5rem;
+    }
+
+    &--level {
+
+    }
+
+    &:hover {
+      cursor: help;
+      transform: translateY(-.2rem);
+      box-shadow: .3rem 0 .6rem rgba(black, .7);
+      filter: brightness(1.1);
+      background-image: linear-gradient(to left, var(--colour-secondary-light), var(--colour-primary));
+      background-size: 100%;
+      color: black;
+    }
   }
 }

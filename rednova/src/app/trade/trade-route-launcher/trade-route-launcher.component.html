@@ -1,8 +1,14 @@
 <div class="trade-routes">
 
-  <div class="trade-routes__route" *ngFor="let route of tradeRoutesList">
-    <div class="trade-routes__modify" (click)="loadRoute(route.id)" [class.trade-routes__selected]="route.id === selectedTradeRoute">S</div>
-    <div class="trade-routes__name" (click)="selectRoute(route.id)" [class.trade-routes__selected]="route.id === selectedTradeRoute">{{ route.name }}</div>
+  <div class="trade-routes__title">Trade Routes</div>
+
+  <div class="trade-routes__routes">
+    <div class="trade-routes__route" *ngFor="let route of tradeRoutesList" [class.trade-routes__selected]="route.id === selectedTradeRoute">
+      <div class="trade-routes__modify" (click)="loadRoute(route.id)">
+        <img src="../../../assets/icons/002-change.png" alt="Modify Route">
+      </div>
+      <div class="trade-routes__name" (click)="selectRoute(route.id)">{{ route.name }}</div>
+    </div>
   </div>
 
   <div class="trade-routes__runtimes" *ngIf="selectedTradeRoute">

@@ -10,17 +10,24 @@
 
   &__item {
     flex: 1;
-    padding: .5rem 1rem;
+    padding: .8rem 1rem;
     text-align: center;
     transition: all .2s;
-    background-color: rgba(150,150,150,1);
+    background-color: var(--colour-secondary-light);
+
+    img {
+      width: 2rem;
+      height: 2rem;
+      filter: invert(1);
+    }
 
     &:first-of-type { border-radius: 1rem 0 0 0 ; }
     &:last-of-type { border-radius: 0 1rem 0 0 ; }
 
     &:hover {
       cursor: pointer;
-      background-color: rgba(200,200,200,1);
+      filter: invert(0);
+      background-color: var(--colour-primary-light);
 
       & + .menu__label {
         opacity: 1;
@@ -36,6 +43,8 @@
     text-align: center;
     opacity: 0;
     transition: all .2s;
-    font-size: 1.6rem;
+    font-size: 1.2rem;
+    letter-spacing: .1rem;
+    color: white;
   }
 }

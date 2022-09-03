@@ -1,3 +1,17 @@
+$colour-primary: #dd32b3;
+$colour-primary-light: #fb29fd;
+$colour-secondary: #4216d2;
+$colour-secondary-light: #2e3bf0;
+$colour-secondary-dark: #000840;
+
+:root {
+  --colour-primary: #{$colour-primary};
+  --colour-primary-light: #{$colour-primary-light};
+  --colour-secondary: #{$colour-secondary};
+  --colour-secondary-light: #{$colour-secondary-light};
+  --colour-secondary-dark: #{$colour-secondary-dark};
+}
+
 *, *::after, *::before {
   box-sizing: border-box;
   margin: 0;

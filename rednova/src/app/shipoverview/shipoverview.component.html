@@ -1,32 +1,51 @@
-<div *ngIf="shipDetail; else loading">
-  <div class="ship-detail">
+<div>
+  <div class="ship-detail" (mouseover)="mouseFollow(false)" (mouseleave)="mouseFollow(true)">
     <div class="ship-model">
-
+      <div id="ship-model__infotext" class="ship-model__infotext">{{ toolTipDescription }}</div>
+      <canvas id="shipCanvas" #shipCanvas></canvas>
     </div>
-    <div class="resources">
-      <div class="resource" *ngFor="let store of shipStorage">
-        {{ store.name }} - {{ store.quantity | number:'0.0-0' }}
+
+    <div class="ship-data" *ngIf="shipDetail">
+
+      <div class="ship-tech">
+
+        <div class="ship-tech__list" *ngFor="let list of lists">
+
+          <div class="ship-tech__list--title">
+            <div class="ship-tech__list--text">{{ list.name }}</div>
+          </div>
+
+          <div
+            class="ship-tech__part"
+            *ngFor="let component of list.components"
+            [class.ship-tech__featured]="component.featured"
+            (mouseover)="loadToolTip(component.name)"
+            (mouseout)="removetoolTip()"
+          >
+            <div class="ship-tech__part--icon"> <img src="../../assets/icons/{{ component.icon }}" alt="{{ component.name }}"> </div>
+            <div class="ship-tech__part--text">{{ component.name }}</div>
+            <div class="ship-tech__part--level">{{ component.level }}</div>
+          </div>
+
+        </div>
       </div>
 
-      <div class="resource" *ngIf="shipStorage.length === 0">
-        You currently have no resources...
+
+      <div class="resources">
+
+        <div class="resources__bar">
+          <div class="resources__resource" style="flex: {{ getUnusedStoragePercentage(1) }};">
+            <div class="resources__name">Unused Storage</div>
+            <div class="resources__quantity">{{ getUnusedStorage(1) | number:'0.0-0' }}</div>
+          </div>
+          <div class="resources__resource" *ngFor="let store of shipStorage" style="flex: {{ getStoragePercentage(store.quantity, 1) }};">
+            <div class="resources__name">{{ store.name }}</div>
+            <div class="resources__quantity">{{ store.quantity | number:'0.0-0' }}</div>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="tech">
-      <div class="ship tech-list">
-        <div class="tech-list__item"> <div class="tech-list__item--name">Cloak</div> <div class="tech-list__item--item">{{ shipDetail.cloak }}</div> </div>
-        <div class="tech-list__item"> <div class="tech-list__item--name">Computer</div> <div class="tech-list__item--item">{{ shipDetail.computer }}</div> </div>
-        <div class="tech-list__item"> <div class="tech-list__item--name">Engines</div> <div class="tech-list__item--item">{{ shipDetail.engines }}</div> </div>
-        <div class="tech-list__item"> <div class="tech-list__item--name">Hull</div> <div class="tech-list__item--item">{{ shipDetail.hull }}</div> </div>
-        <div class="tech-list__item"> <div class="tech-list__item--name">Power</div> <div class="tech-list__item--item">{{ shipDetail.power }}</div> </div>
-        <div class="tech-list__item"> <div class="tech-list__item--name">Sensors</div> <div class="tech-list__item--item">{{ shipDetail.sensors }}</div> </div>
-      </div>
-      <div class="attack tech-list">
-        <div class="tech-list__item"> <div class="tech-list__item--name">Armor</div> <div class="tech-list__item--item">{{ shipDetail.armor }}</div> </div>
-        <div class="tech-list__item"> <div class="tech-list__item--name">Beams</div> <div class="tech-list__item--item">{{ shipDetail.beams }}</div> </div>
-        <div class="tech-list__item"> <div class="tech-list__item--name">Shields</div> <div class="tech-list__item--item">{{ shipDetail.shields }}</div> </div>
-        <div class="tech-list__item"> <div class="tech-list__item--name">Torpedos</div> <div class="tech-list__item--item">{{ shipDetail.torpedos }}</div> </div>
-      </div>
+
+
     </div>
   </div>
 </div>

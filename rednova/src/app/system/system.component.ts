@@ -242,8 +242,6 @@ export class SystemComponent implements OnInit, OnDestroy {
   requestAnimationFrame: number;
 
   animate(): void {
-
-
     this.lastFrame = ((performance.now()) - this.timeLast) / 1000;
     this.timeRunning  += this.lastFrame;
 
@@ -341,9 +339,9 @@ export class SystemComponent implements OnInit, OnDestroy {
         this.loadingSectorPause = true;
     }
 
-    ctx.drawImage(this.warpEffectIn[index], 0, 0);
+    ctx.drawImage(this.warpEffectIn[index], 0, 0, this.mainCanvas.width, this.mainCanvas.height);
     ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
-    ctx.drawImage(this.warpRadialGradient, 0, 0);
+    ctx.drawImage(this.warpRadialGradient, 0, 0, this.mainCanvas.width, this.mainCanvas.height);
     ctx.globalAlpha = 1;
   }
 
@@ -366,9 +364,9 @@ export class SystemComponent implements OnInit, OnDestroy {
 
     let alpha: number = 2 - (1 / (0.5 * this.warpTime)) * this.timeSinceWarpSpeed;
 
-    ctx.drawImage(this.warpEffectOut[index], 0, 0);
+    ctx.drawImage(this.warpEffectOut[index], 0, 0, this.mainCanvas.width, this.mainCanvas.height);
     ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
-    ctx.drawImage(this.warpRadialGradient, 0, 0);
+    ctx.drawImage(this.warpRadialGradient, 0, 0, this.mainCanvas.width, this.mainCanvas.height);
     ctx.globalAlpha = 1;
   }
 

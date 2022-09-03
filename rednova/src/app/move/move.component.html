@@ -1,21 +1,39 @@
 <div class="move">
 
-  <div class="move__title">Warp (1 Turn)</div>
+  <div class="move__title">Navigation</div>
 
-  <div class="move__routes">
-    <a class="move__route" (click)="warpTo(warp.destination)" *ngFor="let warp of sectorData?.system.warp">{{ warp.destination }}</a>
+  <div class="move__quick">
+    <div class="move__class">
+      <div class="move__class--title" *ngIf="sectorData?.system.warp.length > 0">Warp</div>
+      <div class="move__class--links">
+        <div class="move__class--noroute" *ngIf="sectorData?.system.warp.length === 0">No warp routes available from this sector.</div>
+        <div class="move__class--link" (click)="moveTo(warp.destination)" *ngFor="let warp of sectorData?.system.warp">{{ warp.destination }}</div>
+      </div>
+    </div>
+
+    <div class="move__class">
+      <div class="move__class--title">Realspace</div>
+      <div class="move__class--links">
+        <div class="move__class--link" (click)="moveTo(sectorData?.system.sectorid - 1)" *ngIf="sectorData?.system.sectorid - 1 > 0">{{ sectorData?.system.sectorid - 1 }}</div>
+        <div class="move__class--link" (click)="moveTo(sectorData?.system.sectorid + 1)" *ngIf="sectorData?.system.sectorid + 1 <= sectorData?.server.sectors">{{ sectorData?.system.sectorid + 1 }}</div>
+        <div class="move__class--link" (click)="moveTo(link)" *ngFor="let link of quickLinks">{{ link }}</div>
+      </div>
+    </div>
   </div>
 
-  <div class="move__title">Realspace</div>
-
-  <div class="move__realspace">
-    <a class="move__route" (click)="moveTo(sectorData?.system.sectorid - 1)" *ngIf="sectorData?.system.sectorid - 1 > 0">{{ sectorData?.system.sectorid - 1 }}</a>
-    <a class="move__route" (click)="moveTo(sectorData?.system.sectorid + 1)" *ngIf="sectorData?.system.sectorid + 1 <= sectorData?.server.sectors">{{ sectorData?.system.sectorid + 1 }}</a>
+  <div class="move__custom">
+    <input class="input__text" type="text" name="moveto" id="moveto" [(ngModel)]="subLightInput" (keyup)="calculateSublightTurnCost()" placeholder="Move to...">
+    <button class="input__button" (click)="moveTo()" [disabled]="!subLightInput || calculatingNewCost">{{ !calculatedAnything ? 'Navigate' : !subLightInput ? 'Waiting...' : calculatingNewCost ? 'Calculating...' : !subLightCost ? 'Invalid Sector' : subLightCost + ' Turns' }}</button>
   </div>
 
-  <div class="move__realspace">
-    <input class="input__text" type="text" name="moveto" id="moveto" [(ngModel)]="subLightInput" (keyup)="calculateSublightTurnCost()">
-    <button class="input__button" (click)="moveTo()">{{ calculatingNewCost ? 'Calculating...' : !subLightCost ? 'Invalid Sector' : subLightCost + ' Turns' }}</button>
+  <div class="move__add" *ngIf="!doesQuickLinkExist(sectorData?.system.sectorid)">
+    <div class="move__add--button" (click)="addQuickLink(sectorData?.system.sectorid)">+</div>
+    <div class="move__add--text">Add sector {{ sectorData?.system.sectorid }} to quick travel.</div>
+  </div>
+
+  <div class="move__add" *ngIf="doesQuickLinkExist(sectorData?.system.sectorid)">
+    <div class="move__add--button" (click)="removeQuickLink(sectorData?.system.sectorid)">+</div>
+    <div class="move__add--text">Remove sector from quick travel.</div>
   </div>
 
   <div class="move__error" *ngIf="moveError">{{ moveError.message }} (Required Turns: {{ moveError.turnsRequired }}, available turns: {{ moveError.turnsAvailable }})</div>

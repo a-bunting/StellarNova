@@ -1,11 +1,10 @@
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, Renderer2, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { GoodStore, SectorData, Ship } from '../game/game.component';
 import { GameService } from '../services/game.service';
 import * as THREE from 'three';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
-import { AmbientLight, Camera, DirectionalLight, DirectionalLightHelper, Object3D, OrthographicCamera, PerspectiveCamera, WebGLRenderer } from 'three';
-import { GalaxyListComponent } from '../entry/galaxy-list/galaxy-list.component';
+import { AmbientLight, DirectionalLight, Object3D, OrthographicCamera, PerspectiveCamera, WebGLRenderer } from 'three';
 
 interface ShipComponent {
   name: string; featured: boolean; icon: string; level: number; desc: string;

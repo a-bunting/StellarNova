@@ -22,6 +22,10 @@ $colour-secondary-dark: #000840;
 html {
   font-size: 62.5%;
   box-sizing: border-box;
+
+  @media screen and (max-width: 1300px) {
+    font-size: 50%;
+  }
 }
 
 body {

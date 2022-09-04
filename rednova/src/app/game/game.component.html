@@ -11,9 +11,6 @@
     <app-shipoverview></app-shipoverview>
   </div>
 
-  <div class="traderoutes">
-  </div>
-
   <div class="sector-info">
     <div class="sector-info__name">{{ sectorData?.system.givenname }} (Sector {{ sectorData?.system.sectorid }})</div>
     <div class="sector-info__info">
@@ -31,10 +28,12 @@
     </div>
 
     <div id="data-outlet" class="data-outlet">
-      <app-planet *ngIf="componentLoad.component === 'planet'" [planetId]='+componentLoad.data.id'></app-planet>
-      <app-trade-routes *ngIf="componentLoad.component === 'trade'" [tradeRouteId]='+componentLoad.data.id'></app-trade-routes>
-      <app-display-trade-log *ngIf="componentLoad.component === 'displayTradeLog'" [tradeLog]="componentLoad.data"></app-display-trade-log>
-      <app-navigation *ngIf="componentLoad.component === 'navigationLog'"></app-navigation>
+      <div class="data-outlet__outlet">
+        <app-planet *ngIf="componentLoad.component === 'planet'" [planetId]='+componentLoad.data.id'></app-planet>
+        <app-trade-routes *ngIf="componentLoad.component === 'trade'" [tradeRouteId]='+componentLoad.data.id'></app-trade-routes>
+        <app-display-trade-log *ngIf="componentLoad.component === 'displayTradeLog'" [tradeLog]="componentLoad.data"></app-display-trade-log>
+        <app-navigation *ngIf="componentLoad.component === 'navigationLog'"></app-navigation>
+      </div>
     </div>
   </div>
 

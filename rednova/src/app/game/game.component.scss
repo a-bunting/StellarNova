@@ -2,16 +2,22 @@
   position: relative;
   height: 100vh;
   width: 100vw;
+  max-height: 100vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
+
+.sector-info { flex: 0 0 auto; }
+.server-info { flex: 0 0 auto; }
 
 .sector-info, .server-info {
 
   color: white;
   width: auto;
   text-align: center;
+
+  // flex: 0 1;
 
   display: grid;
   grid-template: auto auto / 1fr;
@@ -75,10 +81,9 @@
 
 .data {
   position: relative;
-  flex: 1;
+  flex: 1 0 auto;
   display: flex;
-  width: 100%;
-  height: 100%;
+  height: clamp(500px, 80vh, 800px); // test this according to needs.
 }
 
 .system-visualisation {
@@ -88,15 +93,21 @@
 
 .data-outlet {
   position: relative;
-  flex: 0 1;
-  padding: 1rem 2rem;
+  align-self: start;
   margin: 1rem;
-  border-radius: 1rem;
-  background-color: gray;
-  box-shadow: .2rem 0 .4rem rgba(white, .5);
   max-width: 0rem;
-  max-height: 100rem;
   opacity: 0;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  &__outlet {
+    position: relative;
+    box-shadow: .3rem 0 .6rem rgba(var(--colour-primary-light), .7);
+    padding: 1rem 2rem;
+    border-radius: 1rem;
+    background-image: linear-gradient(to bottom right, var(--colour-secondary), var(--colour-primary));
+  }
 }
 
 .shrinkAndHide { animation: shrinkAndHide .3s ease-in-out 0s 1 forwards; }

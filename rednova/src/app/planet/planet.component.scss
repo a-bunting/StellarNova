@@ -1,6 +1,131 @@
 .planet {
-  color: white;
-  width: 45rem;
+  position: relative;
+  width: 30rem;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+    border-bottom: .2rem solid rgba(black, .5);
+  }
+
+  &__name {
+    font-weight: bold;
+    font-size: 2rem;
+    text-shadow: .2rem 0 .4rem var(--colour-primary-light);
+    display: flex;
+    align-items: center;
+
+    img {
+      width: 2rem;
+      height: 2rem;
+      margin-left: 1rem;
+
+      &:hover {
+        cursor: pointer;
+        filter: drop-shadow(.2rem 0 .4rem var(--colour-primary-light));
+      }
+    }
+  }
+
+  &__owner {
+    font-size: 1.2rem;
+    flex-basis: 10rem;
+    text-align: right;
+  }
+
+  &__stats {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 1rem;
+
+    &:last-of-type {
+      margin-bottom: 1rem;
+      border-bottom: .2rem solid rgba(black, .5);
+    }
+
+  }
+
+  &__stat {
+    display:flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &:last-child {
+      flex-direction: row-reverse;
+
+      .planet__stat--image {
+        margin-left: 1rem;
+        margin-right: 0rem;
+      }
+    }
+
+    &--image {
+      margin-right: 1rem;
+      img { width: 3rem; height: 3rem; }
+    }
+
+    &--value {
+      font-size: 1.4rem;
+    }
+  }
+
+  &__buildings {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 1rem;
+  }
+
+  &__building {
+
+    flex: 1;
+
+    padding: .5rem 1rem;
+    border: .2rem solid rgba(black, .5);
+    box-shadow: .2rem 0 .4rem var(--colour-primary-light);
+    background-color: var(--colour-secondary-light);
+    color: white;
+    border-radius: 1rem;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: stretch;
+
+    transition: all .2s;
+
+    &:not(:last-of-type) { margin-right: .5rem; }
+
+    &--name {
+      font-size: 1.2rem;
+      text-align: center;
+      height: 3rem;
+      display: flex;
+      align-items: center;
+    }
+
+    &--icon {
+      margin: .5rem 0;
+      img { width: 3rem; height: 3rem; filter: invert(1); }
+    }
+
+    &--quantity {
+      font-size: 1.2rem;
+    }
+
+    &:hover {
+      cursor: pointer;
+      background-color: var(--colour-primary);
+      color: black;
+      transform: translateY(-.2rem);
+      box-shadow: .4rem 0 .8rem var(--colour-primary-light);
+
+      .planet__building--icon { img { filter: invert(0); }}
+    }
+  }
 }
 
 .good, .trading {

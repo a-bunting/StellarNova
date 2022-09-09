@@ -60,11 +60,24 @@ export class PlanetComponent implements OnInit, OnDestroy, OnChanges {
     this.planetDataSubscription = this.gameService.getPlanetData(this.gameService.galaxyId, this.planetId).subscribe({
       next: (result: DatabaseResult) => {
         this.planetData = result.data;
+        this.processBuildingsArray(this.planetData.buildings);
         // sort by resource...
       },
       error: (error) => { console.log(`Error retrieving planet: ${error}`)},
       complete: () => {}
     })
+  }
+
+  buildingsData: { id: string, name: string, price: number, quantity: number, icon: string}[] = [];
+
+  processBuildingsArray(data: Building[]): void {
+    this.buildingsData = [];
+    // iterate over the buildings and replace thge current buildingsdata array
+    for(let i = 0 ; i < data.length ; i++) {
+      let building: Building = data[i];
+      let icon: string = this.gameService.goods.find((a: { id: number, name: string, icon: string }) => a.id === +building.id).icon;
+      this.buildingsData.push({ ...building, icon: icon})
+    }
   }
 
   buyGoods(id: string, name: string, value: number): void {
@@ -207,6 +220,10 @@ export class PlanetComponent implements OnInit, OnDestroy, OnChanges {
     this.intervals.push(newInterval);
   }
 
+  selectBuilding(id: string): void {
+
+  }
+
   getUsedFields(): number {
     if(this.planetData) {
       let totalBuildings: number = 0;
@@ -216,5 +233,12 @@ export class PlanetComponent implements OnInit, OnDestroy, OnChanges {
     return -1;
   }
 
+  modifyName: boolean = false;
+
+  setNewName(): void {
+
+  }
+
+  modifyNameToggle(): void { this.modifyName = !this.modifyName; }
   setBuildMode(val: boolean): void { this.buildBuyMode = val; }
 }

@@ -366,15 +366,15 @@ export class GameService {
     if(res.error) console.log(`Error: ${res.message}`);
   }
 
-  goods: { id: number, name: string }[] = [
-    { id: 1, name: 'Organics'},
-    { id: 2, name: 'Goods'},
-    { id: 3, name: 'Energy'},
-    { id: 4, name: 'Construction Materials'},
-    { id: 5, name: 'Solar Farms'},
-    { id: 6, name: 'Factories'},
-    { id: 7, name: 'Plants'},
-    { id: 8, name: 'Farms'}
+  goods: { id: number, name: string, icon: string }[] = [
+    { id: 1, name: 'Organics', icon: '001-diet.png'},
+    { id: 2, name: 'Goods', icon: '002-boxes.png'},
+    { id: 3, name: 'Energy', icon: '004-power.png'},
+    { id: 4, name: 'Construction Materials', icon: '011-helmet.png'},
+    { id: 5, name: 'Solar Farms', icon: '002-solar-panel.png'},
+    { id: 6, name: 'Factories', icon: '007-factory.png'},
+    { id: 7, name: 'Plants', icon: '008-manufacture.png'},
+    { id: 8, name: 'Farms', icon: '005-field.png'}
   ]
 
   getGoodsName(id: number): string {

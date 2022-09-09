@@ -1,16 +1,54 @@
-<div class="planet">
-  {{ planetData?.name }}
-  <hr>
-  Population: {{ planetData?.population }}
-  <br>
-  Fields: {{ getUsedFields() | number:'1.0-0' }} / {{ planetData?.fields }}
-  <br>
-  Distance from sun: {{ planetData?.distance }}
-  <br>
-  Incident radiation: {{ planetData?.solarRadiation }}
-  <hr>
-  Planet Owned By: {{ planetData?.owner.username }}
-  <hr>
+<!-- if planet data is loaded show this -->
+<div class="planet" *ngIf="planetData; else loading">
+  <div class="planet__header">
+    <div class="planet__name">
+      <input type="text" class="input__text" *ngIf="modifyName" value="{{ planetData.name }}">
+      <div class="planet__name--name" *ngIf="!modifyName">{{ planetData.name }}</div>
+      <img src="../../assets/icons/001-settings.png" alt="Change Name" *ngIf="planetData?.owner.currentUser === true && modifyName === false" (click)="modifyNameToggle()">
+      <img src="../../assets/icons/001-settings.png" alt="Set Name" *ngIf="planetData?.owner.currentUser === true && modifyName === true" (click)="setNewName()">
+    </div>
+    <div class="planet__owner">Owned by {{ planetData.owner.username }}</div>
+  </div>
+
+  <div class="planet__stats">
+    <div class="planet__stat">
+      <div class="planet__stat--image"><img src="../../assets/icons/001-diet.png" alt="Population"></div>
+      <div class="planet__stat--value">{{ planetData.population | number:'1.0-0' }}</div>
+    </div>
+    <div class="planet__stat">
+      <div class="planet__stat--image"><img src="../../assets/icons/005-field.png" alt="Fields"></div>
+      <div class="planet__stat--value">{{ getUsedFields() | number:'1.0-0' }} / {{ planetData?.fields }}</div>
+    </div>
+  </div>
+  <div class="planet__stats">
+    <div class="planet__stat">
+      <div class="planet__stat--image"><img src="../../assets/icons/004-astronomical.png" alt="Distance to Star"></div>
+      <div class="planet__stat--value">{{ planetData.distance }} AU</div>
+    </div>
+    <div class="planet__stat">
+      <div class="planet__stat--image"><img src="../../assets/icons/003-distance.png" alt="Luminosity at the planet surface"></div>
+      <div class="planet__stat--value">{{ planetData.solarRadiation }} lm</div>
+    </div>
+  </div>
+
+  <div class="planet__buildings">
+    <div class="planet__building" (click)="selectBuilding(building.id)" *ngFor="let building of buildingsData">
+      <div class="planet__building--icon"><img src="../../assets/icons/{{ building.icon }}" alt="{{ building.name }}"></div>
+      <div class="planet__building--name">{{ building.name }}</div>
+      <div class="planet__building--quantity">{{ building.quantity }}</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- else display the loading spinner  -->
+<ng-template #loading>
+  <div class="planet">
+    <app-loading></app-loading>
+  </div>
+</ng-template>
+
+<div class="planet" *ngIf="planetData">
 
   <div *ngIf="planetData?.owner.currentUser === true">
 

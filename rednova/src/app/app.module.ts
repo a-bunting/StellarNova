@@ -22,6 +22,8 @@ import { SystemComponent } from './system/system.component';
 import { TradeRouteLauncherComponent } from './trade/trade-route-launcher/trade-route-launcher.component';
 import { DisplayTradeLogComponent } from './trade/display-trade-log/display-trade-log.component';
 import { NavigationComponent } from './navigation/navigation.component';
+import { LoadingComponent } from './utilities/loading/loading.component';
+import { LogoComponent } from './utilities/logo/logo.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +43,9 @@ import { NavigationComponent } from './navigation/navigation.component';
     SystemComponent,
     TradeRouteLauncherComponent,
     DisplayTradeLogComponent,
-    NavigationComponent
+    NavigationComponent,
+    LoadingComponent,
+    LogoComponent
   ],
   imports: [
     BrowserModule,

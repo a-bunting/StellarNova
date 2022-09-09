@@ -9,7 +9,7 @@ interface DisplayPlanet {
   id: number, distance: number, angle: number, size: number, x: number, y: number, name: string, owner: string, moons: { x: number, y: number, angle: number }[]
 }
 
-interface StarColourScheme {
+export interface StarColourScheme {
   p: { r: number, g: number, b: number }, s: { r: number, g: number, b: number }, j: { r: number, g: number, b: number }
 }
 

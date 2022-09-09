@@ -121,14 +121,6 @@ export class Galaxy {
     cursor.x = cursor.x / zoom;
     cursor.y = cursor.y / zoom;
 
-    // let translateX: number = canvas.nativeElement.width / 2 - this.width / 2 + cursor.x;
-    // let translateY: number = canvas.nativeElement.height / 2 - this.height / 2  + cursor.y;
-
-    // console.log(cursor.x, cursor.y);
-
-    // if(translateX - canvas.nativeElement.width < 0) translateX = this.width / 2 + cursor.x;
-    // if(translateY - canvas.nativeElement.height < 0) translateY = this.height / 2 + cursor.y;
-
     let translateX: number = cursor.x < ((scale.x * this.width) / 2) ? (scale.x * this.width) / 2 : (scale.x * this.width) / 2;
     let translateY: number = cursor.y < (canvas.nativeElement.height / 2) ? canvas.nativeElement.height / 2 : canvas.nativeElement.height / 2;
 
@@ -137,9 +129,15 @@ export class Galaxy {
 
     ctx.save();
     ctx.translate(translateX, canvas.nativeElement.height/2);
-    // ctx.translate(translateX, translateY);
 
+    let zRange: {min: number, max: number } = { min: 0, max: 0 };
 
+    for(let i = 0 ; i < this.systems.length ; i++) {
+      if(this.systems[i].coordinates.z < zRange.min) zRange.min = this.systems[i].coordinates.z;
+      if(this.systems[i].coordinates.z > zRange.max) zRange.max = this.systems[i].coordinates.z;
+    }
+
+    let zR: number = zRange.max + Math.abs(zRange.min);
 
     // and now the warp routes
     for(let i = 0 ; i < this.systems.length ; i++) {
@@ -147,14 +145,23 @@ export class Galaxy {
       let system: SolarSystem = this.systems[i];
       let x1: number = zoom * scale.x * system.coordinates.x;
       let y1: number = zoom * scale.y * system.coordinates.y;
+      let a1: number = (system.coordinates.z + zRange.min) / zR;
 
       for(let o = 0 ; o < routes.length ; o++) {
 
         let x2: number = zoom * scale.x * routes[o].x;
         let y2: number = zoom * scale.y * routes[o].y;
+        let a2: number = (routes[o].z + Math.abs(zRange.min)) / zR;
+
+        var gradient: CanvasGradient = ctx.createLinearGradient(x1,y1,x2,y2);
+        gradient.addColorStop(0, `rgba(255, 240, 0, ${Math.max(0.1, a1)} )`);
+        gradient.addColorStop(1, `rgba(255, 240, 0, ${Math.max(0.1, a2)} )`);
+
 
         ctx.beginPath();
-        ctx.strokeStyle = "rgba(255, 140, 0, " + (system.coordinates.z + (this.depth * 0.99) / this.depth) + ")";
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 3;
+        // ctx.strokeStyle = "rgba(255, 140, 0, " + (system.coordinates.z + (this.depth * 0.99) / this.depth) + ")";
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
         ctx.stroke();
@@ -167,10 +174,12 @@ export class Galaxy {
       let system: SolarSystem = this.systems[i];
       let x: number = zoom * scale.x * system.coordinates.x;
       let y: number = zoom * scale.y * system.coordinates.y;
+      let a: number = (system.coordinates.z + Math.abs(zRange.min)) / zR;
 
       if(x > -canvas.nativeElement.width && x < canvas.nativeElement.width) {
         ctx.beginPath();
-        ctx.fillStyle = "rgba(255, 255, 255, " + (0.1 +  (system.coordinates.z + (this.depth * 0.99) / this.depth)) + ")";
+        ctx.fillStyle = "rgba(255, 255, 255, " + a + ")";
+        // ctx.fillStyle = "rgba(255, 255, 255, " + (0.1 +  (system.coordinates.z + (this.depth * 0.99) / this.depth)) + ")";
         ctx.arc(x, y, system.size + (zoom - 1) + ((system.coordinates.z + this.depth + 1) / (this.depth + 1)) - 1, 0, Math.PI * 2);
         ctx.fill();
         ctx.closePath();

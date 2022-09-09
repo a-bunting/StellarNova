@@ -16,11 +16,16 @@ export class DashboardComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+
+    window.addEventListener('resize', () => {
+      this.animate();
+    })
+
     // set up the canvas
     this.galaxyContext = this.galaxyCanvas.nativeElement.getContext('2d');
 
     // set up the galaxy
-    this.galaxy = new Galaxy(20, 20, 10, 5000);
+    this.galaxy = new Galaxy(30, 20, 2, 1500);
 
     this.animate();
   }

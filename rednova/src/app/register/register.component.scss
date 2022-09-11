@@ -1,0 +1,171 @@
+.register {
+
+  &__normal, &__anonymous {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    width: 60rem;
+    height: auto;
+    border-radius: 1rem;
+    box-shadow: .3rem 0 .6rem var(--colour-primary-light);
+    transform: translate(-50%, -50%);
+    background-image: linear-gradient(to bottom right, var(--colour-primary), var(--colour-secondary));
+    opacity: 0;
+    visibility: hidden;
+    max-height: 0rem;
+    padding: 1rem 2rem;
+  }
+
+  &__input {
+    display: flex;
+  }
+
+  &__normal {
+
+  }
+
+  &__anonymous {
+
+  }
+
+  &__visible {
+    opacity: 1;
+    visibility: visible;
+    max-height: 30rem;
+  }
+
+  &__window {
+
+    &--row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    &--name {
+      flex: 1;
+      font-size: 1.4rem;
+      margin-right: 1rem;
+    }
+
+    &--title {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    &--details {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      margin-right: 2rem;
+    }
+
+    &--buttons {
+      margin-left: 2rem;
+
+      & > * {
+        margin-bottom: .5rem;
+      }
+
+      .input__button { margin-top: 2rem;}
+    }
+
+    &--text {
+      justify-self: flex-start;
+    }
+  }
+
+  &__checkbox {
+    display: flex;
+    // justify-content: space-between;
+
+    &--label {
+      font-size: 1.4rem;
+      text-align: justify;
+    }
+
+    &--checkbox {
+      padding: 1rem;
+      margin-right: 1rem;
+    }
+  }
+
+  &__menu {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin-top: 2rem;
+  }
+
+  &__helpbox {
+    position: relative;
+  }
+
+  &__help {
+    padding: .5rem 1rem;
+    border-radius: .5rem;
+    box-shadow: .2rem 0 .4rem rgba(black, .5);
+    background-color: var(--colour-secondary);
+    align-self: center;
+    justify-self: center;
+    z-index: 10000000;
+
+    &--box {
+      position: absolute;
+      top: 0;
+      left: 5rem;
+      width: 20rem;
+      padding: .5rem 1rem;
+      border-radius: 1rem;
+      background-image: linear-gradient(to bottom right, var(--colour-primary), var(--colour-secondary));
+      opacity: 0;
+      transition: all .2s;
+      visibility: hidden;
+      max-height: 0rem;
+    }
+
+    &:hover {
+      cursor: pointer;
+      background-color: var(--colour-secondary-light);
+
+      & + .register__help--box {
+        opacity: 1;
+        max-height: 30rem;
+        visibility: visible;
+      }
+    }
+  }
+
+  &__desc {
+    font-size: 1.4rem;
+    margin-bottom: .5rem;
+  }
+
+  &__button {
+    margin-right: 1rem;
+    width: 100%;
+  }
+
+  &__title {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: .5rem;
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+
+    &:not(:last-of-type) { margin-bottom: .5rem; }
+  }
+
+  .input__button {
+    text-align: center;
+  }
+}
+
+.input__checkbox {
+  display: block;
+}

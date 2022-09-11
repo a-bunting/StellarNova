@@ -1,6 +1,7 @@
 <div class="panels">
   <div class="left-panel">
     <app-authenticate></app-authenticate>
+    <app-register *ngIf="!user"></app-register>
     <app-admin></app-admin>
   </div>
 

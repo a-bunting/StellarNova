@@ -7,6 +7,10 @@
 
 .left-panel {
  z-index: 10;
+ background-image: linear-gradient(to bottom right, var(--colour-primary), var(--colour-secondary));
+ border-radius: 1rem;
+ padding: 1rem;
+ width: 28rem;
 }
 
 .right-panel {

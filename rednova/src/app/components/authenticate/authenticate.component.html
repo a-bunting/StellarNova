@@ -1,17 +1,31 @@
 <div class="authenticate">
-  <input type="text" *ngIf="!user">
-  <input type="text" *ngIf="!user">
 
-  <button class="input__button" (click)="loginAdmin()" *ngIf="!user">Login (Admin)</button>
-  <button class="input__button" (click)="loginRegular()" *ngIf="!user">Login (Regular)</button>
-  <button class="input__button" (click)="logout()" *ngIf="user">Logout</button>
+  <div class="authenticate__title">
+    <div class="authenticate__title--text" *ngIf="!user">Login</div>
+    <button class="input__button" (click)="logout()" *ngIf="user">Logout</button>
+  </div>
 
-  <!-- for testing - delete for production -->
+  <div class="authenticate__row" *ngIf="!user">
+    <div class="authenticate__row--title">Username</div>
+    <input class="input__text" type="text">
+  </div>
+
+  <div class="authenticate__row" *ngIf="!user">
+    <div class="authenticate__row--title">Password</div>
+    <input class="input__text" type="text">
+  </div>
+
+  <div class="authenticate__buttons" *ngIf="!user">
+    <button class="input__button" (click)="loginAdmin()">Login (Admin)</button>
+    <button class="input__button" (click)="loginRegular()">Login (Regular)</button>
+  </div>
+
+  <!-- for testing - delete for production
   <div class="hr margin-top-medium margin-bottom-medium"></div>
 
   <div class="flex-direction-row">
     <button class="input__button" (click)="checkAuth()">Check Auth</button>
     <button class="input__button" (click)="checkAdmin()">Check Admin</button>
-  </div>
+  </div> -->
 
 </div>

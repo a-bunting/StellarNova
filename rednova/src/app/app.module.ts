@@ -24,6 +24,7 @@ import { DisplayTradeLogComponent } from './trade/display-trade-log/display-trad
 import { NavigationComponent } from './navigation/navigation.component';
 import { LoadingComponent } from './utilities/loading/loading.component';
 import { LogoComponent } from './utilities/logo/logo.component';
+import { RegisterComponent } from './register/register.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +46,8 @@ import { LogoComponent } from './utilities/logo/logo.component';
     DisplayTradeLogComponent,
     NavigationComponent,
     LoadingComponent,
-    LogoComponent
+    LogoComponent,
+    RegisterComponent
   ],
   imports: [
     BrowserModule,

@@ -8,18 +8,14 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 export class LoadingComponent implements OnInit, OnDestroy {
 
   dots: string = '.';
-  timer: number;
+  timer: number = 0;
 
   constructor() { }
 
   ngOnInit(): void {
     this.timer = window.setInterval(() => {
-      switch(this.dots.length) {
-        case 1: this.dots = '..'; break;
-        case 2: this.dots = '...'; break;
-        case 3: this.dots = '.'; break;
-      }
-    }, 500)
+      this.timer === 6 ? this.timer = 0 : this.timer++;
+    }, 200)
   }
 
   ngOnDestroy(): void {

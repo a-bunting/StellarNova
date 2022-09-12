@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { AuthenticateService, User } from 'src/app/services/authenticate.service';
 import { DatabaseResult } from 'src/app/services/interfaces';
 import { environment } from 'src/environments/environment';
 
@@ -14,24 +15,55 @@ interface Galaxy {
   templateUrl: './galaxy-list.component.html',
   styleUrls: ['./galaxy-list.component.scss']
 })
-export class GalaxyListComponent implements OnInit {
+export class GalaxyListComponent implements OnInit, OnDestroy {
 
     constructor(
       private http: HttpClient,
-      private router: Router
+      private router: Router,
+      private authService: AuthenticateService
     ) { }
 
     galaxyList: Galaxy[] = [];
+    subscriptions: Subscription[] = [];
+    user: User;
 
     ngOnInit(): void {
-      this.loadGalaxies();
+      // load gaalxyies for this user.
+      const newUserLogin: Subscription = this.authService.user.subscribe((user: User) => {
+        if(user) {
+          this.user = user;
+          this.loadGalaxies();
+        } else {
+          this.user = null;
+          this.galaxyList = [];
+        }
+      })
+
+      this.subscriptions.push(newUserLogin);
     }
 
+    ngOnDestroy(): void {
+        this.subscriptions.forEach((a: Subscription) => a.unsubscribe() );
+    }
+
+    loadingGalaxies: boolean = false;
+
     loadGalaxies(): void {
+
+      this.loadingGalaxies = true;
+
       this.http.get<DatabaseResult>(`${environment.apiUrl}/galaxy/getPlayableGalaxyList`).subscribe((data: DatabaseResult) => {
+        this.loadingGalaxies = false;
+
         if(!data.error) {
           this.galaxyList = data.data.galaxyList;
-          console.log(this.galaxyList);
+
+          // convert the timestamps into what we need
+          // 2022-07-08T06:31:23.000Z to 2022-07-08
+          for(let i = 0 ; i < this.galaxyList.length ; i++) {
+            let time: string[] = this.galaxyList[i].startTime.split('T')[0].split('-');
+            this.galaxyList[i].startTime = `${time[2]}-${time[1]}-${time[0]}`;
+          }
         } else {
           console.log(`Error retriving galaxy list: ${data.message}`);
         }

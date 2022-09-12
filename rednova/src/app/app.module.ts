@@ -7,7 +7,7 @@ import { AppComponent } from './app.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { AuthenticateComponent } from './components/authenticate/authenticate.component';
 import { AdminComponent } from './admin/admin.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TokenInterceptor } from './interceptors/token';
 import { GameComponent } from './game/game.component';
 import { EntryComponent } from './entry/entry.component';
@@ -25,6 +25,8 @@ import { NavigationComponent } from './navigation/navigation.component';
 import { LoadingComponent } from './utilities/loading/loading.component';
 import { LogoComponent } from './utilities/logo/logo.component';
 import { RegisterComponent } from './register/register.component';
+import { NormalComponent } from './register/normal/normal.component';
+import { AnonComponent } from './register/anon/anon.component';
 
 @NgModule({
   declarations: [
@@ -47,13 +49,16 @@ import { RegisterComponent } from './register/register.component';
     NavigationComponent,
     LoadingComponent,
     LogoComponent,
-    RegisterComponent
+    RegisterComponent,
+    NormalComponent,
+    AnonComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true}

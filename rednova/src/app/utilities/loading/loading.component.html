@@ -1,3 +1,11 @@
 <div class="loading">
-  Loading{{ dots }}
+  <div class="loading__logo">
+    <div class="loading__logo--letter" [class.loading__logo--highlight]="timer === 0">L</div>
+    <div class="loading__logo--letter" [class.loading__logo--highlight]="timer === 1">o</div>
+    <div class="loading__logo--letter" [class.loading__logo--highlight]="timer === 2">a</div>
+    <div class="loading__logo--letter" [class.loading__logo--highlight]="timer === 3">d</div>
+    <div class="loading__logo--letter" [class.loading__logo--highlight]="timer === 4">i</div>
+    <div class="loading__logo--letter" [class.loading__logo--highlight]="timer === 5">n</div>
+    <div class="loading__logo--letter" [class.loading__logo--highlight]="timer === 6">g</div>
+  </div>
 </div>

@@ -6,18 +6,33 @@
   </div>
 
   <div class="authenticate__row" *ngIf="!user">
-    <div class="authenticate__row--title">Username</div>
-    <input class="input__text" type="text">
+    <div class="authenticate__row--title">Email</div>
+    <input class="input__text" type="text" value="{{ loadedAccount.email }}">
   </div>
 
   <div class="authenticate__row" *ngIf="!user">
     <div class="authenticate__row--title">Password</div>
-    <input class="input__text" type="text">
+    <input class="input__text" type="password" value="{{ loadedAccount.password }}">
+  </div>
+
+  <div class="authenticate__text" *ngIf="!user && storedUsers.length > 0">
+    Or use a locally saved account:
+  </div>
+
+  <div class="authenticate__controls" *ngIf="!user && storedUsers.length > 0">
+    <select class="select authenticate__select" id="stored-accounts" (change)="selectAccount($event)">
+      <option value="" disabled selected>Select from {{ storedUsers.length }} account{{ storedUsers.length > 1 ? 's' : '' }}</option>
+      <option value="{{ user.email }}" *ngFor="let user of storedUsers">{{ user.username }}</option>
+    </select>
+
+    <div class="authenticate__controls--saved" *ngIf="storedUsers.length > 0">
+      <button class="input__button" (click)="removeFromSaved()" [disabled]="!loadedAccount.email || !loadedAccount.password">Remove {{ loadedAccount.username }}</button>
+      <button class="input__button" (click)="removeAllFromSaved()" [disabled]="storedUsers.length === 0">Remove All</button>
+    </div>
   </div>
 
   <div class="authenticate__buttons" *ngIf="!user">
-    <button class="input__button" (click)="loginAdmin()">Login (Admin)</button>
-    <button class="input__button" (click)="loginRegular()">Login (Regular)</button>
+    <button class="input__button" (click)="login()" [disabled]="!loadedAccount.email || !loadedAccount.password">Login {{ loadedAccount.email && loadedAccount.password ? '('+loadedAccount.username+')' : '' }}</button>
   </div>
 
   <!-- for testing - delete for production

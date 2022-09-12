@@ -1,6 +1,7 @@
 .planet {
   position: relative;
   width: 30rem;
+  min-height: 3rem;
 
   &__header {
     display: flex;
@@ -45,7 +46,6 @@
       margin-bottom: 1rem;
       border-bottom: .2rem solid rgba(black, .5);
     }
-
   }
 
   &__stat {
@@ -72,11 +72,24 @@
     }
   }
 
+  &__build {
+    position: relative;
+    height:100%;
+  }
+
   &__buildings {
     display: flex;
     justify-content: space-around;
     align-items: center;
     margin-top: 1rem;
+  }
+
+  &__buildingsDetail {
+    position: absolute;
+    top: 0;
+    left: 120%;
+    width: 100%;
+    height: 100%;
   }
 
   &__building {
@@ -147,3 +160,6 @@
   &--sell { background-color: red; }
   &--disabled { background-color: gray; &:hover { cursor: pointer; }}
 }
+
+.transformLeft { animation: transformLeft .2s ease-in-out 0s 1 forwards; }
+@keyframes transformLeft { 100% { transform: translateX(-200%);}}

@@ -14,6 +14,7 @@ export interface User {
 
 export class AuthenticateService {
 
+  newUserRegistered: BehaviorSubject<boolean> = new BehaviorSubject(null);
   user: BehaviorSubject<User> = new BehaviorSubject(null);
   loggedIn: boolean = false;
 
@@ -75,5 +76,16 @@ export class AuthenticateService {
     localStorage.setItem('rednovaUserAuth', JSON.stringify(userInfo));
     this.loggedIn = true;
     this.user.next(userInfo);
+  }
+
+  /**
+   * Register the user...
+   * @param username
+   * @param password
+   * @param email
+   * @returns
+   */
+   registerUser(username: string, password: string, email: string): Observable<DatabaseResult> {
+    return this.http.post<DatabaseResult>(`${environment.apiUrl}/user/register`, { username, password, email }).pipe(take(1));
   }
 }

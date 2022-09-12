@@ -34,15 +34,48 @@
 
   }
 
+  &__controls {
+    display: flex;
+    flex-direction: column;
+
+    &--saved {
+      display: flex;
+      padding-top: 1rem;
+
+      .input__button {
+        margin-bottom: .5rem;
+        padding: .2rem .4rem;
+        font-size: 1.2rem;
+
+        &:not(:last-of-type) { margin-right: .5rem; flex: 1; }
+      }
+    }
+
+
+  }
+
   &__buttons {
     margin-top: 1rem;
     display: flex;
     justify-content: space-between;
 
     .input__button {
+      width: 100%;
+
       &:not(:last-of-type) { margin-right: .5rem; }
     }
   }
 
+  &__text {
+    margin: 1rem 0;
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  &__select {
+    padding: .5rem;
+    width: 100%;
+    text-align: center;
+  }
 
 }

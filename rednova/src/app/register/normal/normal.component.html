@@ -1,0 +1,83 @@
+<div id="register__normal" class="register__normal register__visible">
+  <div class="register__window--title" *ngIf="!registeredUserData">Register Normal Account</div>
+
+  <div id="register__error" class="register__error" *ngIf="!registeredUserData">
+    <div class="register__error--info" [class.register__error--correct]="!form.get('username').errors">{{ form.get('username').errors ? 'Your user name must be between 4 and 30 characters' : 'Username looks good, ' + form.get('username').value + '!' }}</div>
+    <div class="register__error--info" [class.register__error--correct]="!form.get('email').errors">{{ form.get('email').errors ? 'Your email address must be in a valid format' : 'Your email address is in a valid format!' }}</div>
+    <div class="register__error--info" [class.register__error--correct]="!form.get('password').errors">{{ form.get('password').errors ? (!form.controls['password'].hasError('hasCapitalCase') && !form.controls['password'].hasError('hasLowerCase') ? 'Your password needs at least six characters' : 'Your passwords needs at least one lower case and one upper case letter.') : 'Password Valid' }}</div>
+    <div class="register__error--info" [class.register__error--correct]="!form.controls['repeatpassword'].hasError('NoPasswordMatch') && !form.get('password').errors">{{ form.controls['repeatpassword'].hasError('NoPasswordMatch') ? 'Your passwords must match' : form.get('password').errors ? 'Your password is in an incorrect format.' :'Your passwords match!' }}</div>
+  </div>
+
+  <form [formGroup]="form" (submit)="register()">
+
+  <div id="register__input" class="register__input" *ngIf="!registeredUserData">
+
+    <div class="register__window--details">
+      <div class="register__window--row">
+        <div class="register__window--name">Username</div>
+        <div class="register__window--text"><input type="text" class="input__text" name="username" formControlName="username" ></div>
+      </div>
+      <div class="register__window--row">
+        <div class="register__window--name">Email</div>
+        <div class="register__window--text"><input type="text" class="input__text" name="email" formControlName="email" ></div>
+      </div>
+      <div class="register__window--row">
+        <div class="register__window--name">Password</div>
+        <div class="register__window--text"><input type="password" class="input__text" name="password" formControlName="password" ></div>
+      </div>
+      <div class="register__window--row">
+        <div class="register__window--name">Repeat Password</div>
+        <div class="register__window--text"><input type="password" class="input__text" name="repeatpassword" formControlName="repeatpassword" ></div>
+      </div>
+    </div>
+    <div class="register__window--buttons">
+
+      <div class="register__legal">
+        <div class="register__checkbox">
+          <input type="checkbox" id="terms" name="terms" formControlName="terms">
+          <label class="register__checkbox--label" for="terms">
+            <div class="register__checkbox--checkbox" for="terms"></div>
+            I agree to the terms and conditions
+          </label>
+        </div>
+
+        <div class="register__checkbox">
+          <input type="checkbox" id="privacy" name="privacy" formControlName="privacy">
+          <label class="register__checkbox--label" for="privacy">
+            <div class="register__checkbox--checkbox"></div>
+            I agree to the privacy policy
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="input__button" [disabled]="!form.valid">Register</button>
+    </div>
+  </div>
+
+  </form>
+
+
+  <div id="register__complete fadeIn" class="register__complete" *ngIf="registeredUserData">
+    <div class="register__complete--title">Sign Up Complete</div>
+
+    <div class="register__complete--detail">
+      <div class="register__complete--row">
+        <div class="register__complete--name">Username</div>
+        <div class="register__complete--data">{{ registeredUserData.username }}</div>
+      </div>
+      <div class="register__complete--row">
+        <div class="register__complete--name">Email</div>
+        <div class="register__complete--data">{{ registeredUserData.email }}</div>
+      </div>
+      <div class="register__complete--row">
+        <div class="register__complete--name">Password</div>
+        <div class="register__complete--data" (mouseover)="togglePasswordView(true)" (mouseout)="togglePasswordView(false)">{{ getPassword() }}</div>
+      </div>
+    </div>
+
+    <div class="register__complete--save">
+      <button type="button" class="input__button register__save" (click)="addToLocalStorageButton()">Save these login details to your browser</button>
+    </div>
+  </div>
+
+</div>

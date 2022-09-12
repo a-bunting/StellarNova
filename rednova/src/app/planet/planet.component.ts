@@ -220,8 +220,16 @@ export class PlanetComponent implements OnInit, OnDestroy, OnChanges {
     this.intervals.push(newInterval);
   }
 
-  selectBuilding(id: string): void {
+  selectedBuilding: number;
 
+  selectBuilding(id: string): void {
+    document.getElementById('planet__buildings').classList.add('transformLeft');
+    document.getElementById('planet__buildingsDetail').classList.add('transformLeftRemove');
+  }
+
+  cancelSelectedBuilding(): void {
+    document.getElementById('planet__buildings').classList.remove('transformLeft');
+    document.getElementById('planet__buildingsDetail').classList.remove('transformLeft');
   }
 
   getUsedFields(): number {

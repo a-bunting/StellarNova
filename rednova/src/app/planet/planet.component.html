@@ -31,11 +31,30 @@
     </div>
   </div>
 
-  <div class="planet__buildings">
-    <div class="planet__building" (click)="selectBuilding(building.id)" *ngFor="let building of buildingsData">
-      <div class="planet__building--icon"><img src="../../assets/icons/{{ building.icon }}" alt="{{ building.name }}"></div>
-      <div class="planet__building--name">{{ building.name }}</div>
-      <div class="planet__building--quantity">{{ building.quantity }}</div>
+  <div class="planet__build">
+    <div class="planet__buildings" id="planet__buildings">
+      <div class="planet__building" (click)="selectBuilding(building.id)" *ngFor="let building of buildingsData">
+        <div class="planet__building--icon"><img src="../../assets/icons/{{ building.icon }}" alt="{{ building.name }}"></div>
+        <div class="planet__building--name">{{ building.name }}</div>
+        <div class="planet__building--quantity">{{ building.quantity }}</div>
+      </div>
+    </div>
+
+    <div class="planet__buildingsDetail" id="planet__buildingsDetail">
+      <div class="planet__buildingsDetail--back">Back</div>
+      <div class="planet__buildingsDetail--back">
+        BuySell
+      </div>
+      <div class="planet__buildingsDetail--quantity">
+        <div class="planet__buildingsDetail--row">
+          <button class="input__button">1</button>
+          <button class="input__button">5</button>
+        </div>
+        <div class="planet__buildingsDetail--row">
+          <button class="input__button">10</button>
+          <button class="input__button">25</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -47,6 +66,8 @@
     <app-loading></app-loading>
   </div>
 </ng-template>
+
+
 
 <div class="planet" *ngIf="planetData">
 

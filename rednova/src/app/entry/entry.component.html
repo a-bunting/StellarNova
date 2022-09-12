@@ -1,16 +1,14 @@
-<div class="panels">
-  <div class="left-panel">
-    <app-authenticate></app-authenticate>
-    <app-register *ngIf="!user"></app-register>
-    <app-admin></app-admin>
-  </div>
+<div class="left-panel">
+  <app-authenticate></app-authenticate>
+  <app-register *ngIf="!user"></app-register>
+  <app-admin></app-admin>
+</div>
 
-  <div class="right-panel">
-    <app-galaxy-list></app-galaxy-list>
-  </div>
+<div class="right-panel">
+  <app-galaxy-list></app-galaxy-list>
 </div>
 
 <div class="logo">
-  <app-logo></app-logo>
+  <!-- <app-logo></app-logo> -->
 </div>
 <app-dashboard></app-dashboard>

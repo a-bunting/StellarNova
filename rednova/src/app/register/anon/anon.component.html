@@ -1,0 +1,74 @@
+<div id="register__anonymous" class="register__anonymous register__visible">
+  <div class="register__window--title" *ngIf="!registeredUserData">Register Anonymous Account</div>
+
+  <div id="register__error" class="register__error" *ngIf="!registeredUserData">
+    <div class="register__error--info" [class.register__error--correct]="!form.get('username').errors">{{ form.get('username').errors ? 'Your user name must be between 4 and 30 characters' : 'Username looks good, ' + form.get('username').value + '!' }}</div>
+  </div>
+
+  <form [formGroup]="form" (submit)="register()">
+
+  <div id="register__input" class="register__input" *ngIf="!registeredUserData">
+
+    <div class="register__window--details">
+      <div class="register__window--row">
+        <div class="register__window--name">Username</div>
+        <div class="register__window--text"><input type="text" class="input__text" name="username" formControlName="username"></div>
+      </div>
+      <div class="register__window--rowmid">
+        <button type="button" class="input__button" (click)="generateRandomUsername()">Or Generate Random Username</button>
+      </div>
+    </div>
+    <div class="register__window--buttons">
+
+      <div class="register__legal">
+        <div class="register__checkbox">
+          <input type="checkbox" id="terms" name="terms" formControlName="terms">
+          <label class="register__checkbox--label" for="terms">
+            <div class="register__checkbox--checkbox" for="terms"></div>
+            I agree to the terms and conditions
+          </label>
+        </div>
+
+        <div class="register__checkbox">
+          <input type="checkbox" id="privacy" name="privacy" formControlName="privacy">
+          <label class="register__checkbox--label" for="privacy">
+            <div class="register__checkbox--checkbox"></div>
+            I agree to the privacy policy
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="input__button" [disabled]="!form.valid">Register</button>
+    </div>
+  </div>
+
+  </form>
+
+  <div id="register__complete fadeIn" class="register__complete" *ngIf="registeredUserData">
+    <div class="register__complete--title">Anonymous Sign Up Complete</div>
+
+    <div class="register__complete--detail">
+      <div class="register__complete--row">
+        <div class="register__complete--name">Username</div>
+        <div class="register__complete--data">{{ registeredUserData.username }}</div>
+      </div>
+      <div class="register__complete--row">
+        <div class="register__complete--name">Email</div>
+        <div class="register__complete--data">{{ registeredUserData.email }}</div>
+      </div>
+      <div class="register__complete--row">
+        <div class="register__complete--name">Password</div>
+        <div class="register__complete--data" (mouseover)="togglePasswordView(true)" (mouseout)="togglePasswordView(false)">{{ getPassword() }}</div>
+      </div>
+    </div>
+
+    <div class="register__complete--save">
+      <button type="button" class="input__button register__save" (click)="addToLocalStorageButton()">Save these login details to your browser</button>
+    </div>
+
+    <div class="register__complete--warning">
+      Warning - if you lose these details and clear the cache on your web browser (or if you are private browsing mode now!) there is no way to retrieve this account. It will be lost forever, and the admin cannot help you!
+    </div>
+  </div>
+
+</div>

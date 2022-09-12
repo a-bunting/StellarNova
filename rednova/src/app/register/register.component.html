@@ -3,7 +3,7 @@
   <div class="register__title">Create Account</div>
 
   <div class="register__row">
-    <button class="register__button input__button">Create Standard Account</button>
+    <button class="register__button input__button" (click)="createStandardAccount()">Create Standard Account</button>
     <div class="register__helpbox">
       <div class="register__help">?</div>
       <div class="register__help--box">
@@ -14,7 +14,7 @@
   </div>
 
   <div class="register__row">
-    <button class="register__button input__button">Create Anonymous Account</button>
+    <button class="register__button input__button" (click)="createAnonAccount()">Create Anonymous Account</button>
     <div class="register__helpbox">
       <div class="register__help">?</div>
       <div class="register__help--box">
@@ -27,40 +27,10 @@
 
 </div>
 
-
-<div id="register__normal" class="register__normal register__visible">
-  <div class="register__window--title">Register Normal Account</div>
-  <div class="register__input">
-
-    <div class="register__window--details">
-      <div class="register__window--row">
-        <div class="register__window--name">Username</div>
-        <div class="register__window--text"><input type="text" class="input__text"></div>
-      </div>
-      <div class="register__window--row">
-        <div class="register__window--name">Password</div>
-        <div class="register__window--text"><input type="password" class="input__text"></div>
-      </div>
-    </div>
-    <div class="register__window--buttons">
-
-      <div class="register__checkbox">
-        <input type="checkbox" class="register__checkbox--checkbox" id="terms">
-        <label class="register__checkbox--label" for="terms">I agree to the terms and conditions</label>
-      </div>
-
-      <div class="register__checkbox">
-        <input type="checkbox" class="register__checkbox--checkbox" id="privacy">
-        <label class="register__checkbox--label" for="privacy">I agree to the privacy policy</label>
-      </div>
-
-      <button class="input__button">Register</button>
-    </div>
+<div class="register__popup fadeIn" id="register__popup" *ngIf="createAccount">
+  <div class="register__popup--background" (click)="stopRegistration()"></div>
+  <div class="register__popup--top">
+    <app-normal *ngIf="!createAnon"></app-normal>
+    <app-anon *ngIf="createAnon"></app-anon>
   </div>
-
-</div>
-
-<div id="register__anonymous" class="register__anonymous">
-  <div class="register__window--title">Register Normal Account</div>
-
 </div>

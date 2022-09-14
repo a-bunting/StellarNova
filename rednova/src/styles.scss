@@ -61,6 +61,65 @@ body {
   letter-spacing: .1rem;
 }
 
+.input__boxslider {
+
+  border-radius: .5rem;
+  position: relative;
+  background-color: var(--colour-secondary);
+  transition: all .2s;
+  width: 8rem;
+  overflow: hidden;
+  height: 3.5rem;
+  box-shadow: .3 0 .6 rgba(black, .5);
+  margin-left: -.5rem;
+
+  &:hover { cursor: pointer; }
+
+  &--text {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0 1rem;
+  }
+
+  &--box {
+    position: absolute;
+    top: 0rem;
+    left: 0rem;
+    width: 50%;
+    height: 100%;
+    color: white;
+    padding: 1rem;
+    transition: all .2s;
+    background-color: var(--colour-primary-light);
+  }
+
+  &--text {
+    position: absolute;
+    right: 0rem;
+    color: white;
+  }
+
+  &--left {
+    margin-left: -.5rem;
+  }
+
+  &--checkbox {
+    visibility: hidden;
+
+    &:checked + label {
+      .input__boxslider--box { left: 50%; }
+    }
+
+  }
+}
+
 .input__slider {
 
   border-radius: 1rem;

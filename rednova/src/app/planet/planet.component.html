@@ -31,31 +31,39 @@
     </div>
   </div>
 
-  <div class="planet__build">
-    <div class="planet__buildings" id="planet__buildings">
-      <div class="planet__building" (click)="selectBuilding(building.id)" *ngFor="let building of buildingsData">
-        <div class="planet__building--icon"><img src="../../assets/icons/{{ building.icon }}" alt="{{ building.name }}"></div>
-        <div class="planet__building--name">{{ building.name }}</div>
-        <div class="planet__building--quantity">{{ building.quantity }}</div>
-      </div>
+  <div class="planet__buildings fadeIn" id="planet__buildings">
+    <div class="planet__building" [class.planet__buildings--selected]="selectedBuilding.id === building.id" (click)="selectBuilding(building.id)" *ngFor="let building of buildingsData">
+      <div class="planet__building--icon"><img src="../../assets/icons/{{ building.icon }}" alt="{{ building.name }}"></div>
+      <div class="planet__building--name">{{ building.name }}</div>
+      <div class="planet__building--quantity">{{ building.quantity }}</div>
     </div>
+  </div>
 
-    <div class="planet__buildingsDetail" id="planet__buildingsDetail">
-      <div class="planet__buildingsDetail--back">Back</div>
-      <div class="planet__buildingsDetail--back">
-        BuySell
-      </div>
-      <div class="planet__buildingsDetail--quantity">
-        <div class="planet__buildingsDetail--row">
-          <button class="input__button">1</button>
-          <button class="input__button">5</button>
+  <div id="planet__buildingsDetail" class="planet__buildingsDetail">
+    <div class="planet__buildingsDetail--buysell">
+
+      <input type="checkbox" name="buysell__buildings" id="buysell__buildings" class="input__boxslider--checkbox" [checked]="buyBuilding" (change)="toggleBuySell(!buyBuilding)">
+      <label for="buysell__buildings" class="input__boxslider">
+        <div class="input__boxslider--text">
+          <div class="input__boxslider--left">Buy</div>
+          <div class="input__boxslider--right">Sell</div>
         </div>
-        <div class="planet__buildingsDetail--row">
-          <button class="input__button">10</button>
-          <button class="input__button">25</button>
-        </div>
-      </div>
+        <div class="input__boxslider--box"></div>
+      </label>
+
     </div>
+    <div class="planet__buildingsDetail--quantity">
+      <button class="input__button" (click)="build(selectedBuilding.id, 1)">1</button>
+      <button class="input__button" (click)="build(selectedBuilding.id, 5)">5</button>
+      <button class="input__button" (click)="build(selectedBuilding.id, 10)">10</button>
+      <button class="input__button" (click)="build(selectedBuilding.id, planetData?.fields)">Max</button>
+    </div>
+  </div>
+
+  <div class="planet__resources">
+    <select name="" id="">
+      <option value="{{ good.id }}" *ngFor="let good of planetData.goods">{{ good.name }}</option>
+    </select>
   </div>
 
 </div>
@@ -71,7 +79,7 @@
 
 <div class="planet" *ngIf="planetData">
 
-  <div *ngIf="planetData?.owner.currentUser === true">
+  <!-- <div *ngIf="planetData?.owner.currentUser === true">
 
     <div class="buysell">
       <button class="input__button input__button--buy" [class.input__button--disabled]="buildBuyMode === false" (click)="setBuildMode(true)">Buy</button>
@@ -90,7 +98,7 @@
         <button (click)="build(building.id, planetData?.fields)">Max</button>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <div *ngIf="planetData?.trading === 1 || planetData?.owner.currentUser === true">
     <div class="good" *ngFor="let good of planetData.goods">

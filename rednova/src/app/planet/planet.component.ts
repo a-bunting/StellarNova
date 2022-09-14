@@ -31,8 +31,6 @@ export class PlanetComponent implements OnInit, OnDestroy, OnChanges {
 
   planetData: PlanetData;
 
-  buildBuyMode: boolean = true;
-
   constructor(
     private gameService: GameService
   ) {
@@ -120,7 +118,7 @@ export class PlanetComponent implements OnInit, OnDestroy, OnChanges {
     // get the building info.
     const building: Building = this.planetData.buildings.find((a: Building) => a.id === id);
     // build or sell
-    if(this.buildBuyMode) {
+    if(this.buyBuilding) {
       this.buildBuilding(building, id, quantity);
     } else {
       this.sellBuilding(building, id, quantity);
@@ -220,16 +218,42 @@ export class PlanetComponent implements OnInit, OnDestroy, OnChanges {
     this.intervals.push(newInterval);
   }
 
-  selectedBuilding: number;
+  selectedBuilding: Building = { id: '', name: '', quantity: -1, price: -1 };
+  buyBuilding: boolean = true;
+
+  toggleBuySell(buysell: boolean): void {
+    this.buyBuilding = buysell;
+    console.log(this.buyBuilding ? 'buy' : 'sell');
+  }
 
   selectBuilding(id: string): void {
-    document.getElementById('planet__buildings').classList.add('transformLeft');
-    document.getElementById('planet__buildingsDetail').classList.add('transformLeftRemove');
+
+    // get the buildings
+    const buildingId: number = this.buildingsData.findIndex((a: Building) => +a.id === +id);
+
+    if(buildingId !== -1) {
+      if(this.selectedBuilding) {
+        // if there is already a building selected check we are not unchecking that
+        if(this.selectedBuilding.id === id) {
+          this.cancelSelectedBuilding();
+          return;
+        }
+      }
+
+      // otherwise fade in the newly selected builidng.
+      document.getElementById('planet__buildingsDetail').classList.add('fadeIn');
+      document.getElementById('planet__buildingsDetail').classList.remove('fadeOut');
+      this.selectedBuilding = this.buildingsData[buildingId];
+    }
   }
 
   cancelSelectedBuilding(): void {
-    document.getElementById('planet__buildings').classList.remove('transformLeft');
-    document.getElementById('planet__buildingsDetail').classList.remove('transformLeft');
+    document.getElementById('planet__buildingsDetail').classList.add('fadeOut');
+    document.getElementById('planet__buildingsDetail').classList.remove('fadeIn');
+
+    window.setTimeout(() => {
+      this.selectedBuilding = { id: '', name: '', quantity: -1, price: -1 };
+    }, 200);
   }
 
   getUsedFields(): number {
@@ -248,5 +272,4 @@ export class PlanetComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   modifyNameToggle(): void { this.modifyName = !this.modifyName; }
-  setBuildMode(val: boolean): void { this.buildBuyMode = val; }
 }

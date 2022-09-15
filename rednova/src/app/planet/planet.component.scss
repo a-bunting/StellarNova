@@ -172,7 +172,112 @@
       .planet__building--icon { img { filter: invert(0); }}
     }
   }
+
+  &__resources {
+
+
+    &--table {
+      width: 100%;
+      border-collapse: collapse;
+
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: .3rem 0 .6rem var(--colour-primary);
+    }
+
+    &--head, &--name, &--price {
+      padding: .5rem .5rem;
+      font-size: 1.4rem;;
+      text-align: center;
+    }
+
+    &--head, &--name {
+    }
+
+    &--name {
+      color: white;
+      transition: all .2s;
+    }
+
+    &--price {
+      color: white;
+    }
+
+    &--row, &--header {
+      border-radius: 1rem;
+      padding: .3rem 1rem;
+      transition: all .2s;
+      background-color: var(--colour-primary);
+    }
+
+    &--row {
+      &:nth-of-type(odd) { background-color: var(--colour-secondary-light); }
+      &:nth-of-type(even) { background-color: var(--colour-secondary); }
+
+      &:hover {
+        cursor: pointer;
+        background-color: var(--colour-primary-light);
+        border: .1rem solid black;
+      }
+    }
+
+    &--left { text-align: left;}
+
+    &--resource {
+      padding: .5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      font-size: 1.4rem;
+      opacity: 0;
+      max-height: 0rem;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 1rem;
+      box-shadow: .2rem 0 .6rem var(--colour-primary-light);
+      background-color: var(--colour-primary);
+
+      &--top, &--bottom {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+      }
+
+      &--top {
+        margin-bottom: .5rem;
+        font-size: 1.4rem;
+        padding: .2rem .5rem;
+      }
+
+      &--bottom {
+
+        .input__text {
+          width: 10rem;
+          padding: .4rem .5rem;
+          text-align: center;
+        }
+      }
+
+    }
+
+    &--goodname {
+
+    }
+
+    &--buysellslider {
+      display: flex;
+      justify-content: space-between;
+      margin-right: 2rem;
+      margin-left: -1rem;
+
+      align-self: center;
+    }
+
+    &--selected {
+      background-color: var(--colour-primary) !important;
+    }
+  }
 }
+
 
 
 

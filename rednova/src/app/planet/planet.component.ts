@@ -1,5 +1,6 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { GoodStore } from '../game/game.component';
 import { GameService } from '../services/game.service';
 import { DatabaseResult } from '../services/interfaces';
 
@@ -255,6 +256,38 @@ export class PlanetComponent implements OnInit, OnDestroy, OnChanges {
       this.selectedBuilding = { id: '', name: '', quantity: -1, price: -1 };
     }, 200);
   }
+
+  selectedGood: PlanetResource = { id: '', name: '', quantity: -1, price: { sell: -1, buy: -1 }};
+  buyGoodsToggle: boolean = true;
+
+  setBuySellGoods(value: boolean): void {
+    this.buyGoodsToggle = value;
+  }
+
+  selectGood(id: string): void {
+    const goodId: number = this.planetData.goods.findIndex((a: GoodStore) => a.id === id);
+
+    if(goodId !== -1) {
+      if(this.selectedGood) {
+        if(this.selectedGood.id === id) {
+          this.unselectGood();
+          return;
+        }
+      }
+
+      document.getElementById('planet__resources--resource').classList.add('fadeIn');
+      document.getElementById('planet__resources--resource').classList.remove('fadeOut');
+      this.selectedGood = this.planetData.goods[goodId];
+    }
+  }
+
+  unselectGood(): void {
+    document.getElementById('planet__resources--resource').classList.add('fadeOut');
+    document.getElementById('planet__resources--resource').classList.remove('fadeIn');
+
+    window.setTimeout(() => {
+      this.selectedGood = { id: '', name: '', quantity: -1, price: { sell: -1, buy: -1 }};
+    }, 200);  }
 
   getUsedFields(): number {
     if(this.planetData) {

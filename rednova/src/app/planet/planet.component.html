@@ -61,9 +61,49 @@
   </div>
 
   <div class="planet__resources">
-    <select name="" id="">
-      <option value="{{ good.id }}" *ngFor="let good of planetData.goods">{{ good.name }}</option>
-    </select>
+
+    <table class="planet__resources--table">
+      <tr class="planet__resources--header">
+        <th class="planet__resources--head"></th>
+        <th class="planet__resources--head" colspan="3">Planet</th>
+      </tr>
+      <tr class="planet__resources--header">
+        <th class="planet__resources--head planet__resources--left">Good</th>
+        <th class="planet__resources--head">Quantity</th>
+        <th class="planet__resources--head">Buys</th>
+        <th class="planet__resources--head">Sells</th>
+      </tr>
+      <tr class="planet__resources--row" [class.planet__resources--selected]="selectedGood.id === good.id" *ngFor="let good of planetData.goods" (click)="selectGood(good.id)">
+        <td class="planet__resources--name planet__resources--left">{{ good.name | slice:0:12 }}</td>
+        <td class="planet__resources--price">{{ good.quantity | number }}</td>
+        <td class="planet__resources--price">{{ good.price.buy | number:'.2-2' }}</td>
+        <td class="planet__resources--price">{{ good.quantity > 0 ? (good.price.sell | number:'.2-2') : 'NA' }}</td>
+      </tr>
+    </table>
+
+    <div id="planet__resources--resource" class="planet__resources--resource">
+      <div class="planet__resources--resource--top">
+        <div class="planet__resources--goodname">{{ selectedGood.name }}</div>
+        <div class="planet__resources--goodname">{{ selectedGood.quantity | number }} available</div>
+      </div>
+      <div class="planet__resources--resource--bottom">
+        <div class="planet__resources--buysellslider">
+
+          <input type="checkbox" name="buysell__goods" id="buysell__goods" class="input__boxslider--checkbox" [checked]="buyGoodsToggle" (change)="setBuySellGoods(!buyGoodsToggle)">
+          <label for="buysell__goods" class="input__boxslider">
+            <div class="input__boxslider--text">
+              <div class="input__boxslider--left">Buy</div>
+              <div class="input__boxslider--right">Sell</div>
+            </div>
+            <div class="input__boxslider--box"></div>
+          </label>
+
+        </div>
+        <input type="text" class="input__text" placeholder="{{ buyGoodsToggle ? (selectedGood.price.buy | number:'.2-2' ) : (selectedGood.price.sell | number:'.2-2' ) }}">
+        <button class="input__button" [disabled]="selectedGood.quantity === 0 && buyGoodsToggle !== true">{{ buyGoodsToggle ? 'Buy' : selectedGood.quantity > 0 ? 'Sell' : 'NA' }}</button>
+
+      </div>
+    </div>
   </div>
 
 </div>
@@ -99,7 +139,7 @@
       </div>
     </div>
   </div> -->
-
+<!--
   <div *ngIf="planetData?.trading === 1 || planetData?.owner.currentUser === true">
     <div class="good" *ngFor="let good of planetData.goods">
       <div>{{ good.name }}</div>
@@ -110,7 +150,7 @@
         <button (click)="sellGoods(good.id, good.name, +goodsQuantity.value)">Sell</button>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <div class="trading" *ngIf="planetData?.owner.currentUser === true">
     <p class="quantity">Enable or disable trading</p>

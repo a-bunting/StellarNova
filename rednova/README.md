@@ -16,12 +16,12 @@ https://user-images.githubusercontent.com/763952/191222678-fe37de4d-8943-488a-95
 
 ## To Do List
 
-To view the main itemised todo list, head on over to my <a heef="https://trello.com/b/ld1f6gOQ/rednova">Trello page</a> for this project. The general implementation phases are:
+To view the main itemised todo list, head on over to my <a href="https://trello.com/b/ld1f6gOQ/rednova">Trello page</a> for this project. The general implementation phases are:
 
 - [x] Phase 1 - Movement and Universe Creation
 - [x] Phase 2 - Planets
 - [x] Phase 3 - Trading, Navigation and UI
-- [ ] Phase 4 - Polish (Anonymous Authentication, cColour Scheme, Bug Fixing etc) 
+- [ ] Phase 4 - Polish (Anonymous Authentication, Colour Scheme, Bug Fixing etc) 
 - [ ] Phase 5 - Planetary Ownership and Sector Control
 - [ ] Phase 6 - Space Stations and Ship Upgrades
 - [ ] Phase 7 - Attacking and Battles

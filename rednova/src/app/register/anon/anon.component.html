@@ -44,7 +44,11 @@
 
   </form>
 
-  <div id="register__complete fadeIn" class="register__complete" *ngIf="registeredUserData">
+  <div id="register__complete--fail" class="register__complete--fail fadeIn" *ngIf="registeredUserError">
+
+  </div>
+
+  <div id="register__complete" class="register__complete fadeIn" *ngIf="registeredUserData">
     <div class="register__complete--title">Anonymous Sign Up Complete</div>
 
     <div class="register__complete--detail">

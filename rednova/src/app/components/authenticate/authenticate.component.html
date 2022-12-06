@@ -7,12 +7,12 @@
 
   <div class="authenticate__row" *ngIf="!user">
     <div class="authenticate__row--title">Email</div>
-    <input class="input__text" type="text" value="{{ loadedAccount.email }}">
+    <input class="input__text" type="text" [(ngModel)]="loadedAccount.email">
   </div>
 
   <div class="authenticate__row" *ngIf="!user">
     <div class="authenticate__row--title">Password</div>
-    <input class="input__text" type="password" value="{{ loadedAccount.password }}">
+    <input class="input__text" type="password" [(ngModel)]="loadedAccount.password">
   </div>
 
   <div class="authenticate__text" *ngIf="!user && storedUsers.length > 0">

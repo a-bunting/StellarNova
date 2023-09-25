@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { AuthenticateService } from 'src/app/services/authenticate.service';
 import { DatabaseResult } from 'src/app/services/interfaces';
 import { PasswordMatch } from '../password-match';
@@ -12,25 +12,25 @@ import { PasswordValidator } from '../password-validator';
 })
 export class NormalComponent implements OnInit {
 
-  form: FormGroup;
+  form: UntypedFormGroup;
 
   constructor(
     private authenticationService: AuthenticateService
   ) { }
 
   ngOnInit(): void {
-    this.form = new FormGroup({
-      'username': new FormControl(null, { validators: [Validators.minLength(4), Validators.maxLength(30), Validators.required]}),
-      'email': new FormControl(null, { validators: [Validators.email, Validators.required]}),
-      'password': new FormControl(null, { validators: [
+    this.form = new UntypedFormGroup({
+      'username': new UntypedFormControl(null, { validators: [Validators.minLength(4), Validators.maxLength(30), Validators.required]}),
+      'email': new UntypedFormControl(null, { validators: [Validators.email, Validators.required]}),
+      'password': new UntypedFormControl(null, { validators: [
         Validators.required,
         Validators.minLength(6),
         PasswordValidator.patternValidator(/[A-Z]/, { hasCapitalCase: true }),
         PasswordValidator.patternValidator(/[a-z]/, { hasSmallCase: true }),
       ]}),
-      'repeatpassword': new FormControl(null, { validators: [ Validators.required ]}),
-      'terms': new FormControl(null, { validators: [Validators.required]}),
-      'privacy': new FormControl(null, { validators: [Validators.required]})
+      'repeatpassword': new UntypedFormControl(null, { validators: [ Validators.required ]}),
+      'terms': new UntypedFormControl(null, { validators: [Validators.required]}),
+      'privacy': new UntypedFormControl(null, { validators: [Validators.required]})
     },
     {
       validators: [

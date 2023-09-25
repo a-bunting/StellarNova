@@ -47,6 +47,7 @@ export class AnonComponent implements OnInit {
   registering: boolean = false;
   registrationSuccess: boolean;
   registeredUserData: { username: string, password: string, email: string };
+  registeredUserError: { message: string, data: { timeLeft?: number }}
 
   register(): void {
     const username: string = this.form.controls['username'].value;
@@ -58,20 +59,30 @@ export class AnonComponent implements OnInit {
     this.authService.registerUser(username, password, email).subscribe({
       next: (result: DatabaseResult) => {
         this.registering = false;
-
         document.getElementById('register__error').classList.add('fadeOut');
         document.getElementById('register__input').classList.add('fadeOut');
 
         window.setTimeout(() => {
-          this.registeredUserData = { username, password, email };
-          this.registrationSuccess = true;
+          if(!result.error) {
+            this.registeredUserData = { username, password, email };
+            this.registrationSuccess = true;
+          } else {
+            this.registeredUserError = { message: result.message, data: { timeLeft: result.data?.timeLeft && -1 } }
+            this.registrationSuccess = false;
+          }
         }, 200);
+
       },
       error: (err: any) => {
         this.registering = false;
         this.registrationSuccess = false;
       }
     })
+  }
+
+  reset(): void {
+    document.getElementById('register__error').classList.add('fadeIn');
+    document.getElementById('register__input').classList.add('fadeIn');
   }
 
   addToLocalStorageButton(): void {

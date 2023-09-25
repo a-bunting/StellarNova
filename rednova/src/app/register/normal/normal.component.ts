@@ -54,6 +54,8 @@ export class NormalComponent implements OnInit {
       next: (result: DatabaseResult) => {
         this.registering = false;
 
+        console.log(result);
+
         document.getElementById('register__error').classList.add('fadeOut');
         document.getElementById('register__input').classList.add('fadeOut');
 

@@ -38,6 +38,7 @@ export interface SectorData {
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss']
 })
+
 export class GameComponent implements OnInit, OnDestroy {
 
   // observer data

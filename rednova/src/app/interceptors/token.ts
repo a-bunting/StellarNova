@@ -1,6 +1,5 @@
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from "@angular/common/http";
+import { HttpHandler, HttpInterceptor, HttpRequest } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
 import { AuthenticateService } from "../services/authenticate.service";
 
 @Injectable()
@@ -9,13 +8,16 @@ export class TokenInterceptor implements HttpInterceptor {
 
   constructor(private auth: AuthenticateService) {}
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const token: string = JSON.parse(localStorage.getItem('rednovaUserAuth'))?.token;
+    // add the token to all outgoing requests...
+    intercept(req: HttpRequest<any>, next: HttpHandler) {
 
-    if(token) {
-      req = req.clone({ setHeaders: { Authorization: `Bearer ${token}`}});
+      const token: string = JSON.parse(localStorage.getItem('rednovaUserAuth'))?.token;
+
+        // create a clone of the request to avoid bad things
+        const reqClone: HttpRequest<any> = req.clone({
+            headers: req.headers.set('Authorization', "Bearer " + token)
+        });
+
+        return next.handle(reqClone);
     }
-
-    return next.handle(req);
-  }
 }

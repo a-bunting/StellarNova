@@ -16,6 +16,19 @@
   background-image: linear-gradient(to bottom right, var(--colour-primary), var(--colour-secondary));
   box-shadow: .2rem 0 .4rem var(--colour-primary-light);
 
+  &--header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    h1 {
+      color: white;
+      font-weight: normal;
+    }
+  }
+
+
   &__galaxy {
     display: flex;
     justify-content: space-between;

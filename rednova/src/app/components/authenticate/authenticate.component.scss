@@ -25,9 +25,15 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    row-gap: 1rem;
+    column-gap: 1rem;
 
     &--title {
       font-size: 1.4rem;
+    }
+
+    input {
+      width: 20rem;
     }
 
     &:not(:last-of-type) { margin-bottom: .5rem; }

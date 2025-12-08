@@ -27,6 +27,7 @@ import { LogoComponent } from './utilities/logo/logo.component';
 import { RegisterComponent } from './register/register.component';
 import { NormalComponent } from './register/normal/normal.component';
 import { AnonComponent } from './register/anon/anon.component';
+import { EntrySystemComponent } from './entry/system/system.entry.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +52,8 @@ import { AnonComponent } from './register/anon/anon.component';
     LogoComponent,
     RegisterComponent,
     NormalComponent,
-    AnonComponent
+    AnonComponent,
+    EntrySystemComponent
   ],
   imports: [
     BrowserModule,

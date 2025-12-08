@@ -1,27 +1,130 @@
-.left-panel {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  width: 28rem;
+.main {
+  overflow-y: none;
+}
 
+.left-panel, .right-panel {
   z-index: 10;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max-content;
+  transform: translate(-50%, -50%);
+}
+
+.left-panel {
   background-image: linear-gradient(to bottom right, var(--colour-primary), var(--colour-secondary));
   border-radius: 1rem;
   padding: 1rem;
 }
 
-.right-panel {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 10;
+// reg9ster stuff
+.register {
+
+  &__popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+
+    &--background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(white, .5);
+    }
+
+    &--top {
+      z-index: 1001;
+    }
+  }
+
+  &__menu {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin-top: 2rem;
+  }
+
+  &__helpbox {
+    position: relative;
+  }
+
+  &__help {
+    padding: .5rem 1rem;
+    border-radius: .5rem;
+    box-shadow: .2rem 0 .4rem rgba(black, .5);
+    background-color: var(--colour-secondary);
+    align-self: center;
+    justify-self: center;
+    z-index: 10000000;
+    color: white;
+
+    &--box {
+      position: absolute;
+      top: 0;
+      left: 5rem;
+      width: 20rem;
+      padding: .5rem 1rem;
+      border-radius: 1rem;
+      background-image: linear-gradient(to bottom right, var(--colour-primary), var(--colour-secondary));
+      opacity: 0;
+      transition: all .2s;
+      visibility: hidden;
+      max-height: 0rem;
+    }
+
+    &:hover {
+      cursor: pointer;
+      background-color: var(--colour-secondary-light);
+
+      & + .register__help--box {
+        opacity: 1;
+        max-height: 30rem;
+        visibility: visible;
+      }
+    }
+  }
+
+  &__desc {
+    font-size: 1.4rem;
+    margin-bottom: .5rem;
+  }
+
+  &__button {
+    margin-right: 1rem;
+    width: 100%;
+  }
+
+  &__title {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: .5rem;
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+
+    &:not(:last-of-type) { margin-bottom: .5rem; }
+  }
+
+  .input__button {
+    text-align: center;
+  }
 }
 
-.logo {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 30rem;
-  height: 10rem;
+.input__checkbox {
+  display: block;
 }
+
+.fadeIn { opacity: 0; animation: fadeIn .2s ease-in-out 0s 1 forwards; }
+.fadeOut { opacity: 1; animation: fadeOut .2s ease-in-out 0s 1 forwards; }
+
+@keyframes fadeIn { 100% { opacity: 1; } }
+@keyframes fadeOut { 100% { opacity: 0; } }

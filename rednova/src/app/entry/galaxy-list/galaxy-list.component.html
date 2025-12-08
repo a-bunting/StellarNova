@@ -2,6 +2,10 @@
 
   <app-loading *ngIf="loadingGalaxies"></app-loading>
 
+  <div class="galaxy_list--header">
+    <h1>Select your galaxy</h1>
+  </div>
+
   <div class="galaxy-list__galaxy makeMaxHeightBig" *ngFor="let galaxy of galaxyList">
     <div class="galaxy-list__data">
       <div class="galaxy-list__data--name">{{ galaxy.name }}</div>

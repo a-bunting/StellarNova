@@ -1,14 +1,55 @@
-<div class="left-panel">
-  <app-authenticate></app-authenticate>
-  <app-register *ngIf="!user"></app-register>
-  <app-admin></app-admin>
+<div class="main">
+
+  <div class="left-panel">
+    <app-authenticate></app-authenticate>
+
+    <!-- register new user -->
+    <div class="register__menu" *ngIf="!user">
+
+      <div class="register__title">Create Account</div>
+
+      <div class="register__row">
+        <button class="register__button input__button" (click)="createStandardAccount()">Create Standard Account</button>
+        <div class="register__helpbox">
+          <div class="register__help">?</div>
+          <div class="register__help--box">
+            <div class="register__desc">Create an account with a personal email and password.</div>
+            <div class="register__desc">These accounts give you access only to servers with other fully registered players. These servers are generally more stable to play in and will encounter less cheating than the anonymous servers!</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="register__row">
+        <button class="register__button input__button" (click)="createAnonAccount()">Create Anonymous Account</button>
+        <div class="register__helpbox">
+          <div class="register__help">?</div>
+          <div class="register__help--box">
+            <div class="register__desc">Anonymous accounts do not ask for any personal details, however if you lose the details given to your then you will not be able to retrieve your account.</div>
+            <div class="register__desc">These accounts only have access to servers hosting other anonymous players, and may be subject to sheninigans!</div>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+    <app-admin></app-admin>
+  </div>
+
+  <div class="right-panel">
+    <app-galaxy-list></app-galaxy-list>
+  </div>
+
+  <!-- the sun and the stars -->
+  <app-entry-system></app-entry-system>
+
 </div>
 
-<div class="right-panel">
-  <app-galaxy-list></app-galaxy-list>
+<!-- register popups -->
+<div class="register__popup fadeIn" id="register__popup" *ngIf="createAccount">
+  <div class="register__popup--background" (click)="stopRegistration()"></div>
+  <div class="register__popup--top">
+    <app-normal *ngIf="!createAnon"></app-normal>
+    <app-anon *ngIf="createAnon"></app-anon>
+  </div>
 </div>
-
-<div class="logo">
-  <!-- <app-logo></app-logo> -->
-</div>
-<app-dashboard></app-dashboard>

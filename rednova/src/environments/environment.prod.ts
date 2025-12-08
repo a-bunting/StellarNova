@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://rednovaapi.sweeto.co.uk/api',
-  websocketUrl: 'https://rednovaapi.sweeto.co.uk/ws'
+  apiUrl: 'https://rednova-be.stellarnova.online/api',
+  websocketUrl: 'https://rednova-be.stellarnova.online/ws'
 };
